@@ -16,14 +16,14 @@
     <!-- Robot 1 -->
     <!-- Param -Y controls the Yaw (direction facing) - 3.14 is facing the negative x-axis -->
     <group ns="robot1">
-        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_model1.urdf.xacro" />
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
               args="-urdf -model robot1 -x 2 -y 0 -z $(arg z_pos) -Y 3.14 -param robot_description" />
     </group>
 
     <!-- Robot 2 -->
     <group ns="robot2">
-        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_model1.urdf.xacro" />
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
               args="-urdf -model robot2 -x 2 -y $(arg y_pos) -z $(arg z_pos) -Y 3.14 -param robot_description" />
@@ -31,7 +31,7 @@
 
     <!-- Robot 3 -->
     <group ns="robot3">
-        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_model2.urdf.xacro" />
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_blue.urdf.xacro" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
               args="-urdf -model robot3 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
@@ -39,7 +39,7 @@
 
     <!-- Robot 4 -->
     <group ns="robot4">
-        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_model2.urdf.xacro" />
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_blue.urdf.xacro" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
               args="-urdf -model robot4 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />

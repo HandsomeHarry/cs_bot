@@ -1,5 +1,5 @@
 <launch>
-  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
   <arg name="x_pos" default="-0.7"/>
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
@@ -13,7 +13,7 @@
     <arg name="debug" value="false"/>
   </include>  
 
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_model1.urdf.xacro" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
 
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_model1 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
