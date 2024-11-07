@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<robot name="csgo_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- Include Jackal robot description -->
+  <xacro:include filename="$(find jackal_description)/urdf/jackal.urdf.xacro" />
+
+  <!-- Team marker -->
+  <link name="team_marker">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="team_marker_red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.000001" ixy="0.0" ixz="0.0" 
+               iyy="0.000001" iyz="0.0" 
+               izz="0.000001"/>
+    </inertial>
+  </link>
+
+  <joint name="marker_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="team_marker"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Weapon -->
+  <link name="weapon">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.3"/>
+      </geometry>
+      <material name="weapon_black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.3"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.000001" ixy="0.0" ixz="0.0" 
+               iyy="0.000001" iyz="0.0" 
+               izz="0.000001"/>
+    </inertial>
+  </link>
+
+  <joint name="weapon_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="weapon"/>
+    <origin xyz="0.25 0 0.15" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Gazebo colors -->
+  <gazebo reference="team_marker">
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <gazebo reference="weapon">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+</robot>
