@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- load bot description -->
+  <param name="robot_description" 
+         command="$(find xacro)/xacro '$(find csgo_robot)/urdf/csgo_robot.urdf.xacro'"/>
+
+  <!-- launch Gazebo -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <!-- spawn robots -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+        args="-param robot_description -urdf -model csgo_robot"
+        output="screen"/>
+
+  <!-- publish TF -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0"/>
+  </node>
+</launch>
