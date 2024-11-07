@@ -1,11 +1,21 @@
 class Gun:
-    def __init__(self, name, damage, fire_rate, accuracy, ammo_capacity):
+    def __init__(self, name="Rifle", damage=25, fire_rate=0.2, accuracy=0.8, ammo_capacity=30):
         self.name = name
         self.damage = damage
-        self.fire_rate = fire_rate  # Shots per second
-        self.accuracy = accuracy  # Percentage chance to hit
+        self.fire_rate = fire_rate
+        self.accuracy = accuracy
         self.ammo_capacity = ammo_capacity
         self.ammo = ammo_capacity
+
+class Player:
+    def __init__(self, namespace, gun=None):
+        self.namespace = namespace
+        # If gun is None, create a default Gun object
+        self.gun = gun if gun is not None else Gun()
+        
+    def __repr__(self):
+        return f"Player(namespace={self.namespace}, gun={self.gun.name})"
+
 
     def reload(self):
         self.ammo = self.ammo_capacity

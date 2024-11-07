@@ -7,8 +7,8 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import actionlib
 
 class Player:
-    def __init__(self, namespace, gun):
-        self.namespace = namespace
+    def __init__(self, namespace, gun=Gun("Rifle", damage=25, fire_rate=0.2, accuracy=0.8, ammo_capacity=30)):
+        self.CT = namespace
         self.gun = gun
         self.move_base_client = actionlib.SimpleActionClient(f'{namespace}/move_base', MoveBaseAction)
         self.image_sub = rospy.Subscriber(f'{namespace}/raspicam_node/image/compressed', CompressedImage, self.image_cb)
