@@ -32,35 +32,50 @@ class Player:
         np_arr = np.frombuffer(msg.data, np.uint8)
         image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-        # Process image to find enemy color in the center strip
         height, width, _ = image.shape
-        center_strip = image[int(height * 0.4):int(height * 0.6), :]  # Taking a strip in the center
+        center_x = width // 2  # Horizontal center of the image
+        tolerance = 20  # Define tolerance for target alignment with the center
 
-        # Convert to HSV and create a mask for the enemy color
+        center_strip = image[int(height * 0.4):int(height * 0.6), :]  # 40%-60% height
+
         hsv_image = cv2.cvtColor(center_strip, cv2.COLOR_BGR2HSV)
-        lower_bound, upper_bound = self.get_color_bounds()
+        lower_bound, upper_bound = self.get_color_bounds()  # Get color bounds for the target
         mask = cv2.inRange(hsv_image, lower_bound, upper_bound)
-        target_visible = cv2.countNonZero(mask) > 0
 
-        if target_visible:
-            self.is_target_in_sight = True
-            self.turn_to()
-            self.shoot()
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        if contours: # If enemy color is detected
+            largest_contour = max(contours, key=cv2.contourArea)
+            M = cv2.moments(largest_contour)
+            if M["m00"] > 0:  
+                target_x = int(M["m10"] / M["m00"])
+
+                distance_from_center = target_x - center_x
+
+                if abs(distance_from_center) <= tolerance:
+                    self.shoot()  # Call the shoot method if aligned
+                    rospy.loginfo("Target aligned. Shooting.")
+                else:
+                    self.turn(distance_from_center)  # Call the turn method if not aligned
+                    rospy.loginfo(f"Target detected. Turning by {distance_from_center} pixels.")
+            else:
+                rospy.loginfo("No valid target detected within contours.")
         else:
-            self.is_target_in_sight = False
+            rospy.loginfo("No target detected in center strip.")
+
 
     def get_color_bounds(self):
-        if not self.CT:  # Terrorists red
+        if self.CT:  # Terrorists red
             return (0, 100, 100), (10, 255, 255)
         else:  # Blue
             return (110, 100, 100), (130, 255, 255)
 
-    def turn_to(self):
+    def turn(self, distance):
+        # Turn based on distance from center
         twist = Twist()
-        twist.angular.z = 0.3  # Rotate slowly to aim
+        twist.angular.z = -0.005 * distance  # Adjust turning speed based on distance
         self.cmd_vel_pub.publish(twist)
-        print(f"{self.namespace} is turning to target.")
+        rospy.loginfo(f"Turning with distance {distance} from center")
 
     def shoot(self):
-        if self.is_target_in_sight and self.gun.shoot():
-            print(f"{self.namespace} is shooting at the target!")
+        rospy.loginfo("Shooting!")
