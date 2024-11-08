@@ -10,7 +10,7 @@ class Player:
     def __init__(self, namespace, is_CT, gun=None):
         self.CT = is_CT
         self.state = None
-        self.gun = gun if gun is not None else Gun("Rifle", damage=20, fire_rate=0.2, accuracy=0.8, ammo_capacity=30)
+        self.gun = gun if gun is not None else Gun()
         self.move_base_client = actionlib.SimpleActionClient(f'{namespace}/move_base', MoveBaseAction)
         self.image_sub = rospy.Subscriber(f'{namespace}/raspicam_node/image/compressed', CompressedImage, self.image_cb)
         self.cmd_vel_pub = rospy.Publisher(f'{namespace}/cmd_vel', Twist, queue_size=10)

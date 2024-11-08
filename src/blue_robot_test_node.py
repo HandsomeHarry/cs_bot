@@ -7,7 +7,7 @@ from geometry_msgs.msg import Twist
 from move_base_msgs.msg import MoveBaseGoal
 from sensor_msgs.msg import CompressedImage
 import actionlib
-from Player import Player
+from player import Player
 from Gun import Gun
 
 class BlueRobotPlayer(Player):

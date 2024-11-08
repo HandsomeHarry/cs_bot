@@ -108,24 +108,38 @@ class ServerNode:
         else:
             self.robot_health[idx] = msg.data
 
-    def update_map(self):
-        """Visualizes robot positions and status on a 2D map."""
+    def update_map(self, robot_positions, bombsite_location, enemy_positions=[]):
+        """Visualizes the positions of robots, the bombsite, and detected enemies on a 2D map with unique colors for each robot."""
+        
+        # Define colors for each robot
+        robot_colors = ['red', 'yellow', 'green', 'blue']
+
+        # Clear and set up the plot
         self.ax.clear()
-        self.ax.set_xlim(-10, 10)
+        self.ax.set_xlim(-10, 10)  # Adjust limits based on map size
         self.ax.set_ylim(-10, 10)
         self.ax.set_title("Game Map Visualization")
         self.ax.set_xlabel("X Position (m)")
         self.ax.set_ylabel("Y Position (m)")
 
-        for i, alive in enumerate(self.players_alive):
-            if alive:
-                x, y = self.robot_positions[i]
-                robot_circle = Circle((x, y), 0.3, color='blue', alpha=0.6)
-                self.ax.add_patch(robot_circle)
-                self.ax.text(x, y + 0.5, f"Player {i + 1}", ha='center')
+        # Plot bombsite
+        bombsite_circle = Circle(bombsite_location, 0.5, color='purple', alpha=0.5, label="Bombsite")
+        self.ax.add_patch(bombsite_circle)
 
+        # Plot robot positions with unique colors
+        for i, (x, y) in enumerate(robot_positions):
+            robot_circle = Circle((x, y), 0.3, color=robot_colors[i % len(robot_colors)], alpha=0.6)
+            self.ax.add_patch(robot_circle)
+            self.ax.text(x, y + 0.5, f"Robot {i + 1}", ha='center', color=robot_colors[i % len(robot_colors)])
+
+        # Plot enemy positions (if any detected)
+        for ex, ey in enemy_positions:
+            enemy_circle = Circle((ex, ey), 0.3, color='black', alpha=0.6, label="Enemy")
+            self.ax.add_patch(enemy_circle)
+
+        plt.legend()
         plt.draw()
-        plt.pause(0.1)
+        plt.pause(0.1)  # Pause to allow the plot to update
 
     def run(self):
         rate = rospy.Rate(10)  # 10 Hz
