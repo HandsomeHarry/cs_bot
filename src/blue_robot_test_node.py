@@ -12,18 +12,10 @@ from Gun import Gun
 
 class BlueRobotPlayer(Player):
     def __init__(self):
-        gun = Gun(name="Rifle", damage=25, fire_rate=0.2, accuracy=0.8, ammo_capacity=30)
-        super().__init__(namespace="robot2", gun=gun, personality="rusher")
-        
-        # Enemy detection color (red for T side)
-        self.enemy_color = (0, 0, 255)  # Red in BGR
-
-        # Stop flag when enemy is detected
-        self.enemy_detected = False
 
     def move_to_top(self):
         # Example coordinates at the top of the map, adjust as necessary
-        top_x, top_y = 0, 3.0
+        top_x, top_y = 0, 2.0
         self.move_to(top_x, top_y)
 
     def image_cb(self, msg):

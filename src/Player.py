@@ -7,15 +7,13 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import actionlib
 
 class Player:
-    def __init__(self, namespace, gun=Gun("Rifle", damage=25, fire_rate=0.2, accuracy=0.8, ammo_capacity=30)):
-        self.CT = namespace
-        self.gun = gun
+    def __init__(self, namespace, is_CT, gun=None):
+        self.CT = is_CT
+        self.state = None
+        self.gun = gun if gun is not None else Gun("Rifle", damage=20, fire_rate=0.2, accuracy=0.8, ammo_capacity=30)
         self.move_base_client = actionlib.SimpleActionClient(f'{namespace}/move_base', MoveBaseAction)
         self.image_sub = rospy.Subscriber(f'{namespace}/raspicam_node/image/compressed', CompressedImage, self.image_cb)
         self.cmd_vel_pub = rospy.Publisher(f'{namespace}/cmd_vel', Twist, queue_size=10)
-
-        self.enemy_color = (0, 0, 255) if "CT" in namespace else (255, 0, 0)  # Red for CT, Blue for T
-        self.is_target_in_sight = False
 
     def move_to(self, x, y):
         goal = MoveBaseGoal()
@@ -40,7 +38,7 @@ class Player:
 
         # Convert to HSV and create a mask for the enemy color
         hsv_image = cv2.cvtColor(center_strip, cv2.COLOR_BGR2HSV)
-        lower_bound, upper_bound = self.get_color_bounds(self.enemy_color)
+        lower_bound, upper_bound = self.get_color_bounds()
         mask = cv2.inRange(hsv_image, lower_bound, upper_bound)
         target_visible = cv2.countNonZero(mask) > 0
 
@@ -51,10 +49,10 @@ class Player:
         else:
             self.is_target_in_sight = False
 
-    def get_color_bounds(self, color):
-        if color == (0, 0, 255):  # Red
+    def get_color_bounds(self):
+        if not self.CT:  # Terrorists red
             return (0, 100, 100), (10, 255, 255)
-        elif color == (255, 0, 0):  # Blue
+        else:  # Blue
             return (110, 100, 100), (130, 255, 255)
 
     def turn_to(self):
@@ -66,15 +64,3 @@ class Player:
     def shoot(self):
         if self.is_target_in_sight and self.gun.shoot():
             print(f"{self.namespace} is shooting at the target!")
-
-# Example usage
-if __name__ == "__main__":
-    rospy.init_node('player_control', anonymous=True)
-
-    bomb_site = (2.0, 3.0)  # Example coordinates, replace with actual file loading logic
-
-    rifle = Gun("Rifle", damage=25, fire_rate=0.2, accuracy=0.8, ammo_capacity=30)
-    player1 = Player("robot1", rifle)
-
-    player1.move_to(*bomb_site)
-    rospy.spin()
