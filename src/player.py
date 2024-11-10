@@ -5,11 +5,13 @@ from geometry_msgs.msg import Twist, PoseStamped
 from sensor_msgs.msg import CompressedImage
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import actionlib
+from gun import Gun
 
 class Player:
     def __init__(self, namespace, is_CT, gun=None):
+        self.namespace = namespace
         self.CT = is_CT
-        self.state = None
+        self.state = "idle"
         self.gun = gun if gun is not None else Gun()
         self.move_base_client = actionlib.SimpleActionClient(f'{namespace}/move_base', MoveBaseAction)
         self.image_sub = rospy.Subscriber(f'{namespace}/raspicam_node/image/compressed', CompressedImage, self.image_cb)
@@ -39,8 +41,14 @@ class Player:
         center_strip = image[int(height * 0.4):int(height * 0.6), :]  # 40%-60% height
 
         hsv_image = cv2.cvtColor(center_strip, cv2.COLOR_BGR2HSV)
-        lower_bound, upper_bound = self.get_color_bounds()  # Get color bounds for the target
-        mask = cv2.inRange(hsv_image, lower_bound, upper_bound)
+        if self.CT:
+            # Create two masks for red and combine them
+            mask1 = cv2.inRange(hsv_image, self.get_color_bounds()[0], self.get_color_bounds()[1])
+            mask2 = cv2.inRange(hsv_image, self.get_color_bounds()[2], self.get_color_bounds()[3])
+            mask = cv2.bitwise_or(mask1, mask2)
+        else:
+            # Blue mask
+            mask = cv2.inRange(hsv_image, self.get_color_bounds()[0], self.get_color_bounds()[1])
 
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
@@ -66,9 +74,11 @@ class Player:
 
     def get_color_bounds(self):
         if self.CT:  # Terrorists red
-            return (0, 100, 100), (10, 255, 255)
+            # Return two ranges for red color in HSV
+            return [(0, 100, 100), (10, 255, 255),  # Lower red range
+                    (170, 100, 100), (180, 255, 255)]  # Upper red range
         else:  # Blue
-            return (110, 100, 100), (130, 255, 255)
+            return [(110, 100, 100), (130, 255, 255)]  # Blue range
 
     def turn(self, distance):
         # Turn based on distance from center
