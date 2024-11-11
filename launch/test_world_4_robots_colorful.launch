@@ -23,7 +23,7 @@
 
     <!-- Robot 2 -->
     <group ns="robot2">
-        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_darkred.urdf.xacro" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
               args="-urdf -model robot2 -x 2 -y $(arg y_pos) -z $(arg z_pos) -Y 3.14 -param robot_description" />
@@ -39,7 +39,7 @@
 
     <!-- Robot 4 -->
     <group ns="robot4">
-        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_blue.urdf.xacro" />
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_darkblue.urdf.xacro" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
               args="-urdf -model robot4 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
