@@ -184,7 +184,7 @@ class ServerNode:
     #     self.game_state = new_state
     #     self.state_pub.publish(new_state)
     #     rospy.loginfo(f"Game State Changed to: {new_state}")
-        
+
     # def reset_round(self):
     #     self.round_timer = 60
     #     self.bomb_planted = False

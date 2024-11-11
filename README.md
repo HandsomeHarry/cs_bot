@@ -15,10 +15,12 @@ Before starting, run the following in console to set up map:
 `rosrun map_server map_saver -f $(find cs_bot)/maps/map`
 The arena will be bound by colored tape, after a robot player ‘dies’, it’ll stay put. The robots will try to ‘kill’ each other.
 
+
+
 ## Bot node:
 - Movement logic
-- Be able to tell where it and its teammate currently located with fiducials on walls and report to server node
-- Each have their own namespaces (/robot1/cmd_vel)
+- Be able to tell where it and its teammate currently located with SLAM and report to server node
+- Each have their own namespaces (e.g. /bot1/cmd_vel)
 - Recognizing other robots, tell if is enemy or teammate (a block of color at a specific height)
 - Use camera to detect relative angle of enemy, turns to it and shoot
 - More complicated navigation algorithms (getting to bombsite, planting, defending)
