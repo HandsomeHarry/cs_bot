@@ -8,8 +8,12 @@ This is a ROS implemented 2v2 wingman robot game of shooting opponents digitally
 - 3.2s for planting, 5s for defuse
 - First to 3 wins
 
-Before starting, put the blocks up according to the map making sure fiducials are on the right sides. Map the world by making a single robot walk around the map.
-The arena will be bound by colored tape, after a robot player ‘dies’, it’ll move outside the tape to not interfere with the rest of the game. The robots will try to ‘kill’ each other.
+Before starting, run the following in console to set up map:
+`roslaunch cs_bot test_world.launch`
+`roslaunch turtlebot3_slam turtlebot3_slam.launch`
+`teleop`
+`rosrun map_server map_saver -f $(find cs_bot)/maps/map`
+The arena will be bound by colored tape, after a robot player ‘dies’, it’ll stay put. The robots will try to ‘kill’ each other.
 
 ## Bot node:
 - Movement logic
@@ -48,3 +52,4 @@ The arena will be bound by colored tape, after a robot player ‘dies’, it’l
 - Odom (locating and detecting where each robot is on the map)
 - Map setup, localization, and simulation (Gazebo, RViz).
 - How to set up the bombsite in the map for the robots to know where to go (colored tape?)
+

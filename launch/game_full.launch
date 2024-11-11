@@ -1,0 +1,32 @@
+<launch>
+    <!-- change this launch file to the one with the world you want to use -->
+    <include file="$(find cs_bot)/launch/test_world_4_robots_colorful.launch"/>
+
+    <!-- Launch navigation for each robot -->
+    <group ns="robot1">
+        <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">
+            <arg name="map_file" value="$(find cs_bot)/maps/test_map.yaml"/>
+        </include>
+    </group>
+
+    <group ns="robot2">
+        <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">
+            <arg name="map_file" value="$(find cs_bot)/maps/test_map.yaml"/>
+        </include>
+    </group>
+
+    <group ns="robot3">
+        <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">
+            <arg name="map_file" value="$(find cs_bot)/maps/test_map.yaml"/>
+        </include>
+    </group>
+
+    <group ns="robot4">
+        <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">
+            <arg name="map_file" value="$(find cs_bot)/maps/test_map.yaml"/>
+        </include>
+    </group>
+
+    <!-- Launch the server node -->
+    <node pkg="cs_bot" type="server.py" name="server_node" output="screen"/>
+</launch> 
