@@ -8,12 +8,12 @@ from move_base_msgs.msg import MoveBaseGoal
 from sensor_msgs.msg import CompressedImage
 import actionlib
 from player import Player
-from Gun import Gun
+from gun import Gun
 
 class BlueRobotPlayer(Player):
     def __init__(self):
         super().__init__(namespace="robot2", is_CT=True)
-    
+
     def move_to_top(self):
         # Example coordinates at the top of the map, adjust as necessary
         top_x, top_y = 0, 2.0
