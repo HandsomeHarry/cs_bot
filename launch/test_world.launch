@@ -4,6 +4,9 @@
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
 
+  <arg name="map_file" default="$(find turtlebot3_navigation)/maps/map.yaml"/>
+  <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find cs_bot)/worlds/test.world"/>
     <arg name="paused" value="false"/>
