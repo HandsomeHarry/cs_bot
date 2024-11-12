@@ -34,6 +34,11 @@ class ServerNode:
             'CT': ['blue', 'blue']
         }
 
+        # Random assignment setup
+        self.personalities = ['rusher', 'normie', 'baiter']
+        self.weapons = ['rifle', 'sniper', 'smg']
+        self.assign_personalities_and_weapons()
+
         # Visualization setup
         self.fig, self.ax = plt.subplots()
         plt.ion()
