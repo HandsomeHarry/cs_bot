@@ -6,8 +6,8 @@
 <gazebo reference="base_link">
   <visual>
     <material>
-      <ambient>0.75 0 0 1</ambient>   <!-- Dark red with full opacity -->
-      <diffuse>0.75 0 0 1</diffuse>   <!-- Dark red with full opacity -->
+      <ambient>0.7 0 0 1</ambient>   <!-- Dark red with full opacity -->
+      <diffuse>0.7 0 0 1</diffuse>   <!-- Dark red with full opacity -->
     </material>
   </visual>
 </gazebo>
