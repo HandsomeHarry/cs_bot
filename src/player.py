@@ -16,6 +16,8 @@ class Player:
         self.move_base_client = actionlib.SimpleActionClient(f'{namespace}/move_base', MoveBaseAction)
         self.image_sub = rospy.Subscriber(f'{namespace}/raspicam_node/image/compressed', CompressedImage, self.image_cb)
         self.cmd_vel_pub = rospy.Publisher(f'{namespace}/cmd_vel', Twist, queue_size=10)
+        self.pose_pub = rospy.Publisher(f'{namespace}/target_pose', PoseStamped, queue_size=10)
+
 
     def move_to(self, x, y):
         goal = MoveBaseGoal()
@@ -70,6 +72,23 @@ class Player:
                 rospy.loginfo("No valid target detected within contours.")
         else:
             rospy.loginfo("No target detected in center strip.")
+
+    def publish_pose(self, x, y):
+        pose_msg = PoseStamped()
+        pose_msg.header.stamp = rospy.Time.now()
+        pose_msg.header.frame_id = "map"  # Change to your desired frame if needed
+
+        pose_msg.pose.position.x = x
+        pose_msg.pose.position.y = y
+        pose_msg.pose.position.z = 0.0  # Default to 0 for z
+
+        pose_msg.pose.orientation.x = 0.0
+        pose_msg.pose.orientation.y = 0.0
+        pose_msg.pose.orientation.z = 0.0
+        pose_msg.pose.orientation.w = 1.0  # No rotation in quaternion
+
+        rospy.loginfo(f"Publishing pose: x={x}, y={y}")
+        self.pose_pub.publish(pose_msg)
 
 
     def get_color_bounds(self):

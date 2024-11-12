@@ -59,10 +59,12 @@ class BlueRobotPlayer(Player):
 if __name__ == "__main__":
     rospy.init_node('blue_robot_test_node', anonymous=True)
     namespace = rospy.get_param("~namespace", "robot1")  # Default to "robot1"
-    player = Player(namespace=namespace)
+    player = Player('robot2', True)
+
+    top_x, top_y = 2.0,0.0
+    player.publish_pose(-2,0.0)
+    player.move_to(top_x, top_y)
     
     # Start moving to the top of the map
-    player.move_to_top()
-
     # Spin to keep the node active
     rospy.spin()
