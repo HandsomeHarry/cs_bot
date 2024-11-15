@@ -1,8 +1,5 @@
 <launch>
   <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
-  <arg name="x_pos" default="-0.7"/>
-  <arg name="y_pos" default="0.0"/>
-  <arg name="z_pos" default="0.0"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find cs_bot)/worlds/test2.world"/>
@@ -13,8 +10,26 @@
     <arg name="debug" value="false"/>
   </include>  
 
+  <!-- First TurtleBot -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_model1 -x -8.55 -y -2.5 -z 0 -param robot_description" />
 
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_model1 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+  <!-- Second TurtleBot -->
+  <group ns="tb2">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
+    <node name="spawn_urdf2" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_model2 -x -8.55 -y -3.5 -z 0 -param robot_description" />
+  </group>
+
+  <!-- Third TurtleBot -->
+  <group ns="tb3">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_blue.urdf.xacro" />
+    <node name="spawn_urdf3" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_model3 -x 5.20 -y -0.0 -z 0 -param robot_description" />
+  </group>
+
+  <!-- Fourth TurtleBot -->
+  <group ns="tb4">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_blue.urdf.xacro" />
+    <node name="spawn_urdf4" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_model4 -x 5.20 -y -1.0 -z 0 -param robot_description" />
+  </group>
 
 </launch>
