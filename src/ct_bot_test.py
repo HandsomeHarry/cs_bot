@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Finite state machine for robot
+
 import rospy
 import cv2
 import numpy as np

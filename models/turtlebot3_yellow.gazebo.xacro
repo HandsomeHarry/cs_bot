@@ -3,14 +3,9 @@
   <xacro:arg name="laser_visual" default="false"/>
   <xacro:arg name="imu_visual"   default="false"/>
 
-  <gazebo reference="base_link">
-    <visual>
-      <material>
-        <ambient>0 0 0.7 1</ambient>   <!-- Dark blue with full opacity -->
-        <diffuse>0 0 0.7 1</diffuse>   <!-- Dark blue with full opacity -->
-      </material>
-    </visual>
-  </gazebo>
+<gazebo reference="base_link">
+  <material>Gazebo/Yellow</material>
+</gazebo>
 
 
   <gazebo reference="wheel_left_link">
