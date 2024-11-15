@@ -2,6 +2,8 @@
 import rospy
 import actionlib
 
+# this is a sample patrol script to test move_base
+
 # move_base is the package that takes goals for navigation
 # there are different implemenetations with a common interface
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
