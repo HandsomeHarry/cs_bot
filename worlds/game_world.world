@@ -1,0 +1,462 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="cs_game_world">
+    <!-- Basic environment settings -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Physics engine parameter settings -->
+    <physics type="ode">
+      <real_time_update_rate>1000.0</real_time_update_rate>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>150</iters>
+          <precon_iters>0</precon_iters>
+          <sor>1.400000</sor>
+          <use_dynamic_moi_rescaling>1</use_dynamic_moi_rescaling>
+        </solver>
+        <constraints>
+          <cfm>0.00001</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>2000.000000</contact_max_correcting_vel>
+          <contact_surface_layer>0.01000</contact_surface_layer>
+        </constraints>
+      </ode>
+    </physics>
+
+    <!-- Boundary walls -->
+    <model name="boundary_wall_1">
+      <static>true</static>
+      <pose>10 0 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.2 20 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.2 20 2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Bricks</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Other three boundary walls -->
+    <model name="boundary_wall_2">
+      <static>true</static>
+      <pose>-10 0 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.2 20 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.2 20 2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Bricks</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="boundary_wall_3">
+      <static>true</static>
+      <pose>0 10 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>20 0.2 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>20 0.2 2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Bricks</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="boundary_wall_4">
+      <static>true</static>
+      <pose>0 -10 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>20 0.2 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>20 0.2 2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Bricks</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- A site area -->
+    <!-- A site main building -->
+    <model name="a_site">
+      <static>true</static>
+      <pose>7 7 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>4 4 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>4 4 2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Concrete</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- B site area -->
+    <!-- B site main building -->
+    <model name="b_site">
+      <static>true</static>
+      <pose>-7 -7 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>4 4 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>4 4 2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Concrete</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    
+
+    <!-- Small cover group 1 -->
+    <model name="cover_group_1">
+      <static>true</static>
+      <pose>4.5 2.8 0.5 0 0 0.523</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>2 0.2 1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>2 0.2 1</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Small cover group 2 -->
+    <model name="cover_group_2">
+      <static>true</static>
+      <pose>-3.2 -5.1 0.5 0 0 0.915</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>2 0.2 1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>2 0.2 1</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Small cover group 3  -->
+    <model name="cover_group_3">
+      <static>true</static>
+      <pose>-5.8 2.3 0.5 0 0 0.2</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>1.5 0.2 1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.5 0.2 1</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Crate group 1 -->
+    <model name="crates_1">
+      <static>true</static>
+      <pose>3.5 -2.8 0.5 0 0 0.25</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Crate group 2 -->
+    <model name="crates_2">
+      <static>true</static>
+      <pose>-2.1 4.3 0.5 0 0 0.392</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Crate group 3  -->
+    <model name="crates_3">
+      <static>true</static>
+      <pose>1.8 5.2 0.5 0 0 0.785</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.8 0.8 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8 0.8 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Barrel 1 -->
+    <model name="barrel_1">
+      <static>true</static>
+      <pose>2.8 3.2 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>0.3</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.3</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Blue</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Barrel 2 -->
+    <model name="barrel_2">
+      <static>true</static>
+      <pose>-1.5 -3.8 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>0.3</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.3</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Blue</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Barrel 3 -->
+    <model name="barrel_3">
+      <static>true</static>
+      <pose>-4.2 0.8 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>0.3</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.3</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Blue</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

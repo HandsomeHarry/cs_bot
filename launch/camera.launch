@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robot_name"/>
+    
+    <group ns="$(arg robot_name)">
+        <!-- Camera Configuration -->
+        <node pkg="gazebo_ros" type="gazebo_ros_camera" name="camera_controller">
+            <remap from="camera/image_raw" to="camera/image_raw"/>
+            <remap from="camera/camera_info" to="camera/camera_info"/>
+            <param name="frame_id" value="$(arg robot_name)/camera_link"/>
+        </node>
+
+        <!-- Image Transport -->
+        <node pkg="image_transport" type="republish" name="republish"
+              args="raw in:=camera/image_raw compressed out:=camera/image">
+        </node>
+
+        <!-- ArUco Detect -->
+        <node pkg="aruco_detect" type="aruco_detect" name="aruco_detect">
+            <param name="image_transport" value="compressed"/>
+            <param name="publish_images" value="true"/>
+            <param name="fiducial_len" value="0.14"/>
+            <param name="dictionary" value="0"/>
+            <remap from="/camera/compressed" to="camera/image/compressed"/>
+            <remap from="/camera_info" to="camera/camera_info"/>
+        </node>
+
+        <!-- Fiducial SLAM -->
+        <node pkg="fiducial_slam" type="fiducial_slam" name="fiducial_slam">
+            <param name="map_frame" value="map"/>
+            <param name="odom_frame" value="$(arg robot_name)/odom"/>
+            <param name="base_frame" value="$(arg robot_name)/base_footprint"/>
+            <param name="future_date_transforms" value="0.1"/>
+            <param name="publish_6dof_pose" value="true"/>
+        </node>
+    </group>
+</launch>

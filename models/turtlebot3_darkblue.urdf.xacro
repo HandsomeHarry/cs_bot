@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="turtlebot3_model1" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find turtlebot3_description)/urdf/common_properties.xacro"/>
-  <xacro:include filename="$(find cs_bot)/models/turtlebot3_darkred.gazebo.xacro"/>
+  <xacro:include filename="$(find cs_bot)/models/turtlebot3_darkblue.gazebo.xacro"/>
 
   <link name="base_footprint"/>
 
@@ -17,7 +17,7 @@
       <geometry>
         <mesh filename="package://turtlebot3_description/meshes/bases/burger_base.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="yellow"/>
+      <material name="red"/>
     </visual>
 
     <collision>

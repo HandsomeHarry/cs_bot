@@ -4,7 +4,12 @@
   <xacro:arg name="imu_visual"   default="false"/>
 
   <gazebo reference="base_link">
-    <material>Gazebo/Green</material>
+    <visual>
+      <material>
+        <ambient>0 0 0.75 1</ambient>   <!-- Dark blue with full opacity -->
+        <diffuse>0 0 0.75 1</diffuse>   <!-- Dark blue with full opacity -->
+      </material>
+    </visual>
   </gazebo>
 
 

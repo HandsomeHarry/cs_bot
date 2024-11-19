@@ -1,0 +1,82 @@
+<launch>
+    <arg name="robot_name" default="robot1"/>
+    <arg name="x_pos" default="0.0"/>
+    <arg name="y_pos" default="0.0"/>
+    <arg name="team_color" default="red"/>
+    
+    <!-- Gazebo -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find cs_game)/worlds/game_world.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+
+    <group ns="$(arg robot_name)">
+        <!-- modify tf_prefix position and setting method -->
+        <param name="tf_prefix" value="$(arg robot_name)"/>
+        
+        <!-- load robot model -->
+        <param name="robot_description" 
+               command="$(find xacro)/xacro --inorder $(find cs_game)/urdf/cs_robot_$(arg team_color).urdf.xacro robot_name:=$(arg robot_name)" />
+        
+        <!-- Spawn Robot -->
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+              args="-urdf -model $(arg robot_name) 
+                    -x $(arg x_pos) -y $(arg y_pos) -z 0
+                    -param robot_description"
+              output="screen" />
+
+        <!-- Robot State Publisher -->
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="$(arg robot_name)"/>
+        </node>
+
+        <!-- add SLAM node -->
+        <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+            <param name="base_frame" value="$(arg robot_name)/base_footprint"/>
+            <param name="odom_frame" value="$(arg robot_name)/odom"/>
+            <param name="map_frame" value="map"/>
+            <param name="map_update_interval" value="1.0"/>
+            <param name="maxUrange" value="5.0"/>
+            <param name="sigma" value="0.05"/>
+            <param name="kernelSize" value="1"/>
+            <param name="lstep" value="0.05"/>
+            <param name="astep" value="0.05"/>
+            <param name="iterations" value="5"/>
+            <param name="lsigma" value="0.075"/>
+            <param name="ogain" value="3.0"/>
+            <param name="minimumScore" value="50"/>
+        </node>
+	
+        <!-- Basic Navigation -->
+        <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+            <rosparam file="$(find cs_game)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find cs_game)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find cs_game)/config/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_game)/config/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_game)/config/move_base_params.yaml" command="load" />
+
+            <!-- explicitly specify frame_id -->
+            <param name="global_costmap/global_frame" value="map"/>
+            <param name="global_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint"/>
+            <param name="local_costmap/global_frame" value="$(arg robot_name)/odom"/>
+            <param name="local_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint"/>
+            <param name="planner_frequency" value="1.0"/>
+            <param name="planner_patience" value="5.0"/>
+            <param name="controller_frequency" value="5.0"/>
+            <param name="controller_patience" value="15.0"/>
+            <param name="recovery_behavior_enabled" value="true"/>
+            <param name="clearing_rotation_allowed" value="true"/>
+        </node>
+    </group>
+
+    <!-- Include camera and fiducial detection -->
+    <include file="$(find cs_game)/launch/camera.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+    </include>
+
+</launch>

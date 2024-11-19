@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<robot name="cs_robot_blue" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="robot_name" default="robot"/>
+  
+  <xacro:include filename="$(find turtlebot3_description)/urdf/turtlebot3_burger.urdf.xacro"/>
+  
+  <!-- Camera Gazebo plugin configuration -->
+  <gazebo reference="camera_link">
+    <material>Gazebo/Blue</material>
+    <sensor type="camera" name="camera">
+      <update_rate>30.0</update_rate>
+      <camera name="head">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>600</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30.0</updateRate>
+        <cameraName>camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>$(arg robot_name)/camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+  
+  <!-- Other color configuration -->
+  <gazebo reference="base_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+  
+  <gazebo reference="wheel_left_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+  
+  <gazebo reference="wheel_right_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <!-- Burger-specific part color configuration -->
+  <gazebo reference="caster_back_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+</robot>
