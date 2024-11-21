@@ -1,12 +1,12 @@
 <launch>
     <!-- load map config -->
-    <node name="map_manager" pkg="cs_game" type="map_manager.py" output="screen">
-        <param name="map_config" value="$(find cs_game)/config/map_config.yaml"/>
+    <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen">
+        <param name="map_config" value="$(find cs_bot)/config/map_config.yaml"/>
     </node>
 
     <!-- start Gazebo simulation -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_game)/worlds/game_world.world"/>
+        <arg name="world_name" value="$(find cs_bot)/worlds/game_world.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>

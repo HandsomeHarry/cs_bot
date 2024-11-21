@@ -2,7 +2,7 @@
 <launch>
     <!-- Start Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_game)/worlds/game_world.world"/>
+        <arg name="world_name" value="$(find cs_bot)/worlds/game_world.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
@@ -12,7 +12,7 @@
 
     <!-- T team robots -->
     <!-- T team robot 1 -->
-    <include file="$(find cs_game)/launch/single_robot_no_gazebo.launch">
+    <include file="$(find cs_bot)/launch/single_robot_no_gazebo.launch">
         <arg name="robot_name" value="t_robot1"/>
         <arg name="x_pos" value="0.0"/>
         <arg name="y_pos" value="0.0"/>
@@ -20,7 +20,7 @@
     </include>
 
     <!-- T team robot 2 -->
-    <include file="$(find cs_game)/launch/single_robot_no_gazebo.launch">
+    <include file="$(find cs_bot)/launch/single_robot_no_gazebo.launch">
         <arg name="robot_name" value="t_robot2"/>
         <arg name="x_pos" value="1.0"/>
         <arg name="y_pos" value="0.0"/>
@@ -29,7 +29,7 @@
 
     <!-- CT team robots -->
     <!-- CT team robot 1 -->
-    <include file="$(find cs_game)/launch/single_robot_no_gazebo.launch">
+    <include file="$(find cs_bot)/launch/single_robot_no_gazebo.launch">
         <arg name="robot_name" value="ct_robot1"/>
         <arg name="x_pos" value="0.0"/>
         <arg name="y_pos" value="5.0"/>
@@ -37,7 +37,7 @@
     </include>
 
     <!-- CT team robot 2 -->
-    <include file="$(find cs_game)/launch/single_robot_no_gazebo.launch">
+    <include file="$(find cs_bot)/launch/single_robot_no_gazebo.launch">
         <arg name="robot_name" value="ct_robot2"/>
         <arg name="x_pos" value="1.0"/>
         <arg name="y_pos" value="5.0"/>
@@ -45,35 +45,35 @@
     </include>
 
     <!-- T team robot controller -->
-    <node pkg="cs_game" type="robot_controller.py" name="t_robot1_controller" output="screen">
+    <node pkg="cs_bot" type="robot_controller.py" name="t_robot1_controller" output="screen">
         <param name="robot_name" value="t_robot1"/>
         <param name="team" value="T"/>
         <param name="weapon" value="RIFLE"/>
     </node>
 
-    <node pkg="cs_game" type="robot_controller.py" name="t_robot2_controller" output="screen">
+    <node pkg="cs_bot" type="robot_controller.py" name="t_robot2_controller" output="screen">
         <param name="robot_name" value="t_robot2"/>
         <param name="team" value="T"/>
         <param name="weapon" value="SMG"/>
     </node>
 
     <!-- CT team robot controller -->
-    <node pkg="cs_game" type="robot_controller.py" name="ct_robot1_controller" output="screen">
+    <node pkg="cs_bot" type="robot_controller.py" name="ct_robot1_controller" output="screen">
         <param name="robot_name" value="ct_robot1"/>
         <param name="team" value="CT"/>
         <param name="weapon" value="RIFLE"/>
     </node>
 
-    <node pkg="cs_game" type="robot_controller.py" name="ct_robot2_controller" output="screen">
+    <node pkg="cs_bot" type="robot_controller.py" name="ct_robot2_controller" output="screen">
         <param name="robot_name" value="ct_robot2"/>
         <param name="team" value="CT"/>
         <param name="weapon" value="SNIPER"/>
     </node>
 
     <!-- Game manager node -->
-    <node pkg="cs_game" type="game_manager.py" name="game_manager" output="screen"/>
+    <node pkg="cs_bot" type="game_manager.py" name="game_manager" output="screen"/>
 
     <!-- Start RViz visualization -->
     <node name="rviz" pkg="rviz" type="rviz" 
-          args="-d $(find cs_game)/rviz/test_config.rviz" />
+          args="-d $(find cs_bot)/rviz/test_config.rviz" />
 </launch>

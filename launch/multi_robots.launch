@@ -1,7 +1,7 @@
 <launch>
     <!-- Start Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_game)/worlds/cs_arena.world"/>
+        <arg name="world_name" value="$(find cs_bot)/worlds/cs_arena.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
@@ -10,25 +10,25 @@
     </include>
 
     <!-- Start four robots -->
-    <include file="$(find cs_game)/launch/single_robot.launch">
+    <include file="$(find cs_bot)/launch/single_robot.launch">
         <arg name="robot_name" value="robot1"/>
         <arg name="x_pos" value="0.0"/>
         <arg name="y_pos" value="0.0"/>
     </include>
 
-    <include file="$(find cs_game)/launch/single_robot.launch">
+    <include file="$(find cs_bot)/launch/single_robot.launch">
         <arg name="robot_name" value="robot2"/>
         <arg name="x_pos" value="1.0"/>
         <arg name="y_pos" value="0.0"/>
     </include>
 
-    <include file="$(find cs_game)/launch/single_robot.launch">
+    <include file="$(find cs_bot)/launch/single_robot.launch">
         <arg name="robot_name" value="robot3"/>
         <arg name="x_pos" value="0.0"/>
         <arg name="y_pos" value="1.0"/>
     </include>
 
-    <include file="$(find cs_game)/launch/single_robot.launch">
+    <include file="$(find cs_bot)/launch/single_robot.launch">
         <arg name="robot_name" value="robot4"/>
         <arg name="x_pos" value="1.0"/>
         <arg name="y_pos" value="1.0"/>
