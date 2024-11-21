@@ -88,10 +88,10 @@ if __name__ == '__main__':
         navigator = NavigationTest()
         # test points
         test_points = [
-            (1.0, 0.0),
+            (3.0, 4.0),
             (1.0, 1.0),
             (0.0, 1.0),
-            (0.0, 0.0)
+            (6.0, 0.0)
         ]
         
         for x, y in test_points:
