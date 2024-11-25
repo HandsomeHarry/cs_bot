@@ -52,11 +52,11 @@ class GameManager:
             if self.bomb_planted:
                 self.bomb_time -= 1
                 if self.bomb_time <= 0:
-                    self.end_round("T")  # bomb exploded, T wins
+                    self.end_round("Terrorists")  # bomb exploded, T wins
             else:
                 self.round_time -= 1
                 if self.round_time <= 0:
-                    self.end_round("CT")  # time runs out, CT wins
+                    self.end_round("Counter-Terrorists")  # time runs out, CT wins
                     
         self.publish_game_state()
         
@@ -83,7 +83,7 @@ class GameManager:
     def end_round(self, winner):
         """end round"""
         self.round_active = False
-        rospy.loginfo("Round ended. Winner: %s" % winner)
+        rospy.loginfo("%s win" % winner)
         self.reset_round()
         
     def reset_round(self):

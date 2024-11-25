@@ -1,7 +1,8 @@
+<?xml version="1.0"?>
 <launch>
-    <!-- Start Gazebo -->
+    <!-- Start Gazebo with game world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_bot)/worlds/cs_arena.world"/>
+        <arg name="world_name" value="$(find cs_bot)/worlds/game_world.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
@@ -9,28 +10,113 @@
         <arg name="debug" value="false"/>
     </include>
 
-    <!-- Start four robots -->
-    <include file="$(find cs_bot)/launch/single_robot.launch">
-        <arg name="robot_name" value="robot1"/>
-        <arg name="x_pos" value="0.0"/>
-        <arg name="y_pos" value="0.0"/>
+    <!-- T team robot -->
+    <group ns="t_robot1">
+        <!-- modify tf_prefix position and setting method -->
+        <param name="tf_prefix" value="t_robot1"/>
+        
+        <!-- load robot model -->
+        <param name="robot_description" 
+               command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/cs_robot_red.urdf.xacro robot_name:=t_robot1" />
+        
+        <!-- Spawn Robot -->
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+              args="-urdf -model t_robot1 
+                    -x 0.0 -y 0.0 -z 0
+                    -param robot_description"
+              output="screen" />
+
+        <!-- Robot State Publisher -->
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="t_robot1"/>
+        </node>
+
+        <!-- SLAM node -->
+        <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+            <param name="base_frame" value="t_robot1/base_footprint"/>
+            <param name="odom_frame" value="t_robot1/odom"/>
+            <param name="map_frame" value="map"/>
+        </node>
+
+        <!-- Navigation -->
+        <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find cs_bot)/config/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/move_base_params.yaml" command="load" />
+            
+            <param name="global_costmap/global_frame" value="map"/>
+            <param name="global_costmap/robot_base_frame" value="t_robot1/base_footprint"/>
+            <param name="local_costmap/global_frame" value="t_robot1/odom"/>
+            <param name="local_costmap/robot_base_frame" value="t_robot1/base_footprint"/>
+        </node>
+    </group>
+
+    <!-- CT team robot -->
+    <group ns="ct_robot1">
+        <param name="tf_prefix" value="ct_robot1"/>
+        
+        <param name="robot_description" 
+               command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/cs_robot_blue.urdf.xacro robot_name:=ct_robot1" />
+        
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+              args="-urdf -model ct_robot1 
+                    -x 0.0 -y 5.0 -z 0
+                    -param robot_description"
+              output="screen" />
+
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="ct_robot1"/>
+        </node>
+
+        <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+            <param name="base_frame" value="ct_robot1/base_footprint"/>
+            <param name="odom_frame" value="ct_robot1/odom"/>
+            <param name="map_frame" value="map"/>
+        </node>
+
+        <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find cs_bot)/config/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/move_base_params.yaml" command="load" />
+            
+            <param name="global_costmap/global_frame" value="map"/>
+            <param name="global_costmap/robot_base_frame" value="ct_robot1/base_footprint"/>
+            <param name="local_costmap/global_frame" value="ct_robot1/odom"/>
+            <param name="local_costmap/robot_base_frame" value="ct_robot1/base_footprint"/>
+        </node>
+    </group>
+
+    <!-- Robot Controllers -->
+    <node pkg="cs_bot" type="robot_controller.py" name="t_robot1_controller" output="screen">
+        <param name="robot_name" value="t_robot1"/>
+        <param name="team" value="T"/>
+        <param name="weapon" value="RIFLE"/>
+    </node>
+
+    <node pkg="cs_bot" type="robot_controller.py" name="ct_robot1_controller" output="screen">
+        <param name="robot_name" value="ct_robot1"/>
+        <param name="team" value="CT"/>
+        <param name="weapon" value="SNIPER"/>
+    </node>
+
+    <!-- Game manager node -->
+    <node pkg="cs_bot" type="game_manager.py" name="game_manager" output="screen"/>
+
+    <!-- Camera nodes -->
+    <include file="$(find cs_bot)/launch/camera.launch">
+        <arg name="robot_name" value="t_robot1"/>
+    </include>
+    <include file="$(find cs_bot)/launch/camera.launch">
+        <arg name="robot_name" value="ct_robot1"/>
     </include>
 
-    <include file="$(find cs_bot)/launch/single_robot.launch">
-        <arg name="robot_name" value="robot2"/>
-        <arg name="x_pos" value="1.0"/>
-        <arg name="y_pos" value="0.0"/>
-    </include>
-
-    <include file="$(find cs_bot)/launch/single_robot.launch">
-        <arg name="robot_name" value="robot3"/>
-        <arg name="x_pos" value="0.0"/>
-        <arg name="y_pos" value="1.0"/>
-    </include>
-
-    <include file="$(find cs_bot)/launch/single_robot.launch">
-        <arg name="robot_name" value="robot4"/>
-        <arg name="x_pos" value="1.0"/>
-        <arg name="y_pos" value="1.0"/>
-    </include>
+    <!-- Start RViz visualization -->
+    <node name="rviz" pkg="rviz" type="rviz" 
+          args="-d $(find cs_bot)/rviz/test_config.rviz" />
 </launch>
