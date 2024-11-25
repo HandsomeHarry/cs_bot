@@ -1,0 +1,39 @@
+<launch>
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="x_pos" default="-2"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+  
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find cs_bot)/worlds/test.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>  
+
+    <!-- Robot 1 -->
+    <!-- Param -Y controls the Yaw (direction facing) - 3.14 is facing the negative x-axis -->
+    <group ns="robot1">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_red.urdf.xacro" />
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+              args="-urdf -model robot1 -x -0.2 -y 0.5 -z $(arg z_pos) -Y 3.14 -param robot_description" />
+    </group>
+
+    <!-- Robot 2 -->
+    <group ns="robot2">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_darkred.urdf.xacro" />
+        
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+              args="-urdf -model robot2 -x -0.2 -y -0.5 -z $(arg z_pos) -Y 3.14 -param robot_description" />
+    </group>
+
+    <!-- Robot 3 -->
+    <group ns="robot3">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_blue.urdf.xacro" />
+
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+              args="-urdf -model robot3 -x -1.0 -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+    </group>
+</launch>

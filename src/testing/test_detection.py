@@ -52,12 +52,13 @@ class TestDetection:
             # Determine turn direction to center the blue object
             center_x = frame.shape[1] // 2
             offset = cx - center_x
-            threshold = frame.shape[1] * 0.03  # 3% frame width
+            threshold = frame.shape[1] * 0.01  # 1% frame width
             
             if abs(offset) > threshold:
                 self.twist.angular.z = -0.0005 * offset  # Negative for right, positive for left
                 self.twist.linear.x = 0.0
             else:
+                print('facing blue, ready to shoot :)')
                 self.twist.angular.z = 0.0  # Stop turning
                 self.twist.linear.x = 0.0
         else:
