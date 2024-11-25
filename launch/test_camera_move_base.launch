@@ -1,5 +1,7 @@
 <launch>
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="map_file" default="$(find cs_bot)/maps/test_map.yaml"/>
+  <arg name="move_forward_only" default="false"/>
   <arg name="x_pos" default="-2"/>
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
@@ -15,18 +17,15 @@
 
   <!-- Robot 1 -->
   <group ns="robot1">
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
+      <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_blue.urdf.xacro" />
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
-          args="-urdf -model robot1 -x -0.7 -y 0 -z 0 -Y 3.14 -param robot_description" />
+          args="-urdf -model robot1 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
   </group>
 
   <!-- Robot 2 (Blue) -->
   <group ns="robot2">
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_blue.urdf.xacro" />
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
-          args="-urdf -model robot2 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
-    
-    <!-- Run the Python script to control the blue robot -->
-    <node name="blue_robot_test_node" pkg="cs_bot" type="blue_robot_test_node.py" output="screen" />
+          args="-urdf -model robot2 -x -0.7 -y 0 -z 0 -Y 3.14 -param robot_description" />
   </group>
 </launch>
