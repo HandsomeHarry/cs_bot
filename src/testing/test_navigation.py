@@ -72,20 +72,20 @@ class NavigationTest:
         while not rospy.is_shutdown():
             state = self.client.get_state()
             if state == actionlib.GoalStatus.SUCCEEDED:
-                rospy.loginfo("Arrived at goal")
+                rospy.loginfo("arrived at goal")
                 return True
             elif state == actionlib.GoalStatus.ABORTED:
                 rospy.logwarn("im in deep trouble")
                 return False
             elif state == actionlib.GoalStatus.REJECTED:
-                rospy.logwarn("goal rejected, wtf are you doing")
+                rospy.logwarn("goal rejected")
                 return False
             rospy.sleep(0.1)
 
 if __name__ == '__main__':
     try:
         navigator = NavigationTest()
-        # test points
+        # test points, change these to test different obstacles
         test_points = [
             (3.0, 4.0),
             (1.0, 1.0),

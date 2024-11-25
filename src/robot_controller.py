@@ -241,6 +241,7 @@ class CSRobotController:
         
         if not self.avoiding:
             self.cmd_vel_pub.publish(cmd)
+            
     def odom_callback(self, msg):
         self.position = msg.pose.pose
         quaternion = (
