@@ -5,7 +5,6 @@ import rospy
 import unittest
 import rostest
 from geometry_msgs.msg import Twist, Point
-from cs_bot.msg import RobotStateMsg, GameStateMsg, CombatEvent
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
@@ -25,8 +24,6 @@ class FunctionalityTester:
         self.robot2_images = []
 
         # subscribe related topics
-        rospy.Subscriber('/game/robot_states', RobotStateMsg, self.robot_state_callback)
-        rospy.Subscriber('/game/combat_events', CombatEvent, self.combat_event_callback)
         rospy.Subscriber('/robot1/camera/rgb/image_raw', Image, self.robot1_image_callback)
         rospy.Subscriber('/robot2/camera/rgb/image_raw', Image, self.robot2_image_callback)
 
