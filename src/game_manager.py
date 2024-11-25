@@ -3,7 +3,7 @@
 
 import rospy
 from geometry_msgs.msg import Point
-from cs_game.msg import GameStateMsg, RobotStateMsg
+from cs_bot.msg import GameStateMsg, RobotStateMsg
 
 class GameManager:
     def __init__(self):

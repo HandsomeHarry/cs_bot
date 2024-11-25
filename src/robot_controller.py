@@ -5,7 +5,7 @@ import rospy
 from geometry_msgs.msg import Twist, Point, Pose
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan, Image
-from cs_game.msg import GameStateMsg, RobotStateMsg
+from cs_bot.msg import GameStateMsg, RobotStateMsg
 from cv_bridge import CvBridge
 import cv2
 import numpy as np

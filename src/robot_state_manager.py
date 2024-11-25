@@ -2,7 +2,7 @@
 # coding=utf-8
 
 import rospy
-from cs_game.msg import RobotStateMsg, GameStateMsg
+from cs_bot.msg import RobotStateMsg, GameStateMsg
 from geometry_msgs.msg import Pose
 from std_msgs.msg import Bool
 

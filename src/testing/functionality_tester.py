@@ -5,7 +5,7 @@ import rospy
 import unittest
 import rostest
 from geometry_msgs.msg import Twist, Point
-from cs_game.msg import RobotStateMsg, GameStateMsg, CombatEvent
+from cs_bot.msg import RobotStateMsg, GameStateMsg, CombatEvent
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
