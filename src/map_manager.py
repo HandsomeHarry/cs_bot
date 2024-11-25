@@ -83,7 +83,7 @@ class MapManager:
                 site,
                 Marker.CYLINDER,
                 i,
-                (1.0, 0.0, 0.0, 0.7),  # 红色
+                (1.0, 0.0, 0.0, 0.7),  # red
                 (1.0, 1.0, 0.2)
             )
             marker_array.markers.append(marker)

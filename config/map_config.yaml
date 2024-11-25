@@ -1,7 +1,7 @@
 # bomb sites [x, y, z]
 bomb_sites:
-  - [5.0, 5.0, 0.0]  # A点
-  - [-5.0, 5.0, 0.0]  # B点
+  - [5.0, 5.0, 0.0]  # A site 
+  - [-5.0, 5.0, 0.0]  # B site
 
 # T team spawn points
 T_spawn_points:
