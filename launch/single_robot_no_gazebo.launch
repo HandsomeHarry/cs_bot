@@ -5,27 +5,27 @@
     <arg name="team_color" default="red"/>
     
     <group ns="$(arg robot_name)">
-        <!-- modify tf_prefix position and setting method -->
+        <!-- change tf_prefix -->
         <param name="tf_prefix" value="$(arg robot_name)"/>
         
         <!-- load robot model -->
         <param name="robot_description" 
-               command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/cs_robot_$(arg team_color).urdf.xacro robot_name:=$(arg robot_name)" />
+               command="$(find xacro)/xacro --inorder $(find cs_game)/urdf/cs_robot_$(arg team_color).urdf.xacro robot_name:=$(arg robot_name)" />
         
-        <!-- Spawn Robot -->
+        <!-- spawn robot -->
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
               args="-urdf -model $(arg robot_name) 
                     -x $(arg x_pos) -y $(arg y_pos) -z 0
                     -param robot_description"
               output="screen" />
 
-        <!-- Robot State Publisher -->
+        <!-- robot state publisher -->
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
             <param name="publish_frequency" type="double" value="50.0"/>
             <param name="tf_prefix" value="$(arg robot_name)"/>
         </node>
 
-        <!-- add SLAM node -->
+        <!-- add slam node -->
         <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
             <param name="base_frame" value="$(arg robot_name)/base_footprint"/>
             <param name="odom_frame" value="$(arg robot_name)/odom"/>
@@ -42,15 +42,15 @@
             <param name="minimumScore" value="50"/>
         </node>
     
-        <!-- Basic Navigation -->
+        <!-- basic navigation -->
         <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-            <rosparam file="$(find cs_bot)/config/local_costmap_params.yaml" command="load" />
-            <rosparam file="$(find cs_bot)/config/global_costmap_params.yaml" command="load" />
-            <rosparam file="$(find cs_bot)/config/move_base_params.yaml" command="load" />
+            <rosparam file="$(find cs_game)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find cs_game)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find cs_game)/config/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_game)/config/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_game)/config/move_base_params.yaml" command="load" />
 
-            <!-- explicitly specify frame_id -->
+            <!-- specify frame_id -->
             <param name="global_costmap/global_frame" value="map"/>
             <param name="global_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint"/>
             <param name="local_costmap/global_frame" value="$(arg robot_name)/odom"/>
@@ -64,8 +64,8 @@
         </node>
     </group>
 
-    <!-- Include camera and fiducial detection -->
-    <include file="$(find cs_bot)/launch/camera.launch">
+    <!-- include camera and fiducial detection -->
+    <include file="$(find cs_game)/launch/camera.launch">
         <arg name="robot_name" value="$(arg robot_name)"/>
     </include>
 

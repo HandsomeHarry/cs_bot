@@ -2,7 +2,7 @@
 <launch>
   <!-- load bot description -->
   <param name="robot_description" 
-         command="$(find xacro)/xacro '$(find csgo_robot)/urdf/csgo_robot.urdf.xacro'"/>
+         command="$(find xacro)/xacro '$(find cs_bot)/urdf/csgo_robot.urdf.xacro'"/>
 
   <!-- launch Gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
