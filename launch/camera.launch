@@ -1,4 +1,15 @@
 <?xml version="1.0"?>
+<!--
+    Purpose: Sets up camera and fiducial detection for a single robot
+    Type: Component launch file (included by other launch files)
+    Features:
+    - Camera controller configuration
+    - Image transport setup
+    - ArUco marker detection
+    - Fiducial SLAM
+    Required Arguments:
+    - robot_name: Name of the robot to configure camera for
+-->
 <launch>
     <arg name="robot_name"/>
     

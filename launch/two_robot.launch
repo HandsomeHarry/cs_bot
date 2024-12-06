@@ -1,4 +1,16 @@
 <?xml version="1.0"?>
+<!--
+    Purpose: Basic two-team game setup
+    Type: Core game launch file
+    World: game_world.world
+    Robots: 2 robots (1 T team, 1 CT team)
+    Colors: Red (T team), Blue (CT team)
+    Features:
+    - Team-based setup
+    - Robot controllers
+    - Game manager
+    - RViz visualization
+-->
 <launch>
     <!-- Start Gazebo with game world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">

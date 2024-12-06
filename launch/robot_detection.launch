@@ -1,3 +1,15 @@
+<?xml version="1.0"?>
+<!--
+    Purpose: Multi-robot setup for testing robot detection
+    Type: Test launch file
+    World: game_world.world
+    Robots: 5 robots
+    Colors: Blue (robot1), Dark Red (robot2), Dark Blue (robot3), Red (robot4), Blue (robot5)
+    Features:
+    - Multiple robot spawning
+    - SLAM configuration
+    - Basic navigation setup
+-->
 <launch>
     <arg name="robot_name" default="robot1"/>
     <arg name="x_pos" default="0.0"/>

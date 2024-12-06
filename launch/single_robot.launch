@@ -1,3 +1,15 @@
+<?xml version="1.0"?>
+<!--
+    Purpose: Launches a single robot with full navigation stack
+    Type: Core component launch file
+    World: game_world.world
+    Robots: 1 configurable robot
+    Features:
+    - Configurable robot position and team color
+    - SLAM/gmapping
+    - Move_base navigation
+    Arguments: robot_name, x_pos, y_pos, team_color
+-->
 <launch>
     <arg name="robot_name" default="robot1"/>
     <arg name="x_pos" default="0.0"/>

@@ -1,3 +1,13 @@
+<?xml version="1.0"?>
+<!--
+    Purpose: Reference file for move_base configuration
+    Type: Template/Reference only (not for direct use)
+    Features:
+    - Standard TurtleBot3 move_base configuration
+    - DWA planner setup
+    - Costmap configurations
+    Note: This is a reference file only, do not use directly
+-->
 <launch>
   <!-- Dont use this file is just for reference for actual move_base -->
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>

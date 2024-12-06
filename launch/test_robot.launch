@@ -1,4 +1,14 @@
 <?xml version="1.0"?>
+<!--
+    Purpose: Basic robot testing
+    Type: Test launch file
+    World: Empty world
+    Robots: 1 CSGO robot
+    Features:
+    - Basic robot spawning
+    - Robot state publishing
+    - Simple test setup
+-->
 <launch>
   <!-- load bot description -->
   <param name="robot_description" 

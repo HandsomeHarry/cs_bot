@@ -1,3 +1,14 @@
+<?xml version="1.0"?>
+<!--
+    Purpose: 4-robot test with varied colors
+    Type: Test launch file
+    World: test.world
+    Robots: 4 robots
+    Colors: Red, Dark Red, Blue, Dark Blue
+    Features:
+    - Multi-robot spawning
+    - Different color variations
+-->
 <launch>
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
   <arg name="x_pos" default="-2"/>

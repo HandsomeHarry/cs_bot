@@ -1,3 +1,16 @@
+<?xml version="1.0"?>
+<!--
+    Purpose: Single robot launch without Gazebo (for use with other launch files)
+    Type: Component launch file
+    Robots: 1 configurable robot
+    Features:
+    - Robot spawning
+    - SLAM configuration
+    - Navigation stack
+    - No Gazebo (assumes it's launched elsewhere)
+    Arguments: robot_name, x_pos, y_pos, team_color
+-->
+
 <launch>
     <arg name="robot_name" default="robot1"/>
     <arg name="x_pos" default="0.0"/>

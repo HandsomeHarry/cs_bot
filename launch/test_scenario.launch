@@ -1,4 +1,16 @@
 <?xml version="1.0"?>
+<!--
+    Purpose: Full game scenario testing
+    Type: Test launch file
+    World: game_world.world
+    Robots: 4 robots (2 T team, 2 CT team)
+    Colors: Red (T team), Blue (CT team)
+    Features:
+    - Complete game setup
+    - Robot controllers
+    - Game manager
+    - RViz visualization
+-->
 <launch>
     <!-- Start Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">

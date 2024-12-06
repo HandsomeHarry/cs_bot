@@ -1,3 +1,14 @@
+<?xml version="1.0"?>
+<!--
+    Purpose: Basic game environment setup without robots
+    Type: Core setup file
+    World: game_world.world
+    Features:
+    - Loads map configuration
+    - Starts Gazebo simulation
+    - Launches map server
+    Robots: None (only environment setup)
+-->
 <launch>
     <!-- load map config -->
     <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen">
