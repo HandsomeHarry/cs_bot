@@ -8,17 +8,16 @@ from geometry_msgs.msg import Point, Pose
 from visualization_msgs.msg import Marker, MarkerArray
 from nav_msgs.msg import OccupancyGrid
 from std_msgs.msg import ColorRGBA
+import pandas as pd
+import os
 
 class MapManager:
     def __init__(self):
         rospy.init_node('map_manager', anonymous=True)
         
         # map basic information
-        self.bomb_sites = []  # A point, B point location
+        self.bomb_sites = []  # location of the single bomb site (two points that forms a rectangle)
         self.spawn_points = {'T': [], 'CT': []}  # spawn points
-        self.safe_zones = []  # safe zones
-        self.walls = []  # wall locations
-        self.fiducial_markers = []  # fiducial marker locations
         
         # publishers
         self.marker_pub = rospy.Publisher('/game/map_markers', MarkerArray, queue_size=1)
@@ -31,30 +30,32 @@ class MapManager:
         self.timer = rospy.Timer(rospy.Duration(1.0), self.publish_markers)
 
     def load_map_config(self):
-        """load map information from config file"""
+        """load map information from CSV file"""
         try:
-            config_file = rospy.get_param('~map_config', 'config/map_config.yaml')
-            with open(config_file, 'r') as f:
-                config = yaml.safe_load(f)
+            # Get the CSV file path
+            csv_file = os.path.join(os.path.dirname(__file__), '../site_points.csv')
+            
+            # Read CSV using pandas
+            df = pd.read_csv(csv_file)
+            
+            # Convert DataFrame rows to Point objects
+            for _, row in df.iterrows():
+                point = Point(float(row['x']), float(row['y']), float(row['z']))
                 
-            # load bomb sites
-            self.bomb_sites = [Point(*site) for site in config.get('bomb_sites', [])]
+                if row['label'] == 'T_spawn':
+                    self.spawn_points['T'] = [point]
+                elif row['label'] == 'CT_spawn':
+                    self.spawn_points['CT'] = [point]
+                elif row['label'].startswith('site_corner'):
+                    self.bomb_sites.append(point)
             
-            # load spawn points
-            for team in ['T', 'CT']:
-                self.spawn_points[team] = [Point(*point) for point in config.get(f'{team}_spawn_points', [])]
-            
-            # load safe zones
-            self.safe_zones = [Point(*zone) for zone in config.get('safe_zones', [])]
-            
-            # load wall locations
-            self.walls = config.get('walls', [])
-            
-            # load fiducial marker locations
-            self.fiducial_markers = config.get('fiducial_markers', [])
+            # Initialize empty lists for unused config items
+            self.safe_zones = []
+            self.walls = []
+            self.fiducial_markers = []
             
         except Exception as e:
-            rospy.logerr(f"Failed to load map config: {str(e)}")
+            rospy.logerr(f"Failed to load map config from CSV: {str(e)}")
 
     def create_marker(self, position, marker_type, id, color, scale):
         """create visualization marker"""

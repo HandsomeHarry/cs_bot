@@ -12,14 +12,15 @@ import os
 import signal
 from datetime import datetime
 from geometry_msgs.msg import PointStamped
+import csv
 
 class PointRecorder:
     def __init__(self):
         rospy.init_node('point_recorder', anonymous=True)
         self.points = []
-        self.labels = ['T_start', 'CT_start', 'site_topleft', 'site_bottomright']
+        self.labels = ['T_spawn', 'CT_spawn', 'site_corner1', 'site_corner2']
         self.current_label_index = 0
-        self.filename = f"site_points.txt"
+        self.filename = f"site_points.csv"
 
     def clicked_point_callback(self, msg):
         if self.current_label_index < len(self.labels):
@@ -39,9 +40,18 @@ class PointRecorder:
                 rospy.signal_shutdown("Recording complete.")
 
     def save_points(self):
-        with open(self.filename, 'w') as file:
+        # Write to CSV file
+        with open(self.filename, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['label', 'x', 'y', 'z'])  # Write header
             for point in self.points:
-                file.write(f"{point['label']} {point['x']} {point['y']} {point['z']}\n")
+                writer.writerow([
+                    point['label'],
+                    f"{point['x']:.1f}",
+                    f"{point['y']:.1f}",
+                    f"{point['z']:.1f}"
+                ])
+        
         print(f"Points saved to {self.filename}")
 
     def listen_for_points(self):

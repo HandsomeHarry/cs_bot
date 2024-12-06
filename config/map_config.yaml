@@ -1,7 +1,7 @@
 # bomb sites [x, y, z]
 bomb_sites:
-  - [5.0, 5.0, 0.0]  # A site 
-  - [-5.0, 5.0, 0.0]  # B site
+  - [5.0, 5.0, 0.0]
+  - [-5.0, 5.0, 0.0]
 
 # T team spawn points
 T_spawn_points:
@@ -14,18 +14,3 @@ CT_spawn_points:
   - [8.0, 8.0, 0.0]
   - [7.0, 8.0, 0.0]
   - [6.0, 8.0, 0.0]
-
-# safe zones
-safe_zones:
-  - [-10.0, -10.0, 0.0]
-  - [10.0, 10.0, 0.0]
-
-# walls [x, y, width, height]
-walls:
-  - [0.0, 0.0, 1.0, 4.0]
-  - [2.0, 2.0, 4.0, 1.0]
-
-# fiducial markers (unused) [id, x, y, z, orientation] 
-fiducial_markers:
-  - [1, 1.0, 1.0, 2.0, 0.0]
-  - [2, -1.0, 1.0, 2.0, 3.14]
