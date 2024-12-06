@@ -43,16 +43,13 @@ class CSRobotController:
         self.is_defusing = False
         
         # visual recognition parameters
-        self.enemy_color_ranges = {
-            'T': {  # red team color range
-                'lower': np.array([0, 120, 100]),   # HSV red range lower limit for T
-                'upper': np.array([10, 255, 255])   # HSV red range upper limit for T
-            },
-            'CT': {  # blue team color range
-                'lower': np.array([100, 120, 100]), # HSV blue range lower limit for CT
-                'upper': np.array([130, 255, 255])  # HSV blue range upper limit for CT
-            }
+        self.color_ranges = {
+            'blue': ((100, 150, 50), (130, 255, 255)),
+            'dark_blue': ((110, 150, 30), (130, 255, 100)),
+            'red': ((0, 100, 50), (10, 255, 255), (170, 100, 50), (180, 255, 255)),
+            'dark_red': ((0, 100, 10), (10, 255, 50), (170, 100, 10), (180, 255, 50))
         }
+
         self.min_enemy_area = 50  # minimum detection area
         self.enemy_detection_threshold = 0.01  # detection confidence threshold
         
@@ -109,6 +106,7 @@ class CSRobotController:
         # subscribers
         self.setup_subscribers()
         rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
+
     def setup_subscribers(self):
         rospy.Subscriber('/game/robot_states', RobotStateMsg, self.game_state_callback)
         rospy.Subscriber('/{}/scan'.format(self.robot_name), LaserScan, self.laser_callback)
@@ -259,6 +257,31 @@ class CSRobotController:
             self.process_image(cv_image)
         except Exception as e:
             rospy.logerr(e)
+
+    def get_color_mask(self, hsv_image, color):
+        """
+        Returns a mask for the specified color from the given HSV image.
+        
+        :param hsv_image: Input image in HSV format.
+        :param color: Color name ('blue', 'dark_red', etc.).
+        :return: Mask of the specified color.
+        """
+        if color not in self.color_ranges:
+            raise ValueError(f"Color '{color}' is not defined.")
+
+        ranges = self.color_ranges[color]
+
+        if color in ['red', 'dark_red']:  # Handle colors with two ranges
+            lower1, upper1, lower2, upper2 = ranges
+            mask1 = cv2.inRange(hsv_image, np.array(lower1), np.array(upper1))
+            mask2 = cv2.inRange(hsv_image, np.array(lower2), np.array(upper2))
+            mask = cv2.bitwise_or(mask1, mask2)
+        else:
+            lower, upper = ranges
+            mask = cv2.inRange(hsv_image, np.array(lower), np.array(upper))
+
+        return mask
+
 
     def process_image(self, image):
         """process image and detect enemy robots"""
