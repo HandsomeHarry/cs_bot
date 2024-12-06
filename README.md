@@ -16,7 +16,7 @@ Before starting, run the following in console to set up map:
 The arena will be bound by colored tape, after a robot player ‘dies’, it’ll stay put. The robots will try to ‘kill’ each other.
 
 
-## World Mapping:
+# Generating the world map:
 
 To generate a `.yaml` world file and a `.pgm` map, follow these steps:
 
@@ -37,6 +37,10 @@ To generate a `.yaml` world file and a `.pgm` map, follow these steps:
    ```
 
 5. This will generate two files: `<map_name>.yaml` and `<map_name>.pgm`.
+
+# Defining the spawn points and bomb site area
+
+1. run the python file 
 
 
 ## Bot node:

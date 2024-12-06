@@ -5,7 +5,6 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Status1
         - /Map1
       Splitter Ratio: 0.5
     Tree Height: 548
@@ -72,7 +71,6 @@ Visualization Manager:
   Tools:
     - Class: rviz/Interact
       Hide Inactive Objects: true
-    - Class: rviz/MoveCamera
     - Class: rviz/Select
     - Class: rviz/FocusCamera
     - Class: rviz/Measure
@@ -90,13 +88,13 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 7.744000434875488
+      Distance: 9
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
-      Field of View: 0.7853981852531433
+      Field of View: 0.6000000238418579
       Focal Point:
         X: 0
         Y: 0
@@ -108,7 +106,7 @@ Visualization Manager:
       Near Clip Distance: 0.009999999776482582
       Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
-      Yaw: 6.258586406707764
+      Yaw: 0
     Saved: ~
 Window Geometry:
   Displays:
@@ -126,5 +124,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 499
-  Y: 40
+  X: 709
+  Y: 20
