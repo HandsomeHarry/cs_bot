@@ -1,7 +1,7 @@
 <launch>
     <!-- Launch Gazebo with test2 world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_bot)/worlds/test2.world"/>
+        <arg name="world_name" value="$(find cs_bot)/worlds/world.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
