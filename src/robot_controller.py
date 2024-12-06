@@ -20,8 +20,8 @@ class WeaponType(Enum):
     SMG = {"damage": 15, "speed": 0.3, "reload_time": 1.5, "range": 15}
 
 class BombSite(Enum):
-    A = Point(x=10.0, y=10.0, z=0.0)  # A site coordinates
-    B = Point(x=-10.0, y=-10.0, z=0.0) # B site coordinates
+    A = Point(x=10.0, y=10.0, z=0.0)  # make this a random point in the rectangular range of two points?
+    B = Point(x=-10.0, y=-10.0, z=0.0)# or read from a text file? @anson pls implement this
 
 class CSRobotController:
     def __init__(self):
@@ -45,12 +45,12 @@ class CSRobotController:
         # visual recognition parameters
         self.enemy_color_ranges = {
             'T': {  # red team color range
-                'lower': np.array([0, 120, 100]),   # HSV red range lower limit
-                'upper': np.array([10, 255, 255])   # HSV red range upper limit
+                'lower': np.array([0, 120, 100]),   # HSV red range lower limit for T
+                'upper': np.array([10, 255, 255])   # HSV red range upper limit for T
             },
             'CT': {  # blue team color range
-                'lower': np.array([100, 120, 100]), # HSV blue range lower limit
-                'upper': np.array([130, 255, 255])  # HSV blue range upper limit
+                'lower': np.array([100, 120, 100]), # HSV blue range lower limit for CT
+                'upper': np.array([130, 255, 255])  # HSV blue range upper limit for CT
             }
         }
         self.min_enemy_area = 50  # minimum detection area
@@ -400,7 +400,7 @@ class CSRobotController:
         return self.ammo > 0
 
     def shoot(self):
-        """execute shooting"""
+        """shooting"""
         if self.can_shoot():
             self.ammo -= 1
             if self.ammo <= 0:
