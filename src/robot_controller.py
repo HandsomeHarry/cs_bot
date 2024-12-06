@@ -9,7 +9,7 @@ import rospy
 from geometry_msgs.msg import Twist, Point, Pose
 from nav_msgs.msg import Odometry, OccupancyGrid
 from sensor_msgs.msg import LaserScan, Image
-from cs_bot.msg import GameStateMsg, RobotStateMsg
+from cs_bot.msg import GameStateMsg, RobotStateMsg, CombatEvent
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
@@ -21,10 +21,6 @@ import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from gun import Gun
 
-class BombSite(Enum):
-    A = Point(x=10.0, y=10.0, z=0.0)  # make this a random point in the rectangular range of two points?
-    B = Point(x=-10.0, y=-10.0, z=0.0)# or read from a text file? @anson pls implement this
-
 class CSRobotController:
     def __init__(self):
         rospy.init_node('cs_robot_controller', anonymous=True)
@@ -33,17 +29,29 @@ class CSRobotController:
         self.robot_name = rospy.get_param('~robot_name', 'robot1')
         self.health = 100
         self.is_alive = True
-        self.team = rospy.get_param('~team', 'T')
+        self.team = rospy.get_param('~team', 'CT')
         self.weapon = Gun(rospy.get_param('~weapon', 'rifle'))
         self.position = Pose()
         self.orientation = 0.0
-        self.detected_enemies = []
         self.is_planting = False
         self.is_defusing = False
         self.bridge = CvBridge()
         self.tf_listener = tf.TransformListener()
+        self.map_data = None
+        self.turn_speed = 0.00075
+
+        #game state stuff
+        self.dead_players = []
+        self.round_time_remaining = 90
+        self.bomb_being_planted = False
+
+        self.color_to_robot = { # hard coded in for sake of simplicity - can change
+        'blue': 'robot1',
+        'red': 'robot2',
+        'dark_blue': 'robot3',
+        'dark_red': 'robot4'
+        }
         
-        # visual recognition parameters
         self.color_ranges = {
             'blue': ((115, 225, 225), (125, 255, 255)),    
             'dark_blue': ((115, 225, 35), (125, 255, 55)),  
@@ -51,8 +59,12 @@ class CSRobotController:
             'dark_red': ((0, 225, 35), (5, 255, 55))       
         }
 
-        self.min_enemy_area = 50  # minimum detection area
-        self.enemy_detection_threshold = 0.01  # detection confidence threshold
+        if self.team == 'CT':
+            self.enemy_colors = ['red','dark_red']
+        else: # terrorist
+            self.enemy_colors = ['blue','dark_blue']
+
+        self.enemy_detection_threshold = 1500  # amount of pixels needed to detect
         
         # tactical parameters
         self.patrol_points = self.generate_patrol_points()
@@ -63,22 +75,26 @@ class CSRobotController:
         # publishers
         self.cmd_vel_pub = rospy.Publisher('/{}/cmd_vel'.format(self.robot_name), Twist, queue_size=1)
         self.state_pub = rospy.Publisher('/game/robot_states', RobotStateMsg, queue_size=1)
-        self.debug_image_pub = rospy.Publisher('/{}/debug_image'.format(self.robot_name), Image, queue_size=1)
-        self.debug_mask_pub = rospy.Publisher('/{}/debug_mask'.format(self.robot_name), Image, queue_size=1)
+        self.shoot_pub = rospy.Publisher('/game/shoot', CombatEvent, queue_size=1)
         
         # subscribers
-        rospy.Subscriber('/game/robot_states', RobotStateMsg, self.game_state_callback)
-        rospy.Subscriber('/{}/scan'.format(self.robot_name), LaserScan, self.laser_callback)
-        rospy.Subscriber('/{}/camera/image_raw'.format(self.robot_name), Image, self.camera_callback)
-        rospy.Subscriber('/{}/odom'.format(self.robot_name), Odometry, self.odom_callback)        rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
-
-        # Add map subscriber
-        self.map_data = None
-        rospy.Subscriber('/map', OccupancyGrid, self.map_callback)
+        rospy.Subscriber('/{}/camera/image_raw'.format(self.robot_name), Image, self.process_image)
+        rospy.Subscriber('/map', OccupancyGrid, self.map_callback)  
+        rospy.Subscriber('/{}/robot_state'.format(self.robot_name), RobotStateMsg, self.update_state) # robots own status
 
         # Add move_base client
         self.move_base = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self.move_base.wait_for_server()
+        rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
+
+        rospy.Timer(rospy.Duration(0.1), self.publish_state) # publish state 10/s
+
+    def update_state(self, msg):
+        if self.robot_name == msg.robot_name:
+            self.health = msg.health
+            self.is_alive = msg.is_alive
+            self.is_planting = msg.is_planting
+            self.is_defusing = msg.is_defusing
 
     def start_planting(self):
         self.is_planting = True
@@ -91,70 +107,51 @@ class CSRobotController:
 
     def stop_defusing(self):
         self.is_defusing = False
-            
-    def odom_callback(self, msg):
-        self.position = msg.pose.pose
-        quaternion = (
-            msg.pose.pose.orientation.x,
-            msg.pose.pose.orientation.y,
-            msg.pose.pose.orientation.z,
-            msg.pose.pose.orientation.w
-        )
-        euler = tf.transformations.euler_from_quaternion(quaternion)
-        self.orientation = euler[2]
-
-    def camera_callback(self, msg):
-        try:
-            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-            self.process_image(cv_image)
-        except Exception as e:
-            rospy.logerr(e)
 
     def get_color_mask(self, hsv_image, color):
         """
         Returns a mask for the specified color from the given HSV image.
-        
-        :param hsv_image: Input image in HSV format.
-        :param color: Color name ('blue', 'dark_red', etc.).
-        :return: Mask of the specified color.
         """
         if color not in self.color_ranges:
             raise ValueError(f"Color '{color}' is not defined.")
 
         ranges = self.color_ranges[color]
 
-        if color in ['red', 'dark_red']:  # Handle colors with two ranges
-            lower1, upper1, lower2, upper2 = ranges
-            mask1 = cv2.inRange(hsv_image, np.array(lower1), np.array(upper1))
-            mask2 = cv2.inRange(hsv_image, np.array(lower2), np.array(upper2))
-            mask = cv2.bitwise_or(mask1, mask2)
-        else:
-            lower, upper = ranges
-            mask = cv2.inRange(hsv_image, np.array(lower), np.array(upper))
-
+        lower, upper = ranges
+        mask = cv2.inRange(hsv_image, np.array(lower), np.array(upper))
         return mask
 
 
     def process_image(self, image):
         """process image and detect enemy robots"""
         try:
-            pass
-        except Exception as e:
+            frame = self.bridge.imgmsg_to_cv2(data, desired_encoding='bgr8')
+            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            for enemy_color in enemy_colors:
+                if enemy_color not in self.dead_players: # only scan for alive enemies
+                    enemy_mask = self.get_color_mask(hsv, enemy_color)
+                    enemy_moments = cv2.moments(enemy_mask)
+                    if moments['m00'] > self.enemy_detection_threshold: # enemy spotted
+                        cx = int(moments['m10'] / moments['m00'])
+                        cy = int(moments['m01'] / moments['m00'])
+                        
+                        center_x = frame.shape[1] // 2
+                        offset = cx - center_x
+                        threshold = frame.shape[1] * 0.02  # 2% frame width
+                        
+                        if abs(offset) > threshold:
+                            self.twist.angular.z = -self.turn_speed * offset  # Negative for right, positive for left
+                            self.twist.linear.x = 0.0
+                        else:
+                            self.twist.angular.z = 0.0  # Stop turning
+                            self.twist.linear.x = 0.0
+                            self.shoot(enemy_color)
+        except Exception as e
             rospy.logerr(f"Error in process_image: {e}")
             
     def game_state_callback(self, msg):
         """process game state callback"""
-        if msg.robot_name != self.robot_name:
-            if msg.team == self.team:
-                self.teammates_positions[msg.robot_name] = msg.position
-            else:
-                self.enemies_positions[msg.robot_name] = msg.position
-                
-            if not msg.is_alive:
-                if msg.robot_name in self.teammates_positions:
-                    del self.teammates_positions[msg.robot_name]
-                if msg.robot_name in self.enemies_positions:
-                    del self.enemies_positions[msg.robot_name]
+        pass
 
     def generate_patrol_points(self):
         """generate patrol points"""
@@ -175,9 +172,15 @@ class CSRobotController:
         self.current_patrol_index = (self.current_patrol_index + 1) % len(self.patrol_points)
         return point
 
-    def shoot(self):
+    def shoot(self, enemy_color):
         """shooting"""
-        pass    
+        damage_dealt = self.gun.shoot()
+        if damage_dealt > 0:
+            msg = CombatEvent()
+            msg.attacker_name = self.robot_name
+            msg.target_name = self.color_to_robot.get(enemy_color)
+            msg.damage_dealt = damage_dealt
+            self.shoot_pub.publish(msg)
 
     def publish_state(self):
         """publish robot state"""
@@ -191,21 +194,10 @@ class CSRobotController:
         msg.is_defusing = self.is_defusing
         self.state_pub.publish(msg)
 
-    def take_damage(self, damage):
-        """process taking damage"""
-        if self.is_alive:
-            self.health -= damage
-            if self.health <= 0:
-                self.health = 0
-                self.is_alive = False
-                rospy.loginfo("%s has been eliminated" % self.robot_name)
-
-
     def run(self):
         """main run loop"""
         rate = rospy.Rate(10)  # 10Hz
         while not rospy.is_shutdown() and self.is_alive:
-            # publish state
             self.publish_state()
             
             # state machine handling
