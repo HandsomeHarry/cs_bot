@@ -38,7 +38,6 @@ class CSRobotController:
         self.position = Pose()
         self.orientation = 0.0
         self.detected_enemies = []
-        self.
         self.is_planting = False
         self.is_defusing = False
         self.bridge = CvBridge()
@@ -140,7 +139,6 @@ class CSRobotController:
         """process image and detect enemy robots"""
         try:
             pass
-                
         except Exception as e:
             rospy.logerr(f"Error in process_image: {e}")
             

@@ -20,7 +20,7 @@
 
     <!-- Load the map -->
     <node name="map_server" pkg="map_server" type="map_server" 
-          args="$(find cs_bot)/maps/test_map.yaml"/>
+          args="$(find cs_bot)/maps/world3_map.yaml"/>
 
     <!-- T team robot -->
     <group ns="t_robot1">
