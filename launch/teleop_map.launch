@@ -1,79 +1,34 @@
-<?xml version="1.0"?>
-<!--
-    Purpose: Create a map of test2.world using teleop control
-    Type: Utility launch file
-    World: test2.world
-    Features:
-    - Single robot with teleop control
-    - SLAM mapping
-    - Map saving configuration
-    - Same map parameters as slam.launch
-    Usage: For creating worldmap.pgm through manual control
--->
 <launch>
-    <!-- Start Gazebo with test2 world -->
+    <!-- Launch Gazebo with test2 world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find cs_bot)/worlds/test2.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
     </include>
 
-    <!-- Spawn single robot for mapping -->
-    <group ns="mapping_robot">
-        <!-- Load robot model -->
-        <param name="robot_description" 
-               command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/cs_robot_red.urdf.xacro robot_name:=mapping_robot" />
+    <!-- Create a namespace for robot1 -->
+    <group ns="robot1">
+        <!-- Load robot description -->
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/turtlebot3_red.urdf.xacro" />
         
-        <!-- Spawn Robot -->
-        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model mapping_robot 
-                    -x 0.0 -y 0.0 -z 0.0
-                    -param robot_description"
-              output="screen" />
+        <!-- Spawn the robot -->
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+              args="-urdf -model robot1 -x 0 -y 0 -z 0 -param robot_description" />
 
-        <!-- Robot State Publisher -->
-        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-            <param name="publish_frequency" type="double" value="50.0"/>
-            <param name="tf_prefix" value="mapping_robot"/>
-        </node>
+        <!-- Launch SLAM for mapping (this already includes turtlebot3_remote.launch) -->
+        <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
+            <arg name="model" value="burger"/>
+            <arg name="slam_methods" value="gmapping"/>
+        </include>
 
-        <!-- SLAM node -->
-        <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-            <param name="base_frame" value="mapping_robot/base_footprint"/>
-            <param name="odom_frame" value="mapping_robot/odom"/>
-            <param name="map_frame" value="map"/>
-            <param name="laser_frame" value="mapping_robot/base_scan"/>
-            <remap from="scan" to="/mapping_robot/scan"/>
-            <param name="maxUrange" value="3.0"/>
-            <param name="maxRange" value="3.5"/>
-            <param name="linearUpdate" value="0.1"/>
-            <param name="angularUpdate" value="0.1"/>
-            <param name="temporalUpdate" value="0.5"/>
-            <param name="delta" value="0.02"/>
-            <param name="particles" value="100"/>
-            <param name="minimumScore" value="100"/>
-            <param name="output" value="screen"/>
+        <!-- Launch teleop keyboard control -->
+        <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard" output="screen">
         </node>
     </group>
 
-    <!-- Teleop node -->
-    <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" output="screen">
-        <remap from="cmd_vel" to="/mapping_robot/cmd_vel"/>
-    </node>
-
-    <!-- Map saver node -->
-    <node pkg="map_server" type="map_saver" name="map_saver" 
-          args="-f $(find cs_bot)/maps/worldmap"
-          output="screen">
-        <param name="threshold_occupied" value="0.65"/>
-        <param name="threshold_free" value="0.196"/>
-    </node>
-
-    <!-- Start RViz -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find cs_bot)/rviz/mapping_config.rviz" />
-
-    <!-- Add a static transform for the laser -->
-    <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_laser" 
-          args="0 0 0 0 0 0 mapping_robot/base_footprint mapping_robot/base_scan" />
-</launch> 
+    <!-- Launch RViz for visualization -->
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find turtlebot3_slam)/rviz/turtlebot3_slam.rviz"/>
+</launch>
