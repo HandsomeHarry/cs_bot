@@ -1,5 +1,5 @@
 # robot footprint
-footprint: [[-0.2, -0.15], [-0.2, 0.15], [0.2, 0.15], [0.2, -0.15]]
+footprint: [[-0.2, -0.15], [-0.2, 0.15], [0.2, 0.15], [0.2, -0.15]] #0.4m x 0.3m
 footprint_padding: 0.01
 
 # sensor parameters

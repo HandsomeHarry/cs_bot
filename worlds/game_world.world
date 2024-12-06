@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
-  <world name="cs_game_world">
+  <world name="cs_bot_world">
     <!-- Basic environment settings -->
     <include>
       <uri>model://sun</uri>

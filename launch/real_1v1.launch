@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!--
+    Purpose: 1v1 scenario for real robots with map-based navigation
+    Type: Real robot launch file
+    Map: real.pgm
+    Robots: 2 physical robots (1 T, 1 CT)
+    Features:
+    - Pre-loaded real world map
+    - AMCL localization
+    - Move_base navigation
+    - Hardware interfaces
+-->
+<launch>
+    <!-- Load the real world map -->
+    <node name="map_server" pkg="map_server" type="map_server" 
+          args="$(find cs_bot)/maps/real.yaml"/>
+
+    <!-- T team robot -->
+    <group ns="t_robot1">
+        <param name="tf_prefix" value="t_robot1"/>
+        
+        <!-- Hardware Interface -->
+        <include file="$(find cs_bot)/launch/includes/robot_hardware.launch">
+            <arg name="robot_name" value="t_robot1"/>
+            <arg name="port" value="/dev/ttyUSB0"/>  <!-- Adjust port as needed -->
+        </include>
+
+        <!-- Robot State Publisher -->
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="t_robot1"/>
+        </node>
+
+        <!-- AMCL -->
+        <include file="$(find amcl)/examples/amcl_diff.launch">
+            <arg name="scan_topic" value="scan"/>
+            <arg name="initial_pose_x" value="0.0"/>
+            <arg name="initial_pose_y" value="0.0"/>
+            <param name="min_particles" value="500"/>
+            <param name="max_particles" value="5000"/>
+            <param name="update_min_d" value="0.2"/>
+            <param name="update_min_a" value="0.5"/>
+        </include>
+
+        <!-- Navigation -->
+        <node pkg="move_base" type="move_base" name="move_base" output="screen">
+            <rosparam file="$(find cs_bot)/config/real_robot/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find cs_bot)/config/real_robot/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find cs_bot)/config/real_robot/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/real_robot/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/real_robot/move_base_params.yaml" command="load" />
+            
+            <param name="global_costmap/global_frame" value="map"/>
+            <param name="global_costmap/robot_base_frame" value="t_robot1/base_footprint"/>
+            <param name="local_costmap/global_frame" value="t_robot1/odom"/>
+            <param name="local_costmap/robot_base_frame" value="t_robot1/base_footprint"/>
+        </node>
+    </group>
+
+    <!-- CT team robot -->
+    <group ns="ct_robot1">
+        <param name="tf_prefix" value="ct_robot1"/>
+        
+        <!-- Hardware Interface -->
+        <include file="$(find cs_bot)/launch/includes/robot_hardware.launch">
+            <arg name="robot_name" value="ct_robot1"/>
+            <arg name="port" value="/dev/ttyUSB1"/>  <!-- Adjust port as needed -->
+        </include>
+
+        <!-- Robot State Publisher -->
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="ct_robot1"/>
+        </node>
+
+        <!-- AMCL -->
+        <include file="$(find amcl)/examples/amcl_diff.launch">
+            <arg name="scan_topic" value="scan"/>
+            <arg name="initial_pose_x" value="0.0"/>
+            <arg name="initial_pose_y" value="5.0"/>
+            <param name="min_particles" value="500"/>
+            <param name="max_particles" value="5000"/>
+            <param name="update_min_d" value="0.2"/>
+            <param name="update_min_a" value="0.5"/>
+        </include>
+
+        <!-- Navigation -->
+        <node pkg="move_base" type="move_base" name="move_base" output="screen">
+            <rosparam file="$(find cs_bot)/config/real_robot/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find cs_bot)/config/real_robot/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find cs_bot)/config/real_robot/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/real_robot/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/real_robot/move_base_params.yaml" command="load" />
+            
+            <param name="global_costmap/global_frame" value="map"/>
+            <param name="global_costmap/robot_base_frame" value="ct_robot1/base_footprint"/>
+            <param name="local_costmap/global_frame" value="ct_robot1/odom"/>
+            <param name="local_costmap/robot_base_frame" value="ct_robot1/base_footprint"/>
+        </node>
+    </group>
+
+    <!-- Robot Controllers -->
+    <node pkg="cs_bot" type="robot_controller.py" name="t_robot1_controller" output="screen">
+        <param name="robot_name" value="t_robot1"/>
+        <param name="team" value="T"/>
+        <param name="weapon" value="RIFLE"/>
+    </node>
+
+    <node pkg="cs_bot" type="robot_controller.py" name="ct_robot1_controller" output="screen">
+        <param name="robot_name" value="ct_robot1"/>
+        <param name="team" value="CT"/>
+        <param name="weapon" value="RIFLE"/>
+    </node>
+
+    <!-- Game manager node -->
+    <node pkg="cs_bot" type="game_manager.py" name="game_manager" output="screen"/>
+
+    <!-- RViz -->
+    <node name="rviz" pkg="rviz" type="rviz" 
+          args="-d $(find cs_bot)/rviz/real_robot_config.rviz"/>
+</launch> 
