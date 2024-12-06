@@ -38,6 +38,7 @@ class CSRobotController:
         self.position = Pose()
         self.orientation = 0.0
         self.detected_enemies = []
+        self.
         self.is_planting = False
         self.is_defusing = False
         self.bridge = CvBridge()
@@ -79,10 +80,6 @@ class CSRobotController:
         # Add move_base client
         self.move_base = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self.move_base.wait_for_server()
-
-        # Define enemy colors
-        if self.name = 'robot1':
-            self.color = 'red'
 
     def start_planting(self):
         self.is_planting = True
@@ -209,7 +206,7 @@ class CSRobotController:
     def run(self):
         """main run loop"""
         rate = rospy.Rate(10)  # 10Hz
-        while not rospy.is_shutdown():
+        while not rospy.is_shutdown() and self.is_alive:
             # publish state
             self.publish_state()
             

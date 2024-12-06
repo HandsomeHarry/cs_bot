@@ -12,4 +12,4 @@ class Dummy:
         self.robot_name = rospy.get_param('~robot_name', 'robot2')
         self.health = 100
         self.robot_state_sub = rospy.Subscriber('/game/robot_states', RobotStateMsg, self.robot_state_callback)
-
+        
