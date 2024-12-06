@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # run the following commands in the terminal to start the map server and rviz
-#rosrun map_server map_server maps/world3_map.pgm
+#rosrun map_server map_server maps/world3_map.yaml
 #rosrun rviz rviz -d path/to/your_rviz_config.rviz
 #!/usr/bin/env python3
 
@@ -11,6 +11,7 @@ import os
 import signal
 from datetime import datetime
 from geometry_msgs.msg import PointStamped
+import rospkg
 
 class PointRecorder:
     def __init__(self):
@@ -53,17 +54,26 @@ class PointRecorder:
 
 if __name__ == '__main__':
     try:
+
+        # Get the path to the cs_bot package
+        rospack = rospkg.RosPack()
+        cs_bot_path = rospack.get_path('cs_bot')  # Resolves the absolute path to the cs_bot package
+
+        # Construct the path to the maps/world3_map.pgm file
+        map_file_path = f"{cs_bot_path}/maps/world3_map.yaml"
         # Launch map server
-        map_server_cmd = ['rosrun', 'map_server', 'map_server', 'maps/world3_map.pgm']
+        map_server_cmd = ['rosrun', 'map_server', 'map_server', map_file_path]
         map_server_proc = subprocess.Popen(map_server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("map server launched")
 
         # Launch RViz
         rviz_cmd = ['rosrun', 'rviz', 'rviz', '-d', 'rviz/map_pointer.rviz']
         rviz_proc = subprocess.Popen(rviz_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("rviz launched")
 
         # Wait for RViz to load
-        rospy.loginfo("Waiting 5 seconds for RViz to load...")
-        rospy.sleep(5)
+        rospy.loginfo("Waiting 2 seconds for RViz to load...")
+        rospy.sleep(2)
 
         # Start point recorder
         recorder = PointRecorder()
