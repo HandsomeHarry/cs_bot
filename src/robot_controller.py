@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+# Teams:
+# robot 1, 2: T, Red, Yellow
+# robot 3, 4: CT, Green, Blue
+
 import rospy
 from geometry_msgs.msg import Twist, Point, Pose
 from nav_msgs.msg import Odometry, OccupancyGrid
@@ -36,28 +40,25 @@ class CSRobotController:
         self.detected_enemies = []
         self.is_planting = False
         self.is_defusing = False
+        self.bridge = CvBridge()
+        self.tf_listener = tf.TransformListener()
         
         # visual recognition parameters
         self.color_ranges = {
-            'blue': ((100, 150, 50), (130, 255, 255)),
-            'dark_blue': ((110, 150, 30), (130, 255, 100)),
-            'red': ((0, 100, 50), (10, 255, 255), (170, 100, 50), (180, 255, 255)),
-            'dark_red': ((0, 100, 10), (10, 255, 50), (170, 100, 10), (180, 255, 50))
+            'blue': ((115, 225, 225), (125, 255, 255)),    
+            'dark_blue': ((115, 225, 35), (125, 255, 55)),  
+            'red': ((0, 225, 235), (5, 255, 255)),    
+            'dark_red': ((0, 225, 35), (5, 255, 55))       
         }
 
         self.min_enemy_area = 50  # minimum detection area
         self.enemy_detection_threshold = 0.01  # detection confidence threshold
-        
         
         # tactical parameters
         self.patrol_points = self.generate_patrol_points()
         self.current_patrol_index = 0
         self.target_position = None
         self.state = "SEARCHING"  # SEARCHING, ENGAGING, AVOIDING
-        
-        # ROS interfaces
-        self.bridge = CvBridge()
-        self.tf_listener = tf.TransformListener()
         
         # publishers
         self.cmd_vel_pub = rospy.Publisher('/{}/cmd_vel'.format(self.robot_name), Twist, queue_size=1)
@@ -66,8 +67,10 @@ class CSRobotController:
         self.debug_mask_pub = rospy.Publisher('/{}/debug_mask'.format(self.robot_name), Image, queue_size=1)
         
         # subscribers
-        self.setup_subscribers()
-        rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
+        rospy.Subscriber('/game/robot_states', RobotStateMsg, self.game_state_callback)
+        rospy.Subscriber('/{}/scan'.format(self.robot_name), LaserScan, self.laser_callback)
+        rospy.Subscriber('/{}/camera/image_raw'.format(self.robot_name), Image, self.camera_callback)
+        rospy.Subscriber('/{}/odom'.format(self.robot_name), Odometry, self.odom_callback)        rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
 
         # Add map subscriber
         self.map_data = None
@@ -77,11 +80,9 @@ class CSRobotController:
         self.move_base = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self.move_base.wait_for_server()
 
-    def setup_subscribers(self):
-        rospy.Subscriber('/game/robot_states', RobotStateMsg, self.game_state_callback)
-        rospy.Subscriber('/{}/scan'.format(self.robot_name), LaserScan, self.laser_callback)
-        rospy.Subscriber('/{}/camera/image_raw'.format(self.robot_name), Image, self.camera_callback)
-        rospy.Subscriber('/{}/odom'.format(self.robot_name), Odometry, self.odom_callback)
+        # Define enemy colors
+        if self.name = 'robot1':
+            self.color = 'red'
 
     def start_planting(self):
         self.is_planting = True
@@ -189,12 +190,21 @@ class CSRobotController:
         msg.robot_name = self.robot_name
         msg.team = self.team
         msg.health = self.health
-        msg.position = self.position
         msg.is_alive = self.is_alive
         msg.weapon_type = self.weapon.name
         msg.is_planting = self.is_planting
         msg.is_defusing = self.is_defusing
         self.state_pub.publish(msg)
+
+    def take_damage(self, damage):
+        """process taking damage"""
+        if self.is_alive:
+            self.health -= damage
+            if self.health <= 0:
+                self.health = 0
+                self.is_alive = False
+                rospy.loginfo("%s has been eliminated" % self.robot_name)
+
 
     def run(self):
         """main run loop"""
@@ -222,7 +232,6 @@ class CSRobotController:
 
     def map_callback(self, msg):
         self.map_data = msg
-        # Now you can use self.map_data for path planning
 
     def move_to_position(self, target):
         if self.avoiding:
