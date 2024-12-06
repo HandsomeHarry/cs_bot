@@ -61,7 +61,7 @@ class Gun:
                 self.ammo = self.ammo_capacity
                 return True
             return False
-        return current_time - self.last_shot_time >= self.fire_rate:
+        return current_time - self.last_shot_time >= self.fire_rate
 
     def shoot(self):
         """shooting"""
