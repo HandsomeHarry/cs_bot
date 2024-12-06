@@ -46,8 +46,6 @@ class RobotStateManager:
         msg = RobotStateMsg()
         msg.robot_name = self.robot_name
         msg.team = self.team
-        msg.health = self.health
-        msg.position = self.position
         msg.is_alive = self.is_alive
         msg.weapon_type = self.weapon_type
         msg.is_planting = self.is_planting

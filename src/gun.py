@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rospy
 import random
 
@@ -50,29 +52,25 @@ class Gun:
         
         rospy.loginfo(f"Initialized {weapon_type}: DMG={self.damage}, AMMO={self.ammo_capacity}")
 
-    def reload_weapon(self):
-        """reload weapon"""
-        if not self.is_reloading:
-            self.reload_state = True
-            self.last_shot_time = rospy.Time.now().to_sec()
-
     def can_shoot(self):
         """check if can shoot"""
         current_time = rospy.Time.now().to_sec()
         if self.is_reloading:
-            if current_time - self.last_shot_time >= self.weapon.value['reload_time']:
+            if current_time - self.last_shot_time >= self.reload_time:
                 self.is_reloading = False
                 self.ammo = self.ammo_capacity
                 return True
             return False
-        return self.ammo > 0
+        return current_time - self.last_shot_time >= self.fire_rate:
 
     def shoot(self):
         """shooting"""
         if self.can_shoot():
             self.ammo -= 1
+            self.last_shot_time = rospy.Time.now().to_sec()
             if self.ammo <= 0:
-                self.reload_weapon()
+                self.is_reloading = True
+                self.last_shot_time = rospy.Time.now().to_sec()
             if random.random() <= accuracy:
                 return self.damage
         return 0
