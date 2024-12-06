@@ -15,11 +15,7 @@ import math
 import random
 import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-
-class WeaponType(Enum):
-    RIFLE = {"damage": 25, "speed": 0.2, "reload_time": 2.5, "range": 30}
-    SNIPER = {"damage": 100, "speed": 0.1, "reload_time": 3.5, "range": 50}
-    SMG = {"damage": 15, "speed": 0.3, "reload_time": 1.5, "range": 15}
+from gun import Gun
 
 class BombSite(Enum):
     A = Point(x=10.0, y=10.0, z=0.0)  # make this a random point in the rectangular range of two points?
@@ -34,12 +30,9 @@ class CSRobotController:
         self.health = 100
         self.is_alive = True
         self.team = rospy.get_param('~team', 'T')
-        self.weapon = WeaponType[rospy.get_param('~weapon', 'RIFLE')]
+        self.weapon = Gun(rospy.get_param('~weapon', 'rifle'))
         self.position = Pose()
         self.orientation = 0.0
-        self.ammo = 30
-        self.last_shot_time = 0
-        self.reload_state = False
         self.detected_enemies = []
         self.is_planting = False
         self.is_defusing = False
@@ -415,31 +408,9 @@ class CSRobotController:
         self.current_patrol_index = (self.current_patrol_index + 1) % len(self.patrol_points)
         return point
 
-    def reload_weapon(self):
-        """reload weapon"""
-        if not self.reload_state:
-            self.reload_state = True
-            self.last_shot_time = rospy.Time.now().to_sec()
-
-    def can_shoot(self):
-        """check if can shoot"""
-        current_time = rospy.Time.now().to_sec()
-        if self.reload_state:
-            if current_time - self.last_shot_time >= self.weapon.value['reload_time']:
-                self.reload_state = False
-                self.ammo = 30
-                return True
-            return False
-        return self.ammo > 0
-
     def shoot(self):
         """shooting"""
-        if self.can_shoot():
-            self.ammo -= 1
-            if self.ammo <= 0:
-                self.reload_weapon()
-            return True
-        return False
+        pass    
 
     def publish_state(self):
         """publish robot state"""
