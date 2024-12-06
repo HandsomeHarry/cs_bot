@@ -3,7 +3,7 @@
 
 import rospy
 from geometry_msgs.msg import Twist, Point, Pose
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry, OccupancyGrid
 from sensor_msgs.msg import LaserScan, Image
 from cs_bot.msg import GameStateMsg, RobotStateMsg
 from cv_bridge import CvBridge
@@ -13,6 +13,8 @@ from enum import Enum
 import tf
 import math
 import random
+import actionlib
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 class WeaponType(Enum):
     RIFLE = {"damage": 25, "speed": 0.2, "reload_time": 2.5, "range": 30}
@@ -106,6 +108,14 @@ class CSRobotController:
         # subscribers
         self.setup_subscribers()
         rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
+
+        # Add map subscriber
+        self.map_data = None
+        rospy.Subscriber('/map', OccupancyGrid, self.map_callback)
+
+        # Add move_base client
+        self.move_base = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+        self.move_base.wait_for_server()
 
     def setup_subscribers(self):
         rospy.Subscriber('/game/robot_states', RobotStateMsg, self.game_state_callback)
@@ -509,6 +519,24 @@ class CSRobotController:
                     self.move_to_position(self.target_position)
             
             rate.sleep()
+
+    def map_callback(self, msg):
+        self.map_data = msg
+        # Now you can use self.map_data for path planning
+
+    def move_to_position(self, target):
+        if self.avoiding:
+            return
+
+        # Create move_base goal
+        goal = MoveBaseGoal()
+        goal.target_pose.header.frame_id = "map"
+        goal.target_pose.header.stamp = rospy.Time.now()
+        goal.target_pose.pose.position = target
+        goal.target_pose.pose.orientation.w = 1.0
+
+        # Send goal to move_base
+        self.move_base.send_goal(goal)
 
 if __name__ == '__main__':
     try:

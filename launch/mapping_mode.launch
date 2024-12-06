@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Start Gazebo with game world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find cs_bot)/worlds/game_world.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+    </include>
+
+    <!-- Only spawn T robot for mapping -->
+    <group ns="t_robot1">
+        <param name="tf_prefix" value="t_robot1"/>
+        
+        <param name="robot_description" 
+               command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/cs_robot_red.urdf.xacro robot_name:=t_robot1" />
+        
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+              args="-urdf -model t_robot1 -x 0.0 -y 0.0 -z 0 -param robot_description"
+              output="screen" />
+
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="t_robot1"/>
+        </node>
+
+        <!-- SLAM node -->
+        <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+            <param name="base_frame" value="t_robot1/base_footprint"/>
+            <param name="odom_frame" value="t_robot1/odom"/>
+            <param name="map_frame" value="map"/>
+            <param name="maxUrange" value="10.0"/>
+            <param name="maxRange" value="10.0"/>
+        </node>
+    </group>
+
+    <!-- Teleop node -->
+    <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" output="screen">
+        <remap from="cmd_vel" to="/t_robot1/cmd_vel"/>
+    </node>
+
+    <!-- Start RViz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find cs_bot)/rviz/mapping_config.rviz" />
+</launch> 

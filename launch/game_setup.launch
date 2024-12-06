@@ -11,4 +11,7 @@
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
     </include>
+
+    <!-- start map server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find cs_bot)/maps/map.yaml"/>
 </launch>
