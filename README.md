@@ -18,7 +18,7 @@ The arena will be bound by colored tape, after a robot player ‘dies’, it’l
 
 ## World Mapping:
 
-To generate a `.yaml` world file and a `.pgm` map, follow these steps:
+To map the surrouding and generate a `.yaml` world file and a `.pgm` map, follow these steps:
 
 1. **Bring up the robot** to get started.
 
@@ -33,10 +33,10 @@ To generate a `.yaml` world file and a `.pgm` map, follow these steps:
 4. Once the entire target area has been scanned, open another terminal and execute the following command to save the map:
 
    ```bash
-   rosrun map_server map_saver -f $(find cs_bot)/maps/<map_name>
+   rosrun map_server map_saver -f `rospack find cs_bot`/maps/my_map
    ```
 
-5. This will generate two files: `<map_name>.yaml` and `<map_name>.pgm`.
+5. This will generate two files: `<map_name>.yaml` and `<map_name>.pgm` in `cs_bot/maps`.
 
 
 ## Bot node:
