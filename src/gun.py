@@ -70,7 +70,6 @@ class Gun:
             self.last_shot_time = rospy.Time.now().to_sec()
             if self.ammo <= 0:
                 self.is_reloading = True
-                self.last_shot_time = rospy.Time.now().to_sec()
             if random.random() <= accuracy:
                 return self.damage
         return 0
