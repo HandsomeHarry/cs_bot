@@ -91,7 +91,6 @@
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
     <model name='inferno-A'>
-      <static>1</static>
       <pose>1.02842 -1.29186 0 0 -0 0</pose>
       <link name='Wall_0'>
         <collision name='Wall_0_Collision'>
@@ -104,7 +103,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -112,10 +110,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -153,7 +148,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -161,10 +155,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -202,7 +193,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -210,10 +200,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -251,7 +238,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -259,10 +245,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -300,7 +283,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -308,10 +290,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -349,7 +328,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -357,10 +335,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -398,7 +373,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -406,10 +380,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -447,7 +418,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -455,10 +425,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -496,7 +463,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -504,10 +470,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -545,7 +508,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -553,10 +515,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -594,7 +553,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -602,10 +560,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -643,7 +598,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -651,10 +605,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -692,7 +643,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -700,10 +650,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -741,7 +688,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -749,10 +695,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -790,7 +733,6 @@
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
-              <collide_bitmask>65535</collide_bitmask>
               <ode/>
             </contact>
             <bounce/>
@@ -798,10 +740,7 @@
               <torsional>
                 <ode/>
               </torsional>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
+              <ode/>
             </friction>
           </surface>
         </collision>
@@ -829,6 +768,7 @@
         <kinematic>0</kinematic>
       </link>
       <static>1</static>
+      <scale>1 1 0.3</scale>
     </model>
     <state world_name='default'>
       <sim_time>765 782000000</sim_time>
@@ -847,6 +787,7 @@
       </model>
       <model name='inferno-A'>
         <pose>0.12345 0.35 0 0 -0 0</pose>
+        <scale>1 1 0.3</scale>
         <link name='Wall_0'>
           <pose>-2.30155 0.0325 0 0 0 -1.5708</pose>
           <velocity>0 0 0 0 -0 0</velocity>

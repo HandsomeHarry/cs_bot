@@ -28,7 +28,7 @@
         
         <!-- Load robot model -->
         <param name="robot_description" 
-               command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/cs_robot_red.urdf.xacro robot_name:=t_robot1" />
+               command="$(find xacro)/xacro $(find cs_bot)/urdf/cs_robot_red.urdf.xacro robot_name:=t_robot1" />
         
         <!-- Spawn Robot -->
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
@@ -41,11 +41,10 @@
         </node>
 
         <!-- AMCL -->
-        <include file="$(find amcl)/examples/amcl_diff.launch">
-            <arg name="scan_topic" value="scan"/>
-            <arg name="initial_pose_x" value="0.0"/>
-            <arg name="initial_pose_y" value="0.0"/>
-        </include>
+        <node pkg="amcl" type="amcl" name="amcl">
+            <param name="initial_pose_x" value="0.0"/>
+            <param name="initial_pose_y" value="0.0"/>
+        </node>
 
         <!-- Navigation -->
         <node pkg="move_base" type="move_base" name="move_base" output="screen">
@@ -67,7 +66,7 @@
         <param name="tf_prefix" value="ct_robot1"/>
         
         <param name="robot_description" 
-               command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/cs_robot_blue.urdf.xacro robot_name:=ct_robot1" />
+               command="$(find xacro)/xacro $(find cs_bot)/urdf/cs_robot_blue.urdf.xacro robot_name:=ct_robot1" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
               args="-urdf -model ct_robot1 -x 0.0 -y 5.0 -z 0 -param robot_description"/>
@@ -78,11 +77,10 @@
         </node>
 
         <!-- AMCL -->
-        <include file="$(find amcl)/examples/amcl_diff.launch">
-            <arg name="scan_topic" value="scan"/>
-            <arg name="initial_pose_x" value="0.0"/>
-            <arg name="initial_pose_y" value="5.0"/>
-        </include>
+        <node pkg="amcl" type="amcl" name="amcl">
+            <param name="initial_pose_x" value="0.0"/>
+            <param name="initial_pose_y" value="5.0"/>
+        </node>
 
         <node pkg="move_base" type="move_base" name="move_base" output="screen">
             <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />

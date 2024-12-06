@@ -61,7 +61,7 @@ class Gun:
                 self.ammo = self.ammo_capacity
                 return True
             return False
-        return current_time - self.last_shot_time >= self.fire_rate:
+        return current_time - self.last_shot_time >= self.fire_rate
 
     def shoot(self):
         """shooting"""
@@ -71,7 +71,7 @@ class Gun:
             if self.ammo <= 0:
                 self.is_reloading = True
                 self.last_shot_time = rospy.Time.now().to_sec()
-            if random.random() <= accuracy:
+            if random.random() <= self.accuracy:
                 return self.damage
         return 0
 
