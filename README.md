@@ -16,6 +16,28 @@ Before starting, run the following in console to set up map:
 The arena will be bound by colored tape, after a robot player ‘dies’, it’ll stay put. The robots will try to ‘kill’ each other.
 
 
+## World Mapping:
+
+To generate a `.yaml` world file and a `.pgm` map, follow these steps:
+
+1. **Bring up the robot** to get started.
+
+2. Launch SLAM using `gmapping` by running the following command:
+
+   ```bash
+   roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
+   ```
+
+3. Open a new terminal and run the command: `teleop` to control the robot with the keyboard. Drive the robot around the target area to scan its surroundings.
+
+4. Once the entire target area has been scanned, open another terminal and execute the following command to save the map:
+
+   ```bash
+   rosrun map_server map_saver -f $(find cs_bot)/maps/<map_name>
+   ```
+
+5. This will generate two files: `<map_name>.yaml` and `<map_name>.pgm`.
+
 
 ## Bot node:
 - Movement logic
