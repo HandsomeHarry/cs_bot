@@ -15,6 +15,7 @@ class GameManager:
         self.bomb_planted = False
         self.bomb_time = 40
         self.bomb_location = Point()
+        self.dead_players = []
         self.robot_states = {}
         self.publishers = {}
         
@@ -24,7 +25,7 @@ class GameManager:
         rospy.Subscriber('/game/robot_states', RobotStateMsg, self.robot_state_callback)
         rospy.Subscriber('/game/shoot', CombatEvent, self.handle_combat)
         rospy.Timer(rospy.Duration(1.0), self.timer_callback)
-        rospy.Timer(rospy.Duration(0.1), self.update_robot_state)
+        rospy.Timer(rospy.Duration(0.1), self.publish_game_state)
 
     def robot_state_callback(self, msg):
         """manage robot state"""
@@ -37,6 +38,7 @@ class GameManager:
             if self.robot_states.get(target).health <= 0
                 self.robot_states[target].health = 0
                 self.robot_states[target].is_alive = False  # kill
+                self.dead_players.append(target)
         else:
             print('Could not find robot ' + target)
       
@@ -51,20 +53,19 @@ class GameManager:
                 self.round_time -= 1
                 if self.round_time <= 0:
                     self.end_round("Counter-Terrorists")  # time runs out, CT wins     
-        self.publish_game_state()
 
-    def update_robot_state(self, event):
+    def update_robot_states(self):
         """timer callback, update each player"""
         for robot_name, robot_state in self.robot_states.items():
             # Create a publisher if not already created
             if robot_name not in self.publishers:
                 topic = f'/{robot_name}/robot_state'
-                self.publishers[robot_name] = rospy.Publisher(topic, RobotStateMsg, queue_size=10)
+                self.publishers[robot_name] = rospy.Publisher(topic, RobotStateMsg, queue_size=1)
             
             # Publish the robot state
             self.publishers[robot_name].publish(robot_state)
         
-    def publish_game_state(self):
+    def publish_game_state(self, event):
         """publish game state"""
         msg = GameStateMsg()
         msg.round_time_remaining = self.round_time
@@ -73,6 +74,7 @@ class GameManager:
         msg.bomb_location = self.bomb_location
         msg.dead_players = self.dead_players
         self.game_state_pub.publish(msg)
+        self.update_robot_states()
         
     def get_game_phase(self):
         """get current game phase"""

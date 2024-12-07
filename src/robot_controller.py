@@ -81,6 +81,7 @@ class CSRobotController:
         rospy.Subscriber('/{}/camera/image_raw'.format(self.robot_name), Image, self.process_image)
         rospy.Subscriber('/map', OccupancyGrid, self.map_callback)  
         rospy.Subscriber('/{}/robot_state'.format(self.robot_name), RobotStateMsg, self.update_state) # robots own status
+        rospy.Subscriber('/game/state', GameStateMsg, self.game_state_callback)
 
         # Add move_base client
         self.move_base = actionlib.SimpleActionClient('move_base', MoveBaseAction)
@@ -151,7 +152,9 @@ class CSRobotController:
             
     def game_state_callback(self, msg):
         """process game state callback"""
-        pass
+        self.dead_players = msg.dead_players
+        self.round_time_remaining = msg.round_time_remaining
+        self.bomb_being_planted = msg.bomb_planted
 
     def generate_patrol_points(self):
         """generate patrol points"""
