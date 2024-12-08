@@ -233,6 +233,11 @@ class CSRobotController:
             done_cb=self.patrol_goal_done_callback
         )
 
+    def stay_put(self):
+        """stay put"""
+        self.move_base.cancel_goal()
+
+
     def patrol_goal_done_callback(self, status, result):
         """Callback for when a patrol point is reached"""
         self.current_goal_active = False
@@ -243,32 +248,32 @@ class CSRobotController:
         self.current_patrol_index = (self.current_patrol_index + 1) % len(self.patrol_points)
         self.send_next_patrol_point()
 
-    def run(self):
-        """main run loop (deprecated)"""
-        rate = rospy.Rate(10)  # 10Hz
-        while not rospy.is_shutdown() and self.is_alive:
-            self.publish_state()
+    # def run(self):
+    #     """main run loop (deprecated)"""
+    #     rate = rospy.Rate(10)  # 10Hz
+    #     while not rospy.is_shutdown() and self.is_alive:
+    #         self.publish_state()
 
-            # state machine handling
-            if self.avoiding:
-                self.state = "AVOIDING"
-                self.is_patrolling = False
-                if self.current_goal_active:
-                    self.move_base.cancel_goal()
-            elif self.detected_enemies:
-                self.state = "ENGAGING"
-                self.is_patrolling = False
-                if self.current_goal_active:
-                    self.move_base.cancel_goal()
-                self.handle_combat()
-            else:
-                self.state = "SEARCHING"
-                # Resume patrol for CT team
-                if self.team == 'CT' and not self.is_patrolling:
-                    self.is_patrolling = True
-                    self.send_next_patrol_point()
+    #         # state machine handling
+    #         if self.avoiding:
+    #             self.state = "AVOIDING"
+    #             self.is_patrolling = False
+    #             if self.current_goal_active:
+    #                 self.move_base.cancel_goal()
+    #         elif self.detected_enemies:
+    #             self.state = "ENGAGING"
+    #             self.is_patrolling = False
+    #             if self.current_goal_active:
+    #                 self.move_base.cancel_goal()
+    #             self.handle_combat()
+    #         else:
+    #             self.state = "SEARCHING"
+    #             # Resume patrol for CT team
+    #             if self.team == 'CT' and not self.is_patrolling:
+    #                 self.is_patrolling = True
+    #                 self.send_next_patrol_point()
 
-            rate.sleep()
+    #         rate.sleep()
 
     def map_callback(self, msg):
         self.map_data = msg
