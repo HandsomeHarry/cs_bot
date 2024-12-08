@@ -9,7 +9,7 @@ class CTNormie(CSRobotController):
         super().__init__()
 
         # Initialize the state machine
-        self.machine = Machine(
+        self.machine = Machine(     # this replaces the state machine in parent class (self.state)
             model=self,
             states=CTNormie.states,
             initial='patrolling'
@@ -46,30 +46,12 @@ class CTNormie(CSRobotController):
             dest='patrolling'
         )
 
-        self.machine.add_transition(
-            trigger='health_low',
-            source=['engaging', 'defending_site'],
-            dest='retreating'
-        )
-
-        self.machine.add_transition(
-            trigger='health_recovered',
-            source='retreating',
-            dest='patrolling'
-        )
-
     def run(self):
         """Override the run loop with state machine logic"""
         rate = rospy.Rate(10)  # 10Hz
 
         while not rospy.is_shutdown() and self.is_alive:
             self.publish_state()
-
-            # State machine transitions based on conditions
-            if self.health < 30:
-                self.health_low()
-            elif self.health > 50 and self.state == 'retreating':
-                self.health_recovered()
 
             # State-specific behaviors
             if self.state == 'patrolling':
