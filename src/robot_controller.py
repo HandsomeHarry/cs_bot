@@ -244,7 +244,7 @@ class CSRobotController:
         self.send_next_patrol_point()
 
     def run(self):
-        """main run loop"""
+        """main run loop (deprecated)"""
         rate = rospy.Rate(10)  # 10Hz
         while not rospy.is_shutdown() and self.is_alive:
             self.publish_state()
@@ -281,7 +281,7 @@ class CSRobotController:
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
         goal.target_pose.header.stamp = rospy.Time.now()
-        goal.target_pose.pose.position = target
+        goal.target_pose.pose.position = target     # point type e.g. Point(x=1.30, y=-0.62, z=0.0)
         goal.target_pose.pose.orientation.w = 1.0
 
         # Send goal to move_base
