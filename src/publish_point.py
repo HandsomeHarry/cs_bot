@@ -18,7 +18,8 @@ class PointRecorder:
     def __init__(self):
         rospy.init_node('point_recorder', anonymous=True)
         self.points = []
-        self.labels = ['T_spawn', 'CT_spawn', 'site_corner1', 'site_corner2']
+        #self.labels = ['T_spawn', 'CT_spawn', 'site_corner1', 'site_corner2']
+        self.labels = ['T_spawn', 'CT_spawn', 'site_corner1', 'site_corner2', 'patrol_point1', 'patrol_point2', 'patrol_point3', 'patrol_point4']
         self.current_label_index = 0
         self.filename = f"site_points.csv"
 

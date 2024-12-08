@@ -40,7 +40,7 @@ To map the surrouding and generate a `.yaml` world file and a `.pgm` map, follow
 
 # Defining the spawn points and bomb site area
 
-1. run the python file 
+1. run the python file
 
 
 ## Bot node:

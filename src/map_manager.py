@@ -33,7 +33,7 @@ class MapManager:
         """load map information from CSV file"""
         try:
             # Get the CSV file path
-            csv_file = os.path.join(os.path.dirname(__file__), '../site_points.csv')
+            csv_file = os.path.join(os.path.dirname(__file__), '../points.csv')
             
             # Read CSV using pandas
             df = pd.read_csv(csv_file)

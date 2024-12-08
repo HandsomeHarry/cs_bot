@@ -35,7 +35,7 @@ class GameManager:
         target = msg.target_name
         if target in self.robot_states:
             self.robot_states[target].health -= msg.damage_dealt  # Decrease health
-            if self.robot_states.get(target).health <= 0
+            if self.robot_states.get(target).health <= 0:
                 self.robot_states[target].health = 0
                 self.robot_states[target].is_alive = False  # kill
                 self.dead_players.append(target)
@@ -84,7 +84,7 @@ class GameManager:
             return "BOMB_PLANTED"
         else:
             return "ACTIVE"
-            
+
     def end_round(self, winner):
         """end round"""
         self.round_active = False

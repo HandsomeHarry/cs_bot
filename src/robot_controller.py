@@ -24,7 +24,7 @@ from gun import Gun
 class CSRobotController:
     def __init__(self):
         rospy.init_node('cs_robot_controller', anonymous=True)
-        
+
         # robot state
         self.robot_name = rospy.get_param('~robot_name', 'robot1')
         self.health = 100
@@ -51,7 +51,7 @@ class CSRobotController:
         'dark_blue': 'robot3',
         'dark_red': 'robot4'
         }
-        
+
         self.color_ranges = {
             'blue': ((115, 225, 225), (125, 255, 255)),    
             'dark_blue': ((115, 225, 35), (125, 255, 55)),  
@@ -65,18 +65,18 @@ class CSRobotController:
             self.enemy_colors = ['blue','dark_blue']
 
         self.enemy_detection_threshold = 1500  # amount of pixels needed to detect
-        
+
         # tactical parameters
         self.patrol_points = self.generate_patrol_points()
         self.current_patrol_index = 0
         self.target_position = None
         self.state = "SEARCHING"  # SEARCHING, ENGAGING, AVOIDING
-        
+
         # publishers
         self.cmd_vel_pub = rospy.Publisher('/{}/cmd_vel'.format(self.robot_name), Twist, queue_size=1)
         self.state_pub = rospy.Publisher('/game/robot_states', RobotStateMsg, queue_size=1)
         self.shoot_pub = rospy.Publisher('/game/shoot', CombatEvent, queue_size=1)
-        
+
         # subscribers
         rospy.Subscriber('/{}/camera/image_raw'.format(self.robot_name), Image, self.process_image)
         rospy.Subscriber('/map', OccupancyGrid, self.map_callback)  
@@ -89,6 +89,15 @@ class CSRobotController:
         rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
 
         rospy.Timer(rospy.Duration(0.1), self.publish_state) # publish state 10/s
+
+        # Add patrol state variables
+        self.is_patrolling = False
+        self.current_goal_active = False
+
+        # Initialize patrol only for CT side
+        if self.team == 'CT':
+            self.is_patrolling = True
+            self.start_patrol()
 
     def update_state(self, msg):
         if self.robot_name == msg.robot_name:
@@ -147,9 +156,9 @@ class CSRobotController:
                             self.twist.angular.z = 0.0  # Stop turning
                             self.twist.linear.x = 0.0
                             self.shoot(enemy_color)
-        except Exception as e
+        except Exception as e:
             rospy.logerr(f"Error in process_image: {e}")
-            
+
     def game_state_callback(self, msg):
         """process game state callback"""
         self.dead_players = msg.dead_players
@@ -157,14 +166,12 @@ class CSRobotController:
         self.bomb_being_planted = msg.bomb_planted
 
     def generate_patrol_points(self):
-        """generate patrol points"""
+        """preset patrol points"""
         patrol_points = [
-            Point(x=5.0, y=5.0, z=0.0),
-            Point(x=-5.0, y=5.0, z=0.0),
-            Point(x=-5.0, y=-5.0, z=0.0),
-            Point(x=5.0, y=-5.0, z=0.0),
-            BombSite.A.value,
-            BombSite.B.value
+            Point(x=-1.76, y=-0.75, z=0.0),
+            Point(x=1.30, y=-0.62, z=0.0),
+            Point(x=0.91, y=1.21, z=0.0),
+            Point(x=-0.51, y=0.45, z=0.0),
         ]
         random.shuffle(patrol_points)
         return patrol_points
@@ -197,27 +204,70 @@ class CSRobotController:
         msg.is_defusing = self.is_defusing
         self.state_pub.publish(msg)
 
+    def start_patrol(self):
+        """Initialize patrol sequence"""
+        if not self.patrol_points:
+            rospy.logwarn(f"{self.robot_name}: No patrol points available")
+            return
+            
+        self.current_patrol_index = 0
+        self.send_next_patrol_point()
+
+    def send_next_patrol_point(self):
+        """Send next patrol point to move_base"""
+        if not self.is_patrolling or not self.is_alive:
+            return
+
+        target = self.patrol_points[self.current_patrol_index]
+        
+        # Create and send move_base goal
+        goal = MoveBaseGoal()
+        goal.target_pose.header.frame_id = "map"
+        goal.target_pose.header.stamp = rospy.Time.now()
+        goal.target_pose.pose.position = target
+        goal.target_pose.pose.orientation.w = 1.0
+
+        self.current_goal_active = True
+        self.move_base.send_goal(
+            goal,
+            done_cb=self.patrol_goal_done_callback
+        )
+
+    def patrol_goal_done_callback(self, status, result):
+        """Callback for when a patrol point is reached"""
+        self.current_goal_active = False
+        if not self.is_patrolling:
+            return
+            
+        # Move to next patrol point
+        self.current_patrol_index = (self.current_patrol_index + 1) % len(self.patrol_points)
+        self.send_next_patrol_point()
+
     def run(self):
         """main run loop"""
         rate = rospy.Rate(10)  # 10Hz
         while not rospy.is_shutdown() and self.is_alive:
             self.publish_state()
-            
+
             # state machine handling
             if self.avoiding:
                 self.state = "AVOIDING"
+                self.is_patrolling = False
+                if self.current_goal_active:
+                    self.move_base.cancel_goal()
             elif self.detected_enemies:
                 self.state = "ENGAGING"
+                self.is_patrolling = False
+                if self.current_goal_active:
+                    self.move_base.cancel_goal()
                 self.handle_combat()
             else:
                 self.state = "SEARCHING"
-                # execute patrol task
-                if not self.target_position or self.is_target_reached():
-                    self.target_position = self.get_next_patrol_point()
-                
-                if not self.avoiding:
-                    self.move_to_position(self.target_position)
-            
+                # Resume patrol for CT team
+                if self.team == 'CT' and not self.is_patrolling:
+                    self.is_patrolling = True
+                    self.send_next_patrol_point()
+
             rate.sleep()
 
     def map_callback(self, msg):
