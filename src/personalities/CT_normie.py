@@ -1,131 +1,100 @@
-from transitions import Machine
-from robot_controller import CSRobotController
+#!/usr/bin/env python
+
 import rospy
-from transitions.extensions import GraphMachine
-from IPython.display import Image
+import sys
 import os
+from random import random
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from robot_controller import CSRobotController
+from transitions import Machine
 
 class CTNormie(CSRobotController):
-    states = ['patrolling', 'engaging', 'defending_site', 'defusing', 'retreating', 'dead', 'resetting', 'waiting']
+    states = [
+        'patrolling',
+        'engaging',
+        'defending_site',
+        'defusing',
+        'retreating',
+        'dead',
+        'resetting',
+        'waiting'
+    ]
 
     def __init__(self):
         super().__init__()
 
-        # Initialize the state machine
-        self.machine = GraphMachine(     # this replaces the state machine in parent class (self.state)
+        self.is_patrolling = False
+        self.current_goal_active = False
+        self.spawn_point = None
+        self.is_alive = True
+
+        self.machine = Machine(
             model=self,
-            states=CTNormie.states,
-            initial='patrolling',
-            show_conditions=True
+            states=[
+                {'name': 'patrolling', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'},
+                {'name': 'engaging', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'},
+                {'name': 'defending_site', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'},
+                {'name': 'defusing', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'},
+                {'name': 'retreating', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'},
+                {'name': 'dead', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'},
+                {'name': 'resetting', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'},
+                {'name': 'waiting', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'}
+            ],
+            initial='patrolling'
         )
 
-        # Define transitions
-        self.machine.add_transition(
-            trigger='enemy_spotted',
-            source=['patrolling', 'defending_site'],
-            dest='engaging'
-        )
+        self.machine.add_transition('enemy_spotted', ['patrolling', 'defending_site'], 'engaging', conditions=['is_enemy_visible'])
+        self.machine.add_transition('enemy_lost', 'engaging', 'patrolling')
+        self.machine.add_transition('bomb_planted', ['patrolling', 'engaging'], 'defending_site')
+        self.machine.add_transition('start_defuse', ['defending_site', 'patrolling'], 'defusing')
+        self.machine.add_transition('defuse_complete', 'defusing', 'patrolling')
+        self.machine.add_transition('reset', '*', 'resetting')
+        self.machine.add_transition('reset_complete', 'resetting', 'waiting')
 
-        self.machine.add_transition(
-            trigger='enemy_lost',
-            source='engaging',
-            dest='patrolling'
-        )
+    def on_state_enter(self):
+        rospy.loginfo(f"Entering state: {self.state}")
 
-        self.machine.add_transition(
-            trigger='bomb_planted',
-            source=['patrolling', 'engaging'],
-            dest='defending_site'
-        )
+    def on_state_exit(self):
+        rospy.loginfo(f"Exiting state: {self.state}")
 
-        self.machine.add_transition(
-            trigger='start_defuse',
-            source=['defending_site', 'patrolling'],
-            dest='defusing'
-        )
+    def is_enemy_visible(self):
+        return random() > 0.5  # Placeholder for real detection
 
-        self.machine.add_transition(
-            trigger='defuse_complete',
-            source='defusing',
-            dest='patrolling'
-        )
+    def publish_state(self):
+        rospy.loginfo(f"Current state: {self.state}")
 
-        self.machine.add_transition(
-            trigger='reset',
-            source='*',
-            dest='resetting'
-        )
-
-        self.machine.add_transition(
-            trigger='reset_complete',
-            source='resetting',
-            dest='waiting'
-        )
+    def handle_patrolling(self):
+        if not self.is_patrolling:
+            self.is_patrolling = True
+            try:
+                self.send_next_patrol_point()
+            except Exception as e:
+                rospy.logerr(f"Error in patrolling: {e}")
+                self.is_patrolling = False
 
     def run(self):
-        """Override the run loop with state machine logic"""
-        rate = rospy.Rate(10)  # 10Hz
-
+        if not rospy.is_initialized():
+            rospy.init_node('ct_normie_controller')
+        
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown() and self.is_alive:
-            self.publish_state()
+            try:
+                self.publish_state()
 
-            #'patrolling', 'engaging', 'defending_site', 'defusing', 'retreating'
+                if self.state == 'patrolling':
+                    self.handle_patrolling()
+                elif self.state == 'engaging':
+                    self.handle_engaging()
 
-            # State-specific behaviors
-            if self.state == 'patrolling':
-                if not self.is_patrolling:
-                    self.is_patrolling = True
-                    self.send_next_patrol_point()
-
-            elif self.state == 'engaging':
-                self.is_patrolling = False
-                if self.current_goal_active:
-                    self.move_base.cancel_goal()
-                # Combat logic here
-
-            elif self.state == 'defending_site':
-                self.is_patrolling = False
-                # Implement site defense behavior
-
-            elif self.state == 'defusing':
-                self.is_patrolling = False
-                self.start_defusing()
-                # Implement defuse behavior
-
-            elif self.state == 'retreating':
-                self.is_patrolling = False
-                # Implement retreat behavior
-
-            # After death and before next round
-            # 'dead', 'resetting', 'waiting'
-            elif self.state == 'dead':
-                # Implement dead behavior
-                self.is_patrolling = False
-                self.stay_put()
-
-            elif self.state == 'resetting':
-                # Implement resetting behavior
-                self.move_to_position(self.spawn_point)
-
-            elif self.state == 'waiting':
-                # Implement waiting behavior
-                self.is_patrolling = False
-                self.stay_put()
+            except Exception as e:
+                rospy.logerr(f"Error in run loop: {e}")
+                self.reset()
 
             rate.sleep()
-
-    def draw_diagram(self):
-        """Generate a PNG image of the state machine"""
-        # Draw the diagram
-        self.graph.draw('ct_normie_states.png', prog='dot')
-        
-        # Optional: Display the image if in Jupyter notebook
-        return Image('ct_normie_states.png')
 
 if __name__ == '__main__':
     try:
         controller = CTNormie()
-        controller.draw_diagram()  # This will save the diagram
         controller.run()
     except rospy.ROSInterruptException:
         pass

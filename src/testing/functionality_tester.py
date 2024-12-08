@@ -3,7 +3,6 @@
 
 import rospy
 import unittest
-import rostest
 from geometry_msgs.msg import Twist, Point
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
