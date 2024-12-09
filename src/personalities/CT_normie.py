@@ -75,7 +75,7 @@ class CTNormie(CSRobotController):
     def handle_engaging(self):
         """Handle the engaging state behavior when fighting enemies"""
         rospy.loginfo("In engaging state...")
-        self.shoot_enemy()      # how to shoot enemy?
+        self.shoot()      # how to shoot enemy?
         pass
 
     def handle_defending_site(self):

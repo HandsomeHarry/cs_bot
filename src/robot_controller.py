@@ -70,6 +70,7 @@ class CSRobotController:
         self.patrol_points = self.generate_patrol_points()
         self.current_patrol_index = 0
         self.target_position = None
+        self.enemy_spotted = False
         self.state = "SEARCHING"  # SEARCHING, ENGAGING, AVOIDING
 
         # publishers
@@ -123,6 +124,37 @@ class CSRobotController:
             self.is_alive = msg.is_alive
             self.is_planting = msg.is_planting
             self.is_defusing = msg.is_defusing
+
+    def process_image(self, image):
+        """process image and detect enemy robots"""
+        try:
+            frame = self.bridge.imgmsg_to_cv2(image, desired_encoding='bgr8')
+            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            for enemy_color in self.enemy_colors:
+                enemy_robot = self.color_to_robot.get(enemy_color)
+                if enemy_robot not in self.dead_players: # only scan for alive enemies
+                    enemy_mask = self.get_color_mask(hsv, enemy_color)
+                    moments = cv2.moments(enemy_mask)
+                    if moments['m00'] > self.enemy_detection_threshold: # enemy spotted
+                        self.enemy_spotted = True
+                        cx = int(moments['m10'] / moments['m00'])
+                        cy = int(moments['m01'] / moments['m00'])
+                        
+                        center_x = frame.shape[1] // 2
+                        offset = cx - center_x
+                        threshold = frame.shape[1] * 0.02  # 2% frame width
+                        
+                        if abs(offset) > threshold:
+                            self.twist.angular.z = -self.turn_speed * offset  # Negative for right, positive for left
+                            self.twist.linear.x = 0.0
+                        else:
+                            self.twist.angular.z = 0.0  # Stop turning
+                            self.twist.linear.x = 0.0
+                            self.shoot(enemy_robot)
+                        return
+            self.enemy_spotted = False
+        except Exception as e:
+            rospy.logerr(f"Error in process_image: {e}")
 
     def start_planting(self):
         self.is_planting = True
