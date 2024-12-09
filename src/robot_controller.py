@@ -88,7 +88,7 @@ class CSRobotController:
         self.move_base.wait_for_server()
         rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
 
-        rospy.Timer(rospy.Duration(0.1), self.publish_state) # publish state 10/s
+        # rospy.Timer(rospy.Duration(0.1), self.publish_state) # publish state 10/s
 
         # Add patrol state variables
         self.is_patrolling = False
@@ -138,7 +138,8 @@ class CSRobotController:
             frame = self.bridge.imgmsg_to_cv2(data, desired_encoding='bgr8')
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             for enemy_color in enemy_colors:
-                if enemy_color not in self.dead_players: # only scan for alive enemies
+                enemy_robot = self.color_to_robot.get(enemy_color)
+                if enemy_robot not in self.dead_players: # only scan for alive enemies
                     enemy_mask = self.get_color_mask(hsv, enemy_color)
                     enemy_moments = cv2.moments(enemy_mask)
                     if moments['m00'] > self.enemy_detection_threshold: # enemy spotted
@@ -155,7 +156,7 @@ class CSRobotController:
                         else:
                             self.twist.angular.z = 0.0  # Stop turning
                             self.twist.linear.x = 0.0
-                            self.shoot(enemy_color)
+                            self.shoot(enemy_robot)
         except Exception as e:
             rospy.logerr(f"Error in process_image: {e}")
 
@@ -182,13 +183,13 @@ class CSRobotController:
         self.current_patrol_index = (self.current_patrol_index + 1) % len(self.patrol_points)
         return point
 
-    def shoot(self, enemy_color):
+    def shoot(self, enemy_robot):
         """shooting"""
         damage_dealt = self.gun.shoot()
         if damage_dealt > 0:
             msg = CombatEvent()
             msg.attacker_name = self.robot_name
-            msg.target_name = self.color_to_robot.get(enemy_color)
+            msg.target_name = enemy_robot
             msg.damage_dealt = damage_dealt
             self.shoot_pub.publish(msg)
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.7">
-  <world name="test2_world">
+  <world name="test2_world"i>
     <!-- Basic environment settings -->
     <include>
       <uri>model://sun</uri>
