@@ -4,6 +4,7 @@
 import rospy
 from geometry_msgs.msg import Point
 from cs_bot.msg import GameStateMsg, RobotStateMsg, CombatEvent
+from std_msgs.msg import String
 
 class GameManager:
     def __init__(self):
@@ -26,6 +27,11 @@ class GameManager:
         rospy.Subscriber('/game/shoot', CombatEvent, self.handle_combat)
         rospy.Timer(rospy.Duration(1.0), self.timer_callback)
         rospy.Timer(rospy.Duration(0.1), self.publish_game_state)
+        rospy.Subscriber('/game/bomb_events', String, self.handle_bomb_events)
+        
+        self.defusing_in_progress = False
+        self.defuse_time = 5  # Time needed to defuse in seconds
+        self.defuse_timer = 0
 
     def robot_state_callback(self, msg):
         """manage robot state"""
@@ -47,12 +53,22 @@ class GameManager:
         if self.round_active:
             if self.bomb_planted:
                 self.bomb_time -= 1
+                
+                # Handle defusing
+                if self.defusing_in_progress:
+                    self.defuse_timer -= 1
+                    if self.defuse_timer <= 0:
+                        self.bomb_planted = False
+                        self.defusing_in_progress = False
+                        self.end_round("Counter-Terrorists")  # CT wins by defusal
+                        return
+                
                 if self.bomb_time <= 0:
                     self.end_round("Terrorists")  # bomb exploded, T wins
             else:
                 self.round_time -= 1
                 if self.round_time <= 0:
-                    self.end_round("Counter-Terrorists")  # time runs out, CT wins     
+                    self.end_round("Counter-Terrorists")  # time runs out, CT wins
 
     def update_robot_states(self):
         """timer callback, update each player"""
@@ -102,7 +118,15 @@ class GameManager:
         """start new round"""
         self.round_active = True
         self.reset_round()
-        rospy.loginfo("New round started")
+        rospy.loginfo("round started")
+
+    def handle_bomb_events(self, msg):
+        """Handle bomb-related events"""
+        if msg.data == "DEFUSE_START":
+            self.defusing_in_progress = True
+            self.defuse_timer = self.defuse_time
+        elif msg.data == "DEFUSE_INTERRUPT":
+            self.defusing_in_progress = False
 
 if __name__ == '__main__':
     try:

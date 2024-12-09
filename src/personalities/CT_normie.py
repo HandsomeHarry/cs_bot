@@ -72,6 +72,44 @@ class CTNormie(CSRobotController):
                 rospy.logerr(f"Error in patrolling: {e}")
                 self.is_patrolling = False
 
+    def handle_engaging(self):
+        """Handle the engaging state behavior when fighting enemies"""
+        rospy.loginfo("In engaging state...")
+        self.shoot_enemy()      # how to shoot enemy?
+        pass
+
+    def handle_defending_site(self):
+        """Handle the defending site behavior when protecting bomb sites"""
+        rospy.loginfo("In defending site state...")
+        self.move_to_position(self.bomb_site)
+        pass
+
+    def handle_defusing(self):
+        """Handle the defusing state behavior when attempting to defuse the bomb"""
+        rospy.loginfo("In defusing state...")
+        
+        pass
+
+    def handle_retreating(self):
+        """Handle the retreating state behavior when falling back"""
+        rospy.loginfo("In retreating state...")
+        pass
+
+    def handle_dead(self):
+        """Handle the dead state behavior"""
+        rospy.loginfo("In dead state...")
+        pass
+
+    def handle_resetting(self):
+        """Handle the resetting state behavior between rounds"""
+        rospy.loginfo("In resetting state...")
+        pass
+
+    def handle_waiting(self):
+        """Handle the waiting state behavior"""
+        rospy.loginfo("In waiting state...")
+        pass
+
     def run(self):
         if not rospy.is_initialized():
             rospy.init_node('ct_normie_controller')
@@ -85,6 +123,18 @@ class CTNormie(CSRobotController):
                     self.handle_patrolling()
                 elif self.state == 'engaging':
                     self.handle_engaging()
+                elif self.state == 'defending_site':
+                    self.handle_defending_site()
+                elif self.state == 'defusing':
+                    self.handle_defusing()
+                elif self.state == 'retreating':
+                    self.handle_retreating()
+                elif self.state == 'dead':
+                    self.handle_dead()
+                elif self.state == 'resetting':
+                    self.handle_resetting()
+                elif self.state == 'waiting':
+                    self.handle_waiting()
 
             except Exception as e:
                 rospy.logerr(f"Error in run loop: {e}")

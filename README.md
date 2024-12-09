@@ -13,7 +13,7 @@ Before starting, run the following in console to set up map:
 `roslaunch turtlebot3_slam turtlebot3_slam.launch`
 `teleop`
 `rosrun map_server map_saver -f $(find cs_bot)/maps/map`
-The arena will be bound by colored tape, after a robot player ‘dies’, it’ll stay put. The robots will try to ‘kill’ each other.
+The arena will be bound by walls, after a robot player ‘dies’, it’ll stay put. The robots will try to ‘kill’ each other.
 
 
 # Generating the world map:

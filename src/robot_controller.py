@@ -99,6 +99,24 @@ class CSRobotController:
             self.is_patrolling = True
             self.start_patrol()
 
+        # Add new game state variables
+        self.game_phase = "PREP"
+        self.bomb_location = Point()
+        self.spawn_points = {
+            'CT': [
+                Point(x=-2.0, y=-2.0, z=0.0),  # CT spawn 1
+                Point(x=-2.0, y=-1.5, z=0.0)   # CT spawn 2
+            ],
+            'T': [
+                Point(x=2.0, y=2.0, z=0.0),    # T spawn 1
+                Point(x=2.0, y=1.5, z=0.0)     # T spawn 2
+            ]
+        }
+        self.spawn_point = self.assign_spawn_point()
+        
+        # Add new publisher for bomb events
+        self.bomb_event_pub = rospy.Publisher('/game/bomb_events', String, queue_size=1)
+
     def update_state(self, msg):
         if self.robot_name == msg.robot_name:
             self.health = msg.health
@@ -131,40 +149,16 @@ class CSRobotController:
         mask = cv2.inRange(hsv_image, np.array(lower), np.array(upper))
         return mask
 
-
-    def process_image(self, image):
-        """process image and detect enemy robots"""
-        try:
-            frame = self.bridge.imgmsg_to_cv2(data, desired_encoding='bgr8')
-            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            for enemy_color in enemy_colors:
-                enemy_robot = self.color_to_robot.get(enemy_color)
-                if enemy_robot not in self.dead_players: # only scan for alive enemies
-                    enemy_mask = self.get_color_mask(hsv, enemy_color)
-                    enemy_moments = cv2.moments(enemy_mask)
-                    if moments['m00'] > self.enemy_detection_threshold: # enemy spotted
-                        cx = int(moments['m10'] / moments['m00'])
-                        cy = int(moments['m01'] / moments['m00'])
-                        
-                        center_x = frame.shape[1] // 2
-                        offset = cx - center_x
-                        threshold = frame.shape[1] * 0.02  # 2% frame width
-                        
-                        if abs(offset) > threshold:
-                            self.twist.angular.z = -self.turn_speed * offset  # Negative for right, positive for left
-                            self.twist.linear.x = 0.0
-                        else:
-                            self.twist.angular.z = 0.0  # Stop turning
-                            self.twist.linear.x = 0.0
-                            self.shoot(enemy_robot)
-        except Exception as e:
-            rospy.logerr(f"Error in process_image: {e}")
-
     def game_state_callback(self, msg):
         """process game state callback"""
         self.dead_players = msg.dead_players
         self.round_time_remaining = msg.round_time_remaining
         self.bomb_being_planted = msg.bomb_planted
+        self.game_phase = msg.game_phase
+        self.bomb_location = msg.bomb_location
+        
+        # Handle state changes based on game phase
+        self.handle_game_phase()
 
     def generate_patrol_points(self):
         """preset patrol points"""
@@ -280,9 +274,6 @@ class CSRobotController:
         self.map_data = msg
 
     def move_to_position(self, target):
-        if self.avoiding:
-            return
-
         # Create move_base goal
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
@@ -292,6 +283,41 @@ class CSRobotController:
 
         # Send goal to move_base
         self.move_base.send_goal(goal)
+
+    def assign_spawn_point(self):
+        """Assign a spawn point based on team and robot number"""
+        robot_num = int(self.robot_name[-1]) - 1  # Extract number from robot name
+        team_spawns = self.spawn_points[self.team]
+        spawn_idx = robot_num % len(team_spawns)
+        return team_spawns[spawn_idx]
+
+    def handle_game_phase(self):
+        """Handle different game phases"""
+        if self.game_phase == "PREP":
+            self.is_patrolling = False
+            self.move_to_position(self.spawn_point)
+            
+        elif self.game_phase == "ACTIVE":
+            if self.team == "CT" and not self.is_patrolling:
+                self.is_patrolling = True
+                self.start_patrol()
+            
+        elif self.game_phase == "BOMB_PLANTED":
+            if self.team == "CT":
+                self.is_patrolling = False
+                self.move_to_position(self.bomb_location)
+                # When close to bomb, start defusing
+                if self.is_near_position(self.bomb_location, threshold=0.5):
+                    self.start_defusing()
+                    # Notify game manager that defusing has started
+                    self.bomb_event_pub.publish("DEFUSE_START")
+
+    def is_near_position(self, target_pos, threshold=0.5):
+        """Check if robot is near the bomb"""
+        dx = self.position.position.x - target_pos.x
+        dy = self.position.position.y - target_pos.y
+        distance = math.sqrt(dx*dx + dy*dy)
+        return distance < threshold
 
 if __name__ == '__main__':
     try:
