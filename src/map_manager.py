@@ -10,6 +10,7 @@ from nav_msgs.msg import OccupancyGrid
 from std_msgs.msg import ColorRGBA
 import pandas as pd
 import os
+import csv
 
 class MapManager:
     def __init__(self):
@@ -107,11 +108,42 @@ class MapManager:
         # publish markers
         self.marker_pub.publish(marker_array)
 
-    
+
+    def load_spawn_points():
+        rospy.init_node('load_spawn_points')
+
+        # Determine the path to site_points.csv
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        csv_file_path = os.path.join(script_dir, '..', 'csv', 'site_points.csv')
+
+        try:
+            # Read CSV and extract T_spawn and CT_spawn
+            spawn_points = {}
+            with open(csv_file_path, 'r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    if row['label'] in ['T_spawn', 'CT_spawn']:
+                        spawn_points[row['label']] = {
+                            'x': float(row['x']),
+                            'y': float(row['y']),
+                            'z': float(row['z']),
+                        }
+
+            # Set ROS parameters
+            for label, point in spawn_points.items():
+                rospy.set_param(f"/{label}", point)
+
+            rospy.loginfo("Spawn points loaded successfully.")
+        except FileNotFoundError:
+            rospy.logerr(f"File {csv_file_path} not found.")
+        except Exception as e:
+            rospy.logerr(f"Error loading spawn points: {e}")
 
 if __name__ == '__main__':
     try:
-        map_manager = MapManager()
-        rospy.spin()
+        #map_manager = MapManager()
+        #rospy.spin()
+        load_spawn_points()
+
     except rospy.ROSInterruptException:
         pass

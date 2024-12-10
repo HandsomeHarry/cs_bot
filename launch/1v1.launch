@@ -19,8 +19,16 @@
     </include>
 
     <!-- Load the map -->
-    <node name="map_server" pkg="map_server" type="map_server" 
+    <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen"
           args="$(find cs_bot)/maps/world3_map.yaml"/>
+    
+    <param name="T_spawn_x" value="$(param /T_spawn/x)" />
+    <param name="T_spawn_y" value="$(param /T_spawn/y)" />
+    <param name="T_spawn_z" value="$(param /T_spawn/z)" />
+
+    <param name="CT_spawn_x" value="$(param /CT_spawn/x)" />
+    <param name="CT_spawn_y" value="$(param /CT_spawn/y)" />
+    <param name="CT_spawn_z" value="$(param /CT_spawn/z)" />
 
     <!-- T team robot -->
     <group ns="t_robot1">
@@ -32,7 +40,7 @@
         
         <!-- Spawn Robot -->
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model t_robot1 -x 0.0 -y 0.0 -z -2.0 -param robot_description"/>
+              args="-urdf -model t_robot1 -x $(param T_spawn_x) -y $(param T_spawn_y) -z $(param T_spawn_z) -param robot_description"/>
 
         <!-- Robot State Publisher -->
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
@@ -69,7 +77,7 @@
                command="$(find xacro)/xacro $(find cs_bot)/urdf/cs_robot_blue.urdf.xacro robot_name:=ct_robot1" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model ct_robot1 -x 0.0 -y 0 -z 2.0 -param robot_description"/>
+              args="-urdf -model ct_robot1 -x $(param CT_spawn_x) -y $(param CT_spawn_y) -z $(param CT_spawn_z) -param robot_description"/>
 
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
             <param name="publish_frequency" type="double" value="50.0"/>
