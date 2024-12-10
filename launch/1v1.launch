@@ -11,7 +11,16 @@
 -->
 <launch>
     <!-- Load map configuration -->
-    <rosparam command="load" file="$(find cs_bot)/config/map_config.yaml" />
+    <rosparam command="load" file="$(find cs_bot)/config/map_config.yaml" ns="map_config"/>
+
+    <!-- Define spawn position arguments -->
+    <arg name="t_spawn_x" default="0.0"/>
+    <arg name="t_spawn_y" default="-1.43"/>
+    <arg name="t_spawn_z" default="0.01"/>
+    
+    <arg name="ct_spawn_x" default="-1.72"/>
+    <arg name="ct_spawn_y" default="1.63"/>
+    <arg name="ct_spawn_z" default="0.01"/>
 
     <!-- Start Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -35,9 +44,9 @@
         <!-- Spawn Robot -->
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
               args="-urdf -model t_robot1 
-                    -x $(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['T'][0]['x'])
-                    -y $(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['T'][0]['y'])
-                    -z $(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['T'][0]['z'])
+                    -x $(arg t_spawn_x)
+                    -y $(arg t_spawn_y)
+                    -z $(arg t_spawn_z)
                     -param robot_description"/>
 
         <!-- Robot State Publisher -->
@@ -48,8 +57,8 @@
 
         <!-- AMCL -->
         <node pkg="amcl" type="amcl" name="amcl">
-            <param name="initial_pose_x" value="$(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['T'][0]['x'])"/>
-            <param name="initial_pose_y" value="$(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['T'][0]['y'])"/>
+            <param name="initial_pose_x" value="$(arg t_spawn_x)"/>
+            <param name="initial_pose_y" value="$(arg t_spawn_y)"/>
         </node>
 
         <!-- Navigation -->
@@ -76,9 +85,9 @@
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
               args="-urdf -model ct_robot1 
-                    -x $(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['CT'][0]['x'])
-                    -y $(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['CT'][0]['y'])
-                    -z $(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['CT'][0]['z'])
+                    -x $(arg ct_spawn_x)
+                    -y $(arg ct_spawn_y)
+                    -z $(arg ct_spawn_z)
                     -param robot_description"/>
 
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
@@ -88,8 +97,8 @@
 
         <!-- AMCL -->
         <node pkg="amcl" type="amcl" name="amcl">
-            <param name="initial_pose_x" value="$(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['CT'][0]['x'])"/>
-            <param name="initial_pose_y" value="$(eval load_yaml(find('cs_bot') + '/config/map_config.yaml')['spawn_points']['CT'][0]['y'])"/>
+            <param name="initial_pose_x" value="$(arg ct_spawn_x)"/>
+            <param name="initial_pose_y" value="$(arg ct_spawn_y)"/>
         </node>
 
         <node pkg="move_base" type="move_base" name="move_base" output="screen">
