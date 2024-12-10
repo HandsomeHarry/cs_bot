@@ -31,7 +31,7 @@
         <param name="tf_prefix" value="$(arg robot_name)"/>
         
         <!-- load robot model -->
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_waffle.urdf.xacro" />
+        <param name="robot_description" command="$(find xacro)/xacro '$(find your_package_name)/urdf/cs_robot_red.urdf.xacro' robot_name:=$(arg robot_name)" />
 
         <!-- Spawn Robot -->
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
