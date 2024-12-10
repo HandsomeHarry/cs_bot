@@ -20,7 +20,7 @@ the gazebo world simulation
 4. Personalities of robots, robot actions when situations change using FSMs (very complicated)
 5. Modularized launch files to be used when needed
 
-## Files Overview
+### Files Overview
 
 #### `world3.world`
 - A Gazebo world map.
