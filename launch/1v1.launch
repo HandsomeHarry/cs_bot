@@ -19,9 +19,8 @@
     </include>
 
     <!-- Load the map -->
-    <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen"
-          args="$(find cs_bot)/maps/world3_map.yaml"/>
-    
+    <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen"/>
+
     <param name="T_spawn_x" value="$(param /T_spawn/x)" />
     <param name="T_spawn_y" value="$(param /T_spawn/y)" />
     <param name="T_spawn_z" value="$(param /T_spawn/z)" />
