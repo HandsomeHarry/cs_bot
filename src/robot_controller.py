@@ -22,6 +22,8 @@ import os
 import csv
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from gun import Gun
+import yaml
+from map_manager import MapManager
 
 class CSRobotController:
     def __init__(self):
@@ -105,18 +107,13 @@ class CSRobotController:
         # Add new game state variables
         self.game_phase = "PREP"
         self.bomb_location = Point()
-        self.spawn_points = {
-            'CT': [
-                Point(x=-2.0, y=-2.0, z=0.0),  # CT spawn 1
-                Point(x=-2.0, y=-1.5, z=0.0)   # CT spawn 2
-            ],
-            'T': [
-                Point(x=2.0, y=2.0, z=0.0),    # T spawn 1
-                Point(x=2.0, y=1.5, z=0.0)     # T spawn 2
-            ]
-        }
-        self.spawn_point = self.assign_spawn_point()
-        
+
+        # Initialize MapManager
+        self.map_manager = MapManager()
+
+        # Get spawn points from MapManager
+        self.spawn_points = self.map_manager.get_spawn_points()
+
         # Add new publisher for bomb events
         self.bomb_event_pub = rospy.Publisher('/game/bomb_events', String, queue_size=1)
 
@@ -344,7 +341,7 @@ class CSRobotController:
         """Handle different game phases"""
         if self.game_phase == "PREP":
             self.is_patrolling = False
-            self.move_to_position(self.spawn_point)
+            self.move_to_position(self.spawn_points[self.team])
             
         elif self.game_phase == "ACTIVE":
             if self.team == "CT" and not self.is_patrolling:

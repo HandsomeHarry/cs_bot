@@ -10,17 +10,17 @@
     - Move_base navigation
 -->
 <launch>
-    <!-- Load parameters from YAML using a Python script -->
-    <node pkg="cs_bot" type="set_params.py" name="set_params" output="screen"/>
+    <!-- Load map configuration -->
+    <rosparam command="load" file="$(find cs_bot)/config/map_config.yaml" ns="map_config"/>
 
     <!-- Define spawn position arguments -->
-    <arg name="t_spawn_x" default="$(arg /spawn_points/T/0/x)"/>
-    <arg name="t_spawn_y" default="$(arg /spawn_points/T/0/y)"/>
-    <arg name="t_spawn_z" default="$(arg /spawn_points/T/0/z)"/>
+    <arg name="t_spawn_x" default="0.0"/>
+    <arg name="t_spawn_y" default="-1.43"/>
+    <arg name="t_spawn_z" default="0.01"/>
     
-    <arg name="ct_spawn_x" default="$(arg /spawn_points/CT/0/x)"/>
-    <arg name="ct_spawn_y" default="$(arg /spawn_points/CT/0/y)"/>
-    <arg name="ct_spawn_z" default="$(arg /spawn_points/CT/0/z)"/>
+    <arg name="ct_spawn_x" default="-1.72"/>
+    <arg name="ct_spawn_y" default="1.63"/>
+    <arg name="ct_spawn_z" default="0.01"/>
 
     <!-- Start Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">

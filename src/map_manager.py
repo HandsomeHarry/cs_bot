@@ -31,24 +31,23 @@ class MapManager:
         self.timer = rospy.Timer(rospy.Duration(1.0), self.publish_markers)
 
     def load_map_config(self):
-        """load map information from CSV file"""
+        """Load map information from YAML file"""
         try:
-            # Get the CSV file path
-            csv_file = os.path.join(os.path.dirname(__file__), '../points.csv')
+            # Get the YAML file path
+            yaml_file_path = os.path.join(os.path.dirname(__file__), '../config/map_config.yaml')
             
-            # Read CSV using pandas
-            df = pd.read_csv(csv_file)
+            # Read YAML file
+            with open(yaml_file_path, 'r') as file:
+                map_config = yaml.safe_load(file)
             
-            # Convert DataFrame rows to Point objects
-            for _, row in df.iterrows():
-                point = Point(float(row['x']), float(row['y']), float(row['z']))
-                
-                if row['label'] == 'T_spawn':
-                    self.spawn_points['T'] = [point]
-                elif row['label'] == 'CT_spawn':
-                    self.spawn_points['CT'] = [point]
-                elif row['label'].startswith('site_corner'):
-                    self.bomb_sites.append(point)
+            # Extract spawn points
+            self.spawn_points = map_config['spawn_points']
+            
+            # Extract bomb site corners
+            self.bomb_sites = [
+                Point(**map_config['bomb_site']['corner1']),
+                Point(**map_config['bomb_site']['corner2'])
+            ]
             
             # Initialize empty lists for unused config items
             self.safe_zones = []
@@ -56,7 +55,7 @@ class MapManager:
             self.fiducial_markers = []
             
         except Exception as e:
-            rospy.logerr(f"Failed to load map config from CSV: {str(e)}")
+            rospy.logerr(f"Failed to load map config from YAML: {str(e)}")
 
     def create_marker(self, position, marker_type, id, color, scale):
         """create visualization marker"""
@@ -107,6 +106,10 @@ class MapManager:
         
         # publish markers
         self.marker_pub.publish(marker_array)
+
+    def get_spawn_points(self):
+        """Return the spawn points."""
+        return self.spawn_points
 
 
 def load_spawn_points():
