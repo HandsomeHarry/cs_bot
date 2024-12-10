@@ -28,6 +28,7 @@
   <!-- Runtime dependencies -->
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>rospy</exec_depend>
+  <exec_depend>transitions</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>

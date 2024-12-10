@@ -27,7 +27,7 @@ add_message_files(
 ## Generate added messages and services with dependencies listed here
 generate_messages(
   DEPENDENCIES
-  geometry_msgs  # Add other dependencies if necessary
+  geometry_msgs
 )
 
 ###################################
