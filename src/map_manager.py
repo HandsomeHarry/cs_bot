@@ -141,9 +141,9 @@ class MapManager:
 
 if __name__ == '__main__':
     try:
-        #map_manager = MapManager()
+        map_manager = MapManager()
         #rospy.spin()
-        load_spawn_points()
+        map_manager.load_spawn_points()
 
     except rospy.ROSInterruptException:
         pass
