@@ -1,0 +1,21 @@
+<launch>
+    <!-- Map Server -->
+    <node pkg="map_server" type="map_server" name="map_server" args="$(find cs_bot)/maps/map.yaml" />
+
+    <!-- AMCL for Localization -->
+    <node name="amcl" pkg="amcl" type="amcl" output="screen">
+        <param name="odom_frame_id" value="odom" />
+        <param name="base_frame_id" value="base_link" />
+        <param name="global_frame_id" value="map" />
+        <param name="scan_topic" value="/robot1/scan" />
+    </node>
+
+    <!-- Move Base for Navigation -->
+    <node pkg="move_base" type="move_base" name="move_base" output="screen">
+        <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find cs_bot)/config/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find cs_bot)/config/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find cs_bot)/config/move_base_params.yaml" command="load" />
+    </node>
+</launch> 

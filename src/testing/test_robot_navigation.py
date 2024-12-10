@@ -19,23 +19,18 @@ class TestRobotNavigation:
         # Create an instance of the robot controller
         self.controller = CSRobotController()
 
-        # Define two points for navigation
-        self.point1 = Point(x=1.0, y=1.0, z=0.0)
-        self.point2 = Point(x=2.0, y=2.0, z=0.0)
+        # Define a specific point for navigation
+        self.target_point = Point(x=3.0, y=3.0, z=0.0)  # Change these coordinates to your desired target
 
-    def navigate_to_points(self):
-        """Test navigation between two points."""
-        rospy.loginfo("Navigating to Point 1")
-        self.controller.move_to_position(self.point1)
-        rospy.sleep(5)  # Wait for some time to simulate travel
-
-        rospy.loginfo("Navigating to Point 2")
-        self.controller.move_to_position(self.point2)
+    def navigate_to_target(self):
+        """Test navigation to a specific target point."""
+        rospy.loginfo(f"Navigating to Target Point: {self.target_point}")
+        self.controller.move_to_position(self.target_point)
         rospy.sleep(5)  # Wait for some time to simulate travel
 
 if __name__ == '__main__':
     try:
         test_nav = TestRobotNavigation()
-        test_nav.navigate_to_points()
+        test_nav.navigate_to_target()
     except rospy.ROSInterruptException:
         pass 
