@@ -94,6 +94,8 @@ class CSRobotController:
         # Add patrol state variables
         self.is_patrolling = False
         self.current_goal_active = False
+        self.current_patrol_index = 0
+        self.patrol_points = self.generate_patrol_points()
 
         # Initialize patrol only for CT side
         if self.team == 'CT':
