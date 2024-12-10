@@ -10,7 +10,6 @@ from nav_msgs.msg import OccupancyGrid
 from std_msgs.msg import ColorRGBA
 import pandas as pd
 import os
-import csv
 
 class MapManager:
     def __init__(self):
@@ -19,6 +18,7 @@ class MapManager:
         # map basic information
         self.bomb_sites = []  # location of the single bomb site (two points that forms a rectangle)
         self.spawn_points = {'T': [], 'CT': []}  # spawn points
+        self.patrol_points = []  # patrol points
         
         # publishers
         self.marker_pub = rospy.Publisher('/game/map_markers', MarkerArray, queue_size=1)
@@ -49,10 +49,11 @@ class MapManager:
                 Point(**map_config['bomb_site']['corner2'])
             ]
             
-            # Initialize empty lists for unused config items
-            self.safe_zones = []
-            self.walls = []
-            self.fiducial_markers = []
+            # Extract patrol points
+            self.patrol_points = [
+                Point(x=point['x'], y=point['y'], z=point['z'])
+                for point in map_config.get('patrol_points', [])
+            ]
             
         except Exception as e:
             rospy.logerr(f"Failed to load map config from YAML: {str(e)}")
@@ -111,44 +112,15 @@ class MapManager:
         """Return the spawn points."""
         return self.spawn_points
 
-
-def load_spawn_points():
-    # Determine the path to site_points.csv
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_file_path = os.path.join(script_dir, '..', 'csv', 'site_points.csv')
-
-    try:
-        # Read CSV and extract T_spawn and CT_spawn
-        spawn_points = {}
-        with open(csv_file_path, 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                if row['label'] in ['T_spawn', 'CT_spawn']:
-                    spawn_points[row['label']] = {
-                        'x': float(row['x']),
-                        'y': float(row['y']),
-                        'z': float(row['z']),
-                    }
-
-        # Set ROS parameters
-        for label, point in spawn_points.items():
-            rospy.set_param(f"/{label}", point)
-
-        print('done')
-
-        rospy.loginfo("Spawn points loaded successfully.")
-    except FileNotFoundError:
-        rospy.logerr(f"File {csv_file_path} not found.")
-    except Exception as e:
-        rospy.logerr(f"Error loading spawn points: {e}")
+    def get_patrol_points(self):
+        """Return the patrol points."""
+        return self.patrol_points
 
 if __name__ == '__main__':
     try:
-        #map_manager = MapManager()
-        #rospy.spin()
         rospy.init_node("map_manager")
         rospy.loginfo("Map Manager Node Started")
-        load_spawn_points()
-
+        map_manager = MapManager()
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass

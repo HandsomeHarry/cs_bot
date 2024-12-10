@@ -18,7 +18,7 @@
     
     <!-- Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_bot)/worlds/game_world.world"/>
+        <arg name="world_name" value="$(find cs_bot)/worlds/world3.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
@@ -31,7 +31,7 @@
         <param name="tf_prefix" value="$(arg robot_name)"/>
         
         <!-- load robot model -->
-        <param name="robot_description" command="$(find xacro)/xacro '$(find your_package_name)/urdf/cs_robot_red.urdf.xacro' robot_name:=$(arg robot_name)" />
+        <param name="robot_description" command="$(find xacro)/xacro '$(find cs_bot)/urdf/cs_robot_red.urdf.xacro' robot_name:=$(arg robot_name)" />
 
         <!-- Spawn Robot -->
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
@@ -82,6 +82,16 @@
             <param name="controller_patience" value="15.0"/>
             <param name="recovery_behavior_enabled" value="true"/>
             <param name="clearing_rotation_allowed" value="true"/>
+        </node>
+
+        <!-- Map Server -->
+        <node name="map_server" pkg="map_server" type="map_server" args="$(find cs_bot)/maps/world3_map.yaml" />
+
+        <!-- AMCL for Localization -->
+        <node name="amcl" pkg="amcl" type="amcl" output="screen">
+            <param name="odom_frame_id" value="odom" />
+            <param name="base_frame_id" value="base_link" />
+            <param name="global_frame_id" value="map" />
         </node>
     </group>
 </launch>

@@ -19,7 +19,6 @@ import math
 import random
 import actionlib
 import os
-import csv
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from gun import Gun
 import yaml
@@ -27,7 +26,9 @@ from map_manager import MapManager
 
 class CSRobotController:
     def __init__(self):
-        rospy.init_node('cs_robot_controller', anonymous=True)
+        # Initialize the ROS node only if it hasn't been initialized yet
+        if not rospy.core.is_initialized():
+            rospy.init_node('cs_robot_controller', anonymous=True)
 
         # robot state
         self.robot_name = rospy.get_param('~robot_name', 'robot1')
@@ -97,22 +98,15 @@ class CSRobotController:
         self.is_patrolling = False
         self.current_goal_active = False
         self.current_patrol_index = 0
-        self.patrol_points = self.generate_patrol_points()
-
-        # Initialize patrol only for CT side
-        if self.team == 'CT':
-            self.is_patrolling = True
-            self.start_patrol()
-
-        # Add new game state variables
-        self.game_phase = "PREP"
-        self.bomb_location = Point()
 
         # Initialize MapManager
         self.map_manager = MapManager()
 
         # Get spawn points from MapManager
         self.spawn_points = self.map_manager.get_spawn_points()
+
+        # Load patrol points from YAML
+        self.patrol_points = self.generate_patrol_points()
 
         # Add new publisher for bomb events
         self.bomb_event_pub = rospy.Publisher('/game/bomb_events', String, queue_size=1)
@@ -192,26 +186,27 @@ class CSRobotController:
         self.handle_game_phase()
 
     def generate_patrol_points(self):
-        """Generate patrol points from site_points.csv."""
+        """Generate patrol points from map_config.yaml."""
         patrol_points = []
 
-        # Determine the path to site_points.csv
+        # Determine the path to map_config.yaml
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        csv_file_path = os.path.join(script_dir, '..', 'csv', 'site_points.csv')
+        yaml_file_path = os.path.join(script_dir, '..', 'config', 'map_config.yaml')
 
         try:
-            # Open and read the CSV file
-            with open(csv_file_path, 'r') as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    if row['label'].startswith('patrol_point'):  # Filter patrol points
-                        patrol_points.append(Point(
-                            x=float(row['x']),
-                            y=float(row['y']),
-                            z=float(row['z'])
-                        ))
+            # Open and read the YAML file
+            with open(yaml_file_path, 'r') as file:
+                map_config = yaml.safe_load(file)
+                patrol_points_data = map_config.get('patrol_points', [])
+
+                for point_data in patrol_points_data:
+                    patrol_points.append(Point(
+                        x=point_data['x'],
+                        y=point_data['y'],
+                        z=point_data['z']
+                    ))
         except Exception as e:
-            rospy.logerr(f"Error reading patrol points from {csv_file_path}: {e}")
+            rospy.logerr(f"Error reading patrol points from {yaml_file_path}: {e}")
 
         # Shuffle the patrol points for randomness
         random.shuffle(patrol_points)

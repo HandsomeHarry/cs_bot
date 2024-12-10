@@ -3,6 +3,12 @@
 
 import rospy
 from geometry_msgs.msg import Point
+import sys
+import os
+
+# Add the path to the robot_controller module
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from robot_controller import CSRobotController
 
 class TestRobotNavigation:
