@@ -21,7 +21,9 @@ class PointRecorder:
         #self.labels = ['T_spawn', 'CT_spawn', 'site_corner1', 'site_corner2']
         self.labels = ['T_spawn', 'CT_spawn', 'site_corner1', 'site_corner2', 'patrol_point1', 'patrol_point2', 'patrol_point3', 'patrol_point4']
         self.current_label_index = 0
-        self.filename = f"site_points.csv"
+        
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.filename = os.path.join(script_dir, '..', 'csv', 'site_points.csv')
 
     def clicked_point_callback(self, msg):
         if self.current_label_index < len(self.labels):

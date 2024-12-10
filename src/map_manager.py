@@ -107,6 +107,8 @@ class MapManager:
         # publish markers
         self.marker_pub.publish(marker_array)
 
+    
+
 if __name__ == '__main__':
     try:
         map_manager = MapManager()

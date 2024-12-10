@@ -18,6 +18,8 @@ import tf
 import math
 import random
 import actionlib
+import os
+import csv
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from gun import Gun
 
@@ -67,8 +69,6 @@ class CSRobotController:
         self.enemy_detection_threshold = 1500  # amount of pixels needed to detect
 
         # tactical parameters
-        self.patrol_points = self.generate_patrol_points()
-        self.current_patrol_index = 0
         self.target_position = None
         self.enemy_spotted = False
         self.state = "SEARCHING"  # SEARCHING, ENGAGING, AVOIDING
@@ -193,13 +193,28 @@ class CSRobotController:
         self.handle_game_phase()
 
     def generate_patrol_points(self):
-        """preset patrol points"""
-        patrol_points = [
-            Point(x=-1.76, y=-0.75, z=0.0),
-            Point(x=1.30, y=-0.62, z=0.0),
-            Point(x=0.91, y=1.21, z=0.0),
-            Point(x=-0.51, y=0.45, z=0.0),
-        ]
+        """Generate patrol points from site_points.csv."""
+        patrol_points = []
+
+        # Determine the path to site_points.csv
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        csv_file_path = os.path.join(script_dir, '..', 'csv', 'site_points.csv')
+
+        try:
+            # Open and read the CSV file
+            with open(csv_file_path, 'r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    if row['label'].startswith('patrol_point'):  # Filter patrol points
+                        patrol_points.append(Point(
+                            x=float(row['x']),
+                            y=float(row['y']),
+                            z=float(row['z'])
+                        ))
+        except Exception as e:
+            rospy.logerr(f"Error reading patrol points from {csv_file_path}: {e}")
+
+        # Shuffle the patrol points for randomness
         random.shuffle(patrol_points)
         return patrol_points
 

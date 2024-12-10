@@ -12,7 +12,7 @@
 <launch>
     <!-- Start Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_bot)/worlds/game_world.world"/>
+        <arg name="world_name" value="$(find cs_bot)/worlds/world3.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
@@ -32,7 +32,7 @@
         
         <!-- Spawn Robot -->
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model t_robot1 -x 0.0 -y 0.0 -z 0 -param robot_description"/>
+              args="-urdf -model t_robot1 -x 0.0 -y 0.0 -z -2.0 -param robot_description"/>
 
         <!-- Robot State Publisher -->
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
@@ -69,7 +69,7 @@
                command="$(find xacro)/xacro $(find cs_bot)/urdf/cs_robot_blue.urdf.xacro robot_name:=ct_robot1" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model ct_robot1 -x 0.0 -y 5.0 -z 0 -param robot_description"/>
+              args="-urdf -model ct_robot1 -x 0.0 -y 0 -z 2.0 -param robot_description"/>
 
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
             <param name="publish_frequency" type="double" value="50.0"/>
