@@ -21,9 +21,9 @@
     <!-- Load the map -->
     <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen"/>
 
-    <param name="T_spawn_x" value="$(param /T_spawn/x)" />
-    <param name="T_spawn_y" value="$(param /T_spawn/y)" />
-    <param name="T_spawn_z" value="$(param /T_spawn/z)" />
+    <param name="T_spawn" value="$(param /T_spawn/x)" />
+    <param name="T_spawn" value="$(param /T_spawn/y)" />
+    <param name="T_spawn" value="$(param /T_spawn/z)" />
 
     <param name="CT_spawn_x" value="$(param /CT_spawn/x)" />
     <param name="CT_spawn_y" value="$(param /CT_spawn/y)" />

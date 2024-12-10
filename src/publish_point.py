@@ -10,31 +10,37 @@ import rospkg
 import subprocess
 import os
 import signal
-from datetime import datetime
+import yaml
 from geometry_msgs.msg import PointStamped
-import csv
 
 class PointRecorder:
     def __init__(self):
         rospy.init_node('point_recorder', anonymous=True)
-        self.points = []
-        #self.labels = ['T_spawn', 'CT_spawn', 'site_corner1', 'site_corner2']
-        self.labels = ['T_spawn', 'CT_spawn', 'site_corner1', 'site_corner2', 'patrol_point1', 'patrol_point2', 'patrol_point3', 'patrol_point4']
+        self.points = {}
+        self.labels = [
+            'T_spawn1', 'T_spawn2',           # Two T spawn points
+            'CT_spawn1', 'CT_spawn2',         # Two CT spawn points
+            'site_corner1', 'site_corner2',   # Bomb site corners
+            'patrol_point1', 'patrol_point2', 'patrol_point3', 'patrol_point4'  # Patrol points
+        ]
         self.current_label_index = 0
         
+        # Get path to config directory
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        self.filename = os.path.join(script_dir, '..', 'csv', 'site_points.csv')
+        self.filename = os.path.join(script_dir, '..', 'config', 'map_config.yaml')
 
     def clicked_point_callback(self, msg):
         if self.current_label_index < len(self.labels):
             point = {
-                'label': self.labels[self.current_label_index],
-                'x': msg.point.x,
-                'y': msg.point.y,
-                'z': msg.point.z
+                'x': round(msg.point.x, 2),
+                'y': round(msg.point.y, 2),
+                'z': round(msg.point.z, 2)
             }
-            self.points.append(point)
-            print(f"Recorded {point['label']}: (x={point['x']:.2f}, y={point['y']:.2f})")
+            
+            # Store point with its label
+            self.points[self.labels[self.current_label_index]] = point
+            
+            print(f"Recorded {self.labels[self.current_label_index]}: (x={point['x']:.2f}, y={point['y']:.2f})")
             self.current_label_index += 1
 
             if self.current_label_index == len(self.labels):
@@ -43,39 +49,54 @@ class PointRecorder:
                 rospy.signal_shutdown("Recording complete.")
 
     def save_points(self):
-        # Write to CSV file
-        with open(self.filename, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['label', 'x', 'y', 'z'])  # Write header
-            for point in self.points:
-                writer.writerow([
-                    point['label'],
-                    f"{point['x']:.1f}",
-                    f"{point['y']:.1f}",
-                    f"{point['z']:.1f}"
-                ])
+        # Create config directory if it doesn't exist
+        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
+        
+        # Organize data for YAML
+        map_config = {
+            'spawn_points': {
+                'T': [
+                    self.points['T_spawn1'],
+                    self.points['T_spawn2']
+                ],
+                'CT': [
+                    self.points['CT_spawn1'],
+                    self.points['CT_spawn2']
+                ]
+            },
+            'bomb_site': {
+                'corner1': self.points['site_corner1'],
+                'corner2': self.points['site_corner2']
+            },
+            'patrol_points': [
+                self.points['patrol_point1'],
+                self.points['patrol_point2'],
+                self.points['patrol_point3'],
+                self.points['patrol_point4']
+            ]
+        }
+        
+        # Write to YAML file
+        with open(self.filename, 'w') as file:
+            yaml.dump(map_config, file, default_flow_style=False)
         
         print(f"Points saved to {self.filename}")
 
     def listen_for_points(self):
         rospy.Subscriber('/clicked_point', PointStamped, self.clicked_point_callback)
-        print("\nPlease use the publish point tool on the top right\
-                \n and click the following points in RViz in order:")
+        print("\nPlease use the publish point tool in RViz to click the following points in order:")
         for label in self.labels:
             print(f" - {label}")
         rospy.spin()
 
-
 if __name__ == '__main__':
     try:
-
         # Get the path to the cs_bot package
         rospack = rospkg.RosPack()
-        cs_bot_path = rospack.get_path('cs_bot')  # Resolves the absolute path to the cs_bot package
+        cs_bot_path = rospack.get_path('cs_bot')
 
-        # Construct the path to the maps/world3_map.pgm file
-        map_file_path = f"{cs_bot_path}/maps/world3_map.yaml"
         # Launch map server
+        map_file_path = f"{cs_bot_path}/maps/world3_map.yaml"
         map_server_cmd = ['rosrun', 'map_server', 'map_server', map_file_path]
         map_server_proc = subprocess.Popen(map_server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("map server launched")
@@ -97,7 +118,7 @@ if __name__ == '__main__':
         print("Shutting down...")
     finally:
         # Terminate subprocesses
-        if map_server_proc:
+        if 'map_server_proc' in locals():
             os.kill(map_server_proc.pid, signal.SIGINT)
-        if rviz_proc:
+        if 'rviz_proc' in locals():
             os.kill(rviz_proc.pid, signal.SIGINT)
