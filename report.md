@@ -2,6 +2,8 @@
 
 Github repo: https://github.com/HandsomeHarry/cs_bot
 
+Harry Yu, Zared Cohen, TsonOn Kwok
+
 ## Introduction
 
 Our goal was to create a robot simulation of the popular game franchise, Counter Strike, which is a first-person shooter game where teams of terrorists (Ts) and counter-terrorists (CTs) fight for their specific goals. The Ts must plant a bomb and defend it until detonation, and the CTs must eliminate all Ts or defuse the bomb if planted. If the round time runs out before either goal occurs, the CTs will be victorious. For our implementation, we created a 2v2 version of this game in a simulated environment (gazebo), and a 1v1 version in the real world. We also designed different personalities and guns for each robot (player), which provides a more realistic simulation of the game with an unpredictable outcome.
@@ -87,16 +89,16 @@ the gazebo world simulation
 ### Building the Environment
 ---
 1. Ensure the `transitions` library is installed:
-   ```bash
+   ```
    pip3 install transitions
    pip3 install pandas
    ```
 2. Navigate to your catkin workspace:
-   ```bash
+   ```
    cd <your-catkin-workspace>
    ```
 3. Build the workspace:
-   ```bash
+   ```
    catkin_make
    ```
    If no error messages appear, proceed to the next step.
@@ -106,35 +108,28 @@ the gazebo world simulation
 We need a robot to explore the map using SLAM to manually generate the world map for later use.
 
 1. **Launch SLAM** using `gmapping` by running the following command:
-   ```bash
+   ```
    roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
    ```
 
 2. Open a new terminal and control the robot with the keyboard:
-   ```bash
+   ```
    roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
    ```
    Drive the robot around the target area to scan its surroundings.
 
 3. Once the entire target area has been scanned, open another terminal and save the map:
-   ```bash
+   ```
    rosrun map_server map_saver -f `rospack find cs_bot`/maps/<map_name>
    ```
    This will generate two files: `<map_name>.yaml` and `<map_name>.pgm` in the `cs_bot/maps` directory.
-
-##Defining areas
-We will define the bomb sites by using our script and rviz.
-```rosrun cs_bot publish_point.py```
-Click on the map according to the prompt, results will be saved to points.csv to be used by other nodes. This will save the point coordinates to a csv file to be used later.
-
-Here’s your content rewritten in Markdown:
 
 ### Defining Areas
 ---
 We will define the bomb sites using our script and `rviz`.
 
 1. Run the following command:
-   ```bash
+   ```
    rosrun cs_bot publish_point.py
    ```
 
@@ -146,7 +141,7 @@ The coordinates saved in `points.csv` can be used by other nodes later.
 
 ### Launch Game
 ---
-Runn the game by launching 2v2_scenario.launch, which launches all the nodes required including launching 4 robots and starting the game server node:
+Run the game by launching 2v2_scenario.launch, which launches all the nodes required including launching 4 robots and starting the game server node:
 ```
 roslaunch cs_bot 2v2_scenario.launch
 ```
