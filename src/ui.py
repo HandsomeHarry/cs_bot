@@ -50,8 +50,8 @@ class GameUI(QtWidgets.QWidget):
         game_layout = QtWidgets.QVBoxLayout()
         
         # Add reset button
-        self.reset_button = QtWidgets.QPushButton('Reset Round')
-        self.reset_button.clicked.connect(self.reset_round)
+        self.reset_button = QtWidgets.QPushButton('Start New Round')
+        self.reset_button.clicked.connect(self.start_round)
         game_layout.addWidget(self.reset_button)
         
         # Existing game state widgets
@@ -98,7 +98,7 @@ class GameUI(QtWidgets.QWidget):
                 self.bomb_status.setText(f'Bomb: {bomb_status}')
                 
                 # Update score and round
-                self.round_number.setText(f'ROUND {self.current_game_state.round_number}')
+                self.round_number.setText(f'ROUND {self.current_game_state.ct_score+self.current_game_state.t_score+1}')
                 self.score_label.setText(f'CT {self.current_game_state.ct_score} : {self.current_game_state.t_score} T')
             
             # Update robot states
@@ -141,10 +141,10 @@ class GameUI(QtWidgets.QWidget):
         except Exception as e:
             rospy.logerr(f"Error updating UI: {str(e)}")
 
-    def reset_round(self):
+    def start_round(self):
         """Reset the round when button is clicked"""
         try:
-            self.game_control_pub.publish("RESET_ROUND")
+            self.game_control_pub.publish("START_ROUND")
             rospy.loginfo("Reset round command sent")
         except Exception as e:
             rospy.logerr(f"Failed to send reset command: {str(e)}")

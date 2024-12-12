@@ -21,6 +21,7 @@ class GameManager:
         self.publishers = {}
         self.t_win_count = 0
         self.ct_win_count = 0
+        self.round_number = 1  # Add round number tracking
         
         # publisher
         self.game_state_pub = rospy.Publisher('/game/state', GameStateMsg, queue_size=1)
@@ -94,6 +95,10 @@ class GameManager:
         msg.bomb_planted = self.bomb_planted
         msg.bomb_location = self.bomb_location
         msg.dead_players = self.dead_players
+        msg.bomb_time_remaining = self.bomb_time
+        msg.round_number = self.round_number
+        msg.ct_score = self.ct_win_count
+        msg.t_score = self.t_win_count
         self.game_state_pub.publish(msg)
         self.update_robot_states()
         
@@ -130,6 +135,7 @@ class GameManager:
         """start new round"""
         self.round_active = True
         self.reset_round()
+        self.round_number += 1  # Increment round number
         rospy.loginfo("round started")
 
     def handle_bomb_events(self, msg):
@@ -142,8 +148,8 @@ class GameManager:
 
     def handle_game_control(self, msg):
         """Handle game control messages"""
-        if msg.data == "RESET_ROUND":
-            self.reset_round()
+        if msg.data == "START_ROUND":
+            self.start_round()
             self.round_active = True
             rospy.loginfo("Round reset and started")
 
