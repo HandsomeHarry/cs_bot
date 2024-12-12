@@ -6,15 +6,12 @@ import yaml
 import tf
 from geometry_msgs.msg import Point, Pose
 from visualization_msgs.msg import Marker, MarkerArray
-from nav_msgs.msg import OccupancyGrid
 from std_msgs.msg import ColorRGBA
-import pandas as pd
 import os
+import subprocess
 
 class MapManager:
     def __init__(self):
-        rospy.init_node('map_manager', anonymous=True)
-        
         # map basic information
         self.bomb_sites = []  # location of the single bomb site (two points that forms a rectangle)
         self.spawn_points = {'T': [], 'CT': []}  # spawn points
@@ -22,67 +19,59 @@ class MapManager:
         
         # publishers
         self.marker_pub = rospy.Publisher('/game/map_markers', MarkerArray, queue_size=1)
-        self.map_pub = rospy.Publisher('/map', OccupancyGrid, queue_size=1, latch=True)
         
-        # load map config
-        self.load_map_config()
+        # Start map_server node
+        self.start_map_server()
+        
+        # load game config
+        self.load_game_config()
         
         # timer to publish map markers
         self.timer = rospy.Timer(rospy.Duration(1.0), self.publish_markers)
 
-    def load_map_config(self):
-        """Load map information from YAML file"""
+    def start_map_server(self):
+        """Start the map_server node with the correct map"""
         try:
-            # Get the YAML file path
-            yaml_file_path = os.path.join(os.path.dirname(__file__), '../maps/world3_map.yaml')
+            map_yaml_path = os.path.join(os.path.dirname(__file__), '../maps/world3_map.yaml')
+            rospy.loginfo(f"Starting map_server with map: {map_yaml_path}")
             
-            # Read YAML file
-            with open(yaml_file_path, 'r') as file:
-                map_config = yaml.safe_load(file)
+            # Start map_server as a subprocess
+            subprocess.Popen(['rosrun', 'map_server', 'map_server', map_yaml_path])
+            rospy.loginfo("map_server started successfully")
             
-            # Load and publish the map
-            if 'map' in map_config:
-                self.publish_map(map_config['map'])
+        except Exception as e:
+            rospy.logerr(f"Failed to start map_server: {str(e)}")
+
+    def load_game_config(self):
+        """Load game information from YAML file"""
+        try:
+            # Get the game config YAML file path
+            game_config_path = os.path.join(os.path.dirname(__file__), '../config/map_config.yaml')
             
-            # Extract spawn points
-            self.spawn_points = map_config['spawn_points']
+            # Read game config YAML file
+            with open(game_config_path, 'r') as file:
+                game_config = yaml.safe_load(file)
             
-            # Extract bomb site corners
+            # Extract spawn points from game config
+            self.spawn_points = {
+                team: [Point(x=p['x'], y=p['y'], z=p['z']) for p in points]
+                for team, points in game_config['spawn_points'].items()
+            }
+            
+            # Extract bomb site corners from game config
             self.bomb_sites = [
-                Point(**map_config['bomb_site']['corner1']),
-                Point(**map_config['bomb_site']['corner2'])
+                Point(**game_config['bomb_site']['corner1']),
+                Point(**game_config['bomb_site']['corner2'])
             ]
             
-            # Extract patrol points
+            # Extract patrol points from game config
             self.patrol_points = [
                 Point(x=point['x'], y=point['y'], z=point['z'])
-                for point in map_config.get('patrol_points', [])
+                for point in game_config.get('patrol_points', [])
             ]
             
         except Exception as e:
-            rospy.logerr(f"Failed to load map config from YAML: {str(e)}")
-
-    def publish_map(self, map_info):
-        """Publish the occupancy grid map"""
-        map_msg = OccupancyGrid()
-        map_msg.header.frame_id = "map"
-        map_msg.header.stamp = rospy.Time.now()
-        
-        # Set map metadata
-        map_msg.info.resolution = map_info.get('resolution', 0.05)  # meters/pixel
-        map_msg.info.width = map_info.get('width', 0)
-        map_msg.info.height = map_info.get('height', 0)
-        
-        # Set origin
-        origin = map_info.get('origin', {'x': 0, 'y': 0, 'z': 0})
-        map_msg.info.origin.position.x = origin.get('x', 0)
-        map_msg.info.origin.position.y = origin.get('y', 0)
-        map_msg.info.origin.position.z = origin.get('z', 0)
-        
-        # Load map data (you'll need to implement this based on your map format)
-        # Example: map_msg.data = list of occupancy values (0-100, or -1 for unknown)
-        
-        self.map_pub.publish(map_msg)
+            rospy.logerr(f"Failed to load game config: {str(e)}")
 
     def create_marker(self, position, marker_type, id, color, scale):
         """create visualization marker"""
