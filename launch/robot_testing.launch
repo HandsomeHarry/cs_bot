@@ -34,12 +34,11 @@
     <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen"/>
 
     <!-- T team robot -->
-    <group ns="t_robot1">
-        <param name="tf_prefix" value="t_robot1"/>
+    <group ns="robot2">
         
         <!-- Load robot model -->
         <param name="robot_description" 
-               command="$(find xacro)/xacro $(find cs_bot)/urdf/cs_robot_red.urdf.xacro robot_name:=t_robot1" />
+               command="$(find xacro)/xacro $(find cs_bot)/urdf/cs_robot_red.urdf.xacro robot_name:=robot2" />
         
         <!-- Spawn Robot -->
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
@@ -48,70 +47,19 @@
                     -y $(arg t_spawn_y)
                     -z $(arg t_spawn_z)
                     -param robot_description"/>
-
-        <!-- Robot State Publisher -->
-        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-            <param name="publish_frequency" type="double" value="50.0"/>
-            <param name="tf_prefix" value="t_robot1"/>
-        </node>
-
-        <!-- AMCL -->
-        <node pkg="amcl" type="amcl" name="amcl">
-            <param name="initial_pose_x" value="$(arg t_spawn_x)"/>
-            <param name="initial_pose_y" value="$(arg t_spawn_y)"/>
-        </node>
-
-        <!-- Navigation -->
-        <node pkg="move_base" type="move_base" name="move_base" output="screen">
-            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-            <rosparam file="$(find cs_bot)/config/local_costmap_params.yaml" command="load" />
-            <rosparam file="$(find cs_bot)/config/global_costmap_params.yaml" command="load" />
-            <rosparam file="$(find cs_bot)/config/move_base_params.yaml" command="load" />
-            
-            <param name="global_costmap/global_frame" value="map"/>
-            <param name="global_costmap/robot_base_frame" value="t_robot1/base_footprint"/>
-            <param name="local_costmap/global_frame" value="t_robot1/odom"/>
-            <param name="local_costmap/robot_base_frame" value="t_robot1/base_footprint"/>
-        </node>
     </group>
 
     <!-- CT team robot -->
-    <group ns="ct_robot1">
-        <param name="tf_prefix" value="ct_robot1"/>
+    <group ns="robot1">
         
         <param name="robot_description" 
-               command="$(find xacro)/xacro $(find cs_bot)/urdf/cs_robot_blue.urdf.xacro robot_name:=ct_robot1" />
+               command="$(find xacro)/xacro $(find cs_bot)/urdf/cs_robot_blue.urdf.xacro robot_name:=robot1" />
         
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model ct_robot1 
+              args="-urdf -model robot1 
                     -x $(arg ct_spawn_x)
                     -y $(arg ct_spawn_y)
                     -z $(arg ct_spawn_z)
                     -param robot_description"/>
-
-        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-            <param name="publish_frequency" type="double" value="50.0"/>
-            <param name="tf_prefix" value="ct_robot1"/>
-        </node>
-
-        <!-- AMCL -->
-        <node pkg="amcl" type="amcl" name="amcl">
-            <param name="initial_pose_x" value="$(arg ct_spawn_x)"/>
-            <param name="initial_pose_y" value="$(arg ct_spawn_y)"/>
-        </node>
-
-        <node pkg="move_base" type="move_base" name="move_base" output="screen">
-            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-            <rosparam file="$(find cs_bot)/config/local_costmap_params.yaml" command="load" />
-            <rosparam file="$(find cs_bot)/config/global_costmap_params.yaml" command="load" />
-            <rosparam file="$(find cs_bot)/config/move_base_params.yaml" command="load" />
-            
-            <param name="global_costmap/global_frame" value="map"/>
-            <param name="global_costmap/robot_base_frame" value="ct_robot1/base_footprint"/>
-            <param name="local_costmap/global_frame" value="ct_robot1/odom"/>
-            <param name="local_costmap/robot_base_frame" value="ct_robot1/base_footprint"/>
-        </node>
     </group>
 </launch> 
