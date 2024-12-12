@@ -32,6 +32,9 @@ class GameManager:
         self.defusing_in_progress = False
         self.defuse_time = 5  # Time needed to defuse in seconds
         self.defuse_timer = 0
+        
+        # Add subscriber for game control
+        rospy.Subscriber('/game/control', String, self.handle_game_control)
 
     def robot_state_callback(self, msg):
         """manage robot state"""
@@ -127,6 +130,13 @@ class GameManager:
             self.defuse_timer = self.defuse_time
         elif msg.data == "DEFUSE_INTERRUPT":
             self.defusing_in_progress = False
+
+    def handle_game_control(self, msg):
+        """Handle game control messages"""
+        if msg.data == "RESET_ROUND":
+            self.reset_round()
+            self.round_active = True
+            rospy.loginfo("Round reset and started")
 
 if __name__ == '__main__':
     try:

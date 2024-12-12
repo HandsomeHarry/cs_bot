@@ -10,6 +10,10 @@ class GameUI(QtWidgets.QWidget):
     def __init__(self):
         super(GameUI, self).__init__()
         rospy.init_node('game_ui', anonymous=True)
+        
+        # Add publisher for game control
+        self.game_control_pub = rospy.Publisher('/game/control', String, queue_size=1)
+        
         self.initUI()
         
         # Store robot states
@@ -31,6 +35,13 @@ class GameUI(QtWidgets.QWidget):
         # Game state section
         game_group = QtWidgets.QGroupBox('Game State')
         game_layout = QtWidgets.QVBoxLayout()
+        
+        # Add reset button
+        self.reset_button = QtWidgets.QPushButton('Reset Round')
+        self.reset_button.clicked.connect(self.reset_round)
+        game_layout.addWidget(self.reset_button)
+        
+        # Existing game state widgets
         self.round_timer = QtWidgets.QLabel('Round Timer: 90s')
         self.game_phase = QtWidgets.QLabel('Phase: PREP')
         self.bomb_status = QtWidgets.QLabel('Bomb: Not Planted')
@@ -112,6 +123,14 @@ class GameUI(QtWidgets.QWidget):
                 
         except Exception as e:
             rospy.logerr(f"Error updating UI: {str(e)}")
+
+    def reset_round(self):
+        """Reset the round when button is clicked"""
+        try:
+            self.game_control_pub.publish("RESET_ROUND")
+            rospy.loginfo("Reset round command sent")
+        except Exception as e:
+            rospy.logerr(f"Failed to send reset command: {str(e)}")
 
 if __name__ == '__main__':
     try:
