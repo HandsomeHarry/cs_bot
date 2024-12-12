@@ -5,6 +5,8 @@ import rospy
 from geometry_msgs.msg import Point
 from cs_bot.msg import GameStateMsg, RobotStateMsg, CombatEvent
 from std_msgs.msg import String
+from python_qt_binding import QtCore, QtGui, QtWidgets
+import sys
 
 class GameManager:
     def __init__(self):
@@ -128,9 +130,90 @@ class GameManager:
         elif msg.data == "DEFUSE_INTERRUPT":
             self.defusing_in_progress = False
 
+class GameUI(QtWidgets.QWidget):
+    def __init__(self):
+        super(GameUI, self).__init__()
+        rospy.init_node('game_ui', anonymous=True)
+        self.initUI()
+        
+        # Subscribe to game state and robot states
+        rospy.Subscriber('/game/state', GameStateMsg, self.update_game_state)
+        self.robot_states = {}
+        
+        # Timer for UI updates
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.update_ui)
+        self.timer.start(100)  # Update every 100ms
+
+    def initUI(self):
+        self.setWindowTitle('CS Bot Game Status')
+        layout = QtWidgets.QVBoxLayout()
+        
+        # Game state section
+        game_group = QtWidgets.QGroupBox('Game State')
+        game_layout = QtWidgets.QVBoxLayout()
+        self.round_timer = QtWidgets.QLabel('Round Timer: 90')
+        self.game_phase = QtWidgets.QLabel('Phase: PREP')
+        game_layout.addWidget(self.round_timer)
+        game_layout.addWidget(self.game_phase)
+        game_group.setLayout(game_layout)
+        
+        # Robot states section
+        robot_group = QtWidgets.QGroupBox('Robot Status')
+        self.robot_layout = QtWidgets.QVBoxLayout()
+        robot_group.setLayout(self.robot_layout)
+        
+        layout.addWidget(game_group)
+        layout.addWidget(robot_group)
+        self.setLayout(layout)
+        
+        # Set window size and position
+        self.resize(300, 400)
+        self.show()
+
+    def update_game_state(self, msg):
+        """Update game state information"""
+        self.current_game_state = msg
+
+    def update_robot_state(self, msg):
+        """Update individual robot state"""
+        self.robot_states[msg.robot_name] = msg
+        
+    def update_ui(self):
+        """Update UI elements"""
+        try:
+            # Update game state
+            if hasattr(self, 'current_game_state'):
+                self.round_timer.setText(f'Round Timer: {self.current_game_state.round_time_remaining}s')
+                self.game_phase.setText(f'Phase: {self.current_game_state.game_phase}')
+            
+            # Update robot states
+            for robot_name, state in self.robot_states.items():
+                # Create or update robot status widgets
+                if not hasattr(self, f'robot_label_{robot_name}'):
+                    label = QtWidgets.QLabel()
+                    self.robot_layout.addWidget(label)
+                    setattr(self, f'robot_label_{robot_name}', label)
+                
+                # Update label with team, health, and gun
+                label = getattr(self, f'robot_label_{robot_name}')
+                team = "T" if "1" in robot_name.lower() else "CT"
+                health_color = "green" if state.health > 50 else "orange" if state.health > 25 else "red"
+                label.setText(
+                    f'<div style="margin:5px; padding:5px; border:1px solid gray;">'
+                    f'<b>{robot_name}</b> ({team})<br>'
+                    f'Health: <span style="color:{health_color}">{state.health}</span><br>'
+                    f'Gun: {state.current_gun}'
+                    f'</div>'
+                )
+                
+        except Exception as e:
+            rospy.logerr(f"Error updating UI: {str(e)}")
+
 if __name__ == '__main__':
     try:
-        game_manager = GameManager()
-        rospy.spin()
+        app = QtWidgets.QApplication(sys.argv)
+        ui = GameUI()
+        sys.exit(app.exec_())
     except rospy.ROSInterruptException:
         pass
