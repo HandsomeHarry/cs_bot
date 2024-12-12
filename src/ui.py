@@ -33,6 +33,18 @@ class GameUI(QtWidgets.QWidget):
         self.setWindowTitle('CS Bot Game Status')
         layout = QtWidgets.QVBoxLayout()
         
+        # Score and round section
+        score_group = QtWidgets.QGroupBox('Match Status')
+        score_layout = QtWidgets.QVBoxLayout()
+        self.round_number = QtWidgets.QLabel('ROUND 1')
+        self.round_number.setAlignment(QtCore.Qt.AlignCenter)
+        self.score_label = QtWidgets.QLabel('CT 0 : 0 T')
+        self.score_label.setAlignment(QtCore.Qt.AlignCenter)
+        score_layout.addWidget(self.round_number)
+        score_layout.addWidget(self.score_label)
+        score_group.setLayout(score_layout)
+        layout.addWidget(score_group)
+        
         # Game state section
         game_group = QtWidgets.QGroupBox('Game State')
         game_layout = QtWidgets.QVBoxLayout()
@@ -84,6 +96,10 @@ class GameUI(QtWidgets.QWidget):
                 self.game_phase.setText(f'Phase: {self.current_game_state.game_phase}')
                 bomb_status = f"{self.current_game_state.bomb_time_remaining}s to detonation" if self.current_game_state.bomb_planted else "Not Planted"
                 self.bomb_status.setText(f'Bomb: {bomb_status}')
+                
+                # Update score and round
+                self.round_number.setText(f'ROUND {self.current_game_state.round_number}')
+                self.score_label.setText(f'CT {self.current_game_state.ct_score} : {self.current_game_state.t_score} T')
             
             # Update robot states
             current_time = rospy.Time.now()
