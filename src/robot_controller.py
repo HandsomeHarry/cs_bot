@@ -20,6 +20,7 @@ import random
 import actionlib
 import os
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from actionlib_msgs.msg import GoalStatus
 from gun import Gun
 import yaml
 from map_manager import MapManager
@@ -182,9 +183,6 @@ class CSRobotController:
         self.game_phase = msg.game_phase
         self.bomb_location = msg.bomb_location
         
-        # Handle state changes based on game phase
-        self.handle_game_phase()
-
     def generate_patrol_points(self):
         """Generate patrol points from map_config.yaml."""
         patrol_points = []
@@ -284,38 +282,42 @@ class CSRobotController:
         self.current_patrol_index = (self.current_patrol_index + 1) % len(self.patrol_points)
         self.send_next_patrol_point()
 
-    # def run(self):
-    #     """main run loop (deprecated)"""
-    #     rate = rospy.Rate(10)  # 10Hz
-    #     while not rospy.is_shutdown() and self.is_alive:
-    #         self.publish_state()
-
-    #         # state machine handling
-    #         if self.avoiding:
-    #             self.state = "AVOIDING"
-    #             self.is_patrolling = False
-    #             if self.current_goal_active:
-    #                 self.move_base.cancel_goal()
-    #         elif self.detected_enemies:
-    #             self.state = "ENGAGING"
-    #             self.is_patrolling = False
-    #             if self.current_goal_active:
-    #                 self.move_base.cancel_goal()
-    #             self.handle_combat()
-    #         else:
-    #             self.state = "SEARCHING"
-    #             # Resume patrol for CT team
-    #             if self.team == 'CT' and not self.is_patrolling:
-    #                 self.is_patrolling = True
-    #                 self.send_next_patrol_point()
-
-    #         rate.sleep()
+    def run(self):
+        """main run loop (deprecated)"""
+        rate = rospy.Rate(10)  # 10Hz
+        while not rospy.is_shutdown() and self.is_alive:
+            self.publish_state()
+            if self.game_phase == "PREP":
+                self.is_patrolling = False
+                self.move_to_position(self.spawn_points[self.team])
+                
+            elif self.game_phase == "ACTIVE":
+                if self.team == "CT" and not self.is_patrolling:
+                    self.is_patrolling = True
+                    self.start_patrol()
+                else: # T
+                    self.move_to_position(self.bomb_location)
+                
+            elif self.game_phase == "BOMB_PLANTED":
+                if self.team == "CT":
+                    self.is_patrolling = False
+                    self.move_to_position(self.bomb_location)
+                    # When close to bomb, start defusing
+                    if self.is_near_position(self.bomb_location, threshold=0.5):
+                        self.start_defusing()
+                        # Notify game manager that defusing has started
+                        self.bomb_event_pub.publish("DEFUSE_START")
+            rate.sleep()
 
     def map_callback(self, msg):
         self.map_data = msg
 
     def move_to_position(self, target):
         # Create move_base goal
+        state = self.move_base.get_state()
+
+        if state == GoalStatus.PENDING or state == GoalStatus.ACTIVE:
+            return # only make new goals
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
         goal.target_pose.header.stamp = rospy.Time.now()
@@ -332,26 +334,6 @@ class CSRobotController:
         spawn_idx = robot_num % len(team_spawns)
         return team_spawns[spawn_idx]
 
-    def handle_game_phase(self):
-        """Handle different game phases"""
-        if self.game_phase == "PREP":
-            self.is_patrolling = False
-            self.move_to_position(self.spawn_points[self.team])
-            
-        elif self.game_phase == "ACTIVE":
-            if self.team == "CT" and not self.is_patrolling:
-                self.is_patrolling = True
-                self.start_patrol()
-            
-        elif self.game_phase == "BOMB_PLANTED":
-            if self.team == "CT":
-                self.is_patrolling = False
-                self.move_to_position(self.bomb_location)
-                # When close to bomb, start defusing
-                if self.is_near_position(self.bomb_location, threshold=0.5):
-                    self.start_defusing()
-                    # Notify game manager that defusing has started
-                    self.bomb_event_pub.publish("DEFUSE_START")
 
     def is_near_position(self, target_pos, threshold=0.5):
         """Check if robot is near the bomb"""

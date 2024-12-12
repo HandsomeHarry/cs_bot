@@ -12,7 +12,7 @@ class GameManager:
         
         # game state
         self.round_time = 90
-        self.round_active = False
+        self.round_active = True
         self.bomb_planted = False
         self.bomb_time = 40
         self.bomb_location = Point()

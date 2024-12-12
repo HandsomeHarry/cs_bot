@@ -114,24 +114,4 @@
             <param name="local_costmap/robot_base_frame" value="ct_robot1/base_footprint"/>
         </node>
     </group>
-
-    <!-- Robot Controllers -->
-    <node pkg="cs_bot" type="robot_controller.py" name="t_robot1_controller" output="screen">
-        <param name="robot_name" value="robot2"/>
-        <param name="team" value="T"/>
-        <param name="weapon" value="RIFLE"/>
-    </node>
-
-    <node pkg="cs_bot" type="robot_controller.py" name="ct_robot1_controller" output="screen">
-        <param name="robot_name" value="robot1"/>
-        <param name="team" value="CT"/>
-        <param name="weapon" value="RIFLE"/>
-    </node>
-
-    <!-- Game manager node -->
-    <node pkg="cs_bot" type="game_manager.py" name="game_manager" output="screen"/>
-
-    <!-- RViz -->
-    <node name="rviz" pkg="rviz" type="rviz" 
-          args="-d $(find cs_bot)/rviz/test_config.rviz"/>
 </launch> 
