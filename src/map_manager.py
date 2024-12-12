@@ -22,7 +22,7 @@ class MapManager:
         
         # publishers
         self.marker_pub = rospy.Publisher('/game/map_markers', MarkerArray, queue_size=1)
-        self.map_pub = rospy.Publisher('/game/map', OccupancyGrid, queue_size=1)
+        self.map_pub = rospy.Publisher('/map', OccupancyGrid, queue_size=1, latch=True)
         
         # load map config
         self.load_map_config()
@@ -34,11 +34,15 @@ class MapManager:
         """Load map information from YAML file"""
         try:
             # Get the YAML file path
-            yaml_file_path = os.path.join(os.path.dirname(__file__), '../config/map_config.yaml')
+            yaml_file_path = os.path.join(os.path.dirname(__file__), '../maps/world3_map.yaml')
             
             # Read YAML file
             with open(yaml_file_path, 'r') as file:
                 map_config = yaml.safe_load(file)
+            
+            # Load and publish the map
+            if 'map' in map_config:
+                self.publish_map(map_config['map'])
             
             # Extract spawn points
             self.spawn_points = map_config['spawn_points']
@@ -57,6 +61,28 @@ class MapManager:
             
         except Exception as e:
             rospy.logerr(f"Failed to load map config from YAML: {str(e)}")
+
+    def publish_map(self, map_info):
+        """Publish the occupancy grid map"""
+        map_msg = OccupancyGrid()
+        map_msg.header.frame_id = "map"
+        map_msg.header.stamp = rospy.Time.now()
+        
+        # Set map metadata
+        map_msg.info.resolution = map_info.get('resolution', 0.05)  # meters/pixel
+        map_msg.info.width = map_info.get('width', 0)
+        map_msg.info.height = map_info.get('height', 0)
+        
+        # Set origin
+        origin = map_info.get('origin', {'x': 0, 'y': 0, 'z': 0})
+        map_msg.info.origin.position.x = origin.get('x', 0)
+        map_msg.info.origin.position.y = origin.get('y', 0)
+        map_msg.info.origin.position.z = origin.get('z', 0)
+        
+        # Load map data (you'll need to implement this based on your map format)
+        # Example: map_msg.data = list of occupancy values (0-100, or -1 for unknown)
+        
+        self.map_pub.publish(map_msg)
 
     def create_marker(self, position, marker_type, id, color, scale):
         """create visualization marker"""
