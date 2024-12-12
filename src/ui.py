@@ -4,6 +4,7 @@
 import rospy
 from python_qt_binding import QtCore, QtGui, QtWidgets
 from cs_bot.msg import GameStateMsg, RobotStateMsg
+from std_msgs.msg import String
 import sys
 
 class GameUI(QtWidgets.QWidget):
