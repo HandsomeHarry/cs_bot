@@ -19,6 +19,8 @@ class GameManager:
         self.dead_players = []
         self.robot_states = {}
         self.publishers = {}
+        self.t_win_count = 0
+        self.ct_win_count = 0
         
         # publisher
         self.game_state_pub = rospy.Publisher('/game/state', GameStateMsg, queue_size=1)
@@ -108,6 +110,13 @@ class GameManager:
         """end round"""
         self.round_active = False
         rospy.loginfo("%s win" % winner)
+        
+        if winner == "Terrorists":
+            self.t_win_count += 1
+        else:
+            self.ct_win_count += 1
+        
+        rospy.loginfo("T : CT\n%d : %d" % (self.t_win_count, self.ct_win_count))
         self.reset_round()
         
     def reset_round(self):
