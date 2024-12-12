@@ -1,14 +1,4 @@
 <?xml version="1.0"?>
-<!--
-    Purpose: 1v1 scenario with map-based navigation
-    Type: Game scenario launch file
-    World: game_world.world
-    Robots: 2 robots (1 T, 1 CT)
-    Features:
-    - Pre-loaded map
-    - AMCL localization
-    - Move_base navigation
--->
 <launch>
     <!-- Load map configuration -->
     <rosparam command="load" file="$(find cs_bot)/config/map_config.yaml" ns="map_config"/>
@@ -30,20 +20,38 @@
         <arg name="gui" value="true"/>
     </include>
 
-    <!-- Load the map -->
-    <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen"/>
+    <!-- T team robot -->
+    <group ns="robot2">
+        <!-- Load robot model -->
+        <param name="robot_description" 
+               command="$(find xacro)/xacro $(find cs_bot)/models/waffle_red.urdf.xacro robot_name:=robot2" />
+        <!-- Spawn Robot -->
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+              args="-urdf -model t_robot1 
+                    -x $(arg t_spawn_x)
+                    -y $(arg t_spawn_y)
+                    -z $(arg t_spawn_z)
+                    -param robot_description"/>
+    </group>
 
     <!-- CT team robot -->
     <group ns="robot1">
-        
         <param name="robot_description" 
                command="$(find xacro)/xacro $(find cs_bot)/models/waffle_blue.urdf.xacro robot_name:=robot1" />
-        
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
               args="-urdf -model robot1 
                     -x $(arg ct_spawn_x)
                     -y $(arg ct_spawn_y)
                     -z $(arg ct_spawn_z)
                     -param robot_description"/>
+    </group>
+
+    <!-- Load the map -->
+    <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen"/>
+
+    <!-- rviz -->
+    <group if="$(arg open_rviz)"> 
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find cs_bot)/rviz/sim.rviz"/>
     </group>
 </launch> 
