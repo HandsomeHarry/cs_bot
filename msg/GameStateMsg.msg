@@ -1,4 +1,6 @@
 int32 round_time_remaining
+int32 bomb_time_remaining
+int32 round_number
 int32 ct_score
 int32 t_score
 string game_phase

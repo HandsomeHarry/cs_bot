@@ -1,0 +1,118 @@
+<launch>
+    <!-- Arguments -->
+    <arg name="world_file" default="$(find cs_bot)/worlds/world3.world"/>
+    <arg name="gui" default="true"/>
+    <arg name="paused" default="false"/>
+    
+    <!-- Launch Gazebo with specified world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_file)"/>
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="paused" value="$(arg paused)"/>
+    </include>
+
+    <!-- Spawn Robot 1 (CT Spawn) -->
+    <group ns="robot1">
+        <param name="tf_prefix" value="robot1"/>
+        <!-- Load robot description -->
+        <param name="robot_description" command="$(find xacro)/xacro '$(find cs_bot)/urdf/robot.urdf.xacro'"/>
+
+        <!-- Spawn robot in Gazebo -->
+        <node name="spawn_robot1" pkg="gazebo_ros" type="spawn_model" 
+              args="-urdf 
+                    -param robot_description 
+                    -model robot1
+                    -x -1.72 
+                    -y 1.63 
+                    -z 0.01 
+                    -Y 0.0
+                    -robot_namespace robot1"
+              respawn="false" output="screen"/>
+
+        <!-- Robot state publisher -->
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="robot1"/>
+        </node>
+
+        <!-- Joint state publisher -->
+        <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher">
+            <param name="rate" value="50"/>
+        </node>
+
+        <!-- Navigation -->
+        <node pkg="move_base" type="move_base" name="move_base" output="screen">
+            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find cs_bot)/config/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/base_local_planner_params.yaml" command="load" />
+        </node>
+    </group>
+
+    <!-- Spawn Robot 2 (T Spawn) -->
+    <group ns="robot2">
+        <param name="tf_prefix" value="robot2"/>
+        <!-- Load robot description -->
+        <param name="robot_description" command="$(find xacro)/xacro '$(find cs_bot)/urdf/robot.urdf.xacro'"/>
+
+        <!-- Spawn robot in Gazebo -->
+        <node name="spawn_robot2" pkg="gazebo_ros" type="spawn_model" 
+              args="-urdf 
+                    -param robot_description 
+                    -model robot2
+                    -x 0.0 
+                    -y -1.43 
+                    -z 0.01 
+                    -Y 3.14
+                    -robot_namespace robot2"
+              respawn="false" output="screen"/>
+
+        <!-- Robot state publisher -->
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="robot2"/>
+        </node>
+
+        <!-- Joint state publisher -->
+        <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher">
+            <param name="rate" value="50"/>
+        </node>
+
+        <!-- Navigation -->
+        <node pkg="move_base" type="move_base" name="move_base" output="screen">
+            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find cs_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find cs_bot)/config/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find cs_bot)/config/base_local_planner_params.yaml" command="load" />
+        </node>
+    </group>
+
+    <!-- Launch map server -->
+    <node name="map_server" pkg="map_server" type="map_server" 
+          args="$(find cs_bot)/maps/world3.yaml"/>
+
+    <!-- Launch AMCL for each robot -->
+    <node pkg="amcl" type="amcl" name="amcl_robot1" output="screen" ns="robot1">
+        <param name="tf_prefix" value="robot1"/>
+        <param name="base_frame_id" value="robot1/base_footprint"/>
+        <param name="odom_frame_id" value="robot1/odom"/>
+        <param name="global_frame_id" value="map"/>
+    </node>
+
+    <node pkg="amcl" type="amcl" name="amcl_robot2" output="screen" ns="robot2">
+        <param name="tf_prefix" value="robot2"/>
+        <param name="base_frame_id" value="robot2/base_footprint"/>
+        <param name="odom_frame_id" value="robot2/odom"/>
+        <param name="global_frame_id" value="map"/>
+    </node>
+
+    <!-- Launch our navigation test node -->
+    <node name="devious_navigator" pkg="cs_bot" type="dev1.py" output="screen"/>
+
+    <!-- Launch RViz with custom config -->
+    <node name="rviz" pkg="rviz" type="rviz" 
+          args="-d $(find cs_bot)/rviz/multi_robot_nav.rviz"/>
+
+</launch>
