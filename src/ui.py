@@ -82,7 +82,7 @@ class GameUI(QtWidgets.QWidget):
             if hasattr(self, 'current_game_state'):
                 self.round_timer.setText(f'Round Timer: {self.current_game_state.round_time_remaining}s')
                 self.game_phase.setText(f'Phase: {self.current_game_state.game_phase}')
-                bomb_status = "Planted" if self.current_game_state.bomb_planted else "Not Planted"
+                bomb_status = f"{self.current_game_state.bomb_time_remaining}s to detonation" if self.current_game_state.bomb_planted else "Not Planted"
                 self.bomb_status.setText(f'Bomb: {bomb_status}')
             
             # Update robot states
