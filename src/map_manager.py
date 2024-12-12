@@ -3,8 +3,7 @@
 
 import rospy
 import yaml
-import tf
-from geometry_msgs.msg import Point, Pose
+from geometry_msgs.msg import Point
 from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import ColorRGBA
 import os
@@ -13,9 +12,9 @@ import subprocess
 class MapManager:
     def __init__(self):
         # map basic information
-        self.bomb_sites = []  # location of the single bomb site (two points that forms a rectangle)
-        self.spawn_points = {'T': [], 'CT': []}  # spawn points
-        self.patrol_points = []  # patrol points
+        self.bomb_sites = []  
+        self.spawn_points = {'T': [], 'CT': []}  
+        self.patrol_points = []  
         
         # publishers
         self.marker_pub = rospy.Publisher('/game/map_markers', MarkerArray, queue_size=1)
@@ -34,37 +33,30 @@ class MapManager:
         try:
             map_yaml_path = os.path.join(os.path.dirname(__file__), '../maps/world3_map.yaml')
             rospy.loginfo(f"Starting map_server with map: {map_yaml_path}")
-            
-            # Start map_server as a subprocess
             subprocess.Popen(['rosrun', 'map_server', 'map_server', map_yaml_path])
-            rospy.loginfo("map_server started successfully")
-            
         except Exception as e:
             rospy.logerr(f"Failed to start map_server: {str(e)}")
 
     def load_game_config(self):
         """Load game information from YAML file"""
         try:
-            # Get the game config YAML file path
             game_config_path = os.path.join(os.path.dirname(__file__), '../config/map_config.yaml')
-            
-            # Read game config YAML file
             with open(game_config_path, 'r') as file:
                 game_config = yaml.safe_load(file)
             
-            # Extract spawn points from game config
+            # Extract spawn points
             self.spawn_points = {
                 team: [Point(x=p['x'], y=p['y'], z=p['z']) for p in points]
                 for team, points in game_config['spawn_points'].items()
             }
             
-            # Extract bomb site corners from game config
+            # Extract bomb site corners
             self.bomb_sites = [
                 Point(**game_config['bomb_site']['corner1']),
                 Point(**game_config['bomb_site']['corner2'])
             ]
             
-            # Extract patrol points from game config
+            # Extract patrol points
             self.patrol_points = [
                 Point(x=point['x'], y=point['y'], z=point['z'])
                 for point in game_config.get('patrol_points', [])
@@ -74,7 +66,7 @@ class MapManager:
             rospy.logerr(f"Failed to load game config: {str(e)}")
 
     def create_marker(self, position, marker_type, id, color, scale):
-        """create visualization marker"""
+        """Create visualization marker"""
         marker = Marker()
         marker.header.frame_id = "map"
         marker.header.stamp = rospy.Time.now()
@@ -91,10 +83,10 @@ class MapManager:
         return marker
 
     def publish_markers(self, event=None):
-        """publish all map markers"""
+        """Publish all map markers"""
         marker_array = MarkerArray()
         
-        # add bomb site markers
+        # Add bomb site markers
         for i, site in enumerate(self.bomb_sites):
             marker = self.create_marker(
                 site,
@@ -105,7 +97,7 @@ class MapManager:
             )
             marker_array.markers.append(marker)
         
-        # add spawn point markers
+        # Add spawn point markers
         id_counter = len(self.bomb_sites)
         for team, points in self.spawn_points.items():
             color = (1.0, 0.0, 0.0, 0.7) if team == 'T' else (0.0, 0.0, 1.0, 0.7)
@@ -120,7 +112,7 @@ class MapManager:
                 marker_array.markers.append(marker)
                 id_counter += 1
         
-        # publish markers
+        # Publish markers
         self.marker_pub.publish(marker_array)
 
     def get_spawn_points(self):
