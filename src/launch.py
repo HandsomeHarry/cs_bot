@@ -34,6 +34,8 @@ class LaunchHelper:
             f't_spawn_2_x:={config["spawn_points"]["T"][1]["x"]}',
             f't_spawn_2_y:={config["spawn_points"]["T"][1]["y"]}'
         ]
+        for arg in launch_args:
+            print(arg, end=' ')
 
         # Launch the game with arguments
         subprocess.run(launch_args)
