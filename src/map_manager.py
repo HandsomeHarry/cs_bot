@@ -123,6 +123,9 @@ class MapManager:
         """Return the patrol points."""
         return self.patrol_points
 
+    def get_patrol_points(self):
+        return self.patrol_points
+
 if __name__ == '__main__':
     try:
         rospy.init_node("map_manager")

@@ -19,10 +19,10 @@ import math
 import random
 import actionlib
 import os
+import time
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from actionlib_msgs.msg import GoalStatus
 from gun import Gun
-import yaml
 from map_manager import MapManager
 
 class CSRobotController:
@@ -43,7 +43,6 @@ class CSRobotController:
         self.is_defusing = False
         self.bridge = CvBridge()
         self.tf_listener = tf.TransformListener()
-        self.map_data = None
         self.turn_speed = 0.00075
 
         #game state stuff
@@ -84,7 +83,6 @@ class CSRobotController:
 
         # subscribers
         rospy.Subscriber('/{}/camera/image_raw'.format(self.robot_name), Image, self.process_image)
-        rospy.Subscriber('/map', OccupancyGrid, self.map_callback)  
         rospy.Subscriber('/{}/robot_state'.format(self.robot_name), RobotStateMsg, self.update_state) # robots own status
         rospy.Subscriber('/game/state', GameStateMsg, self.game_state_callback)
 
@@ -97,17 +95,14 @@ class CSRobotController:
 
         # Add patrol state variables
         self.is_patrolling = False
-        self.current_goal_active = False
         self.current_patrol_index = 0
 
-        # Initialize MapManager
-        self.map_manager = MapManager()
+        # Map stuff
+        self.bomb_sites = []  
+        self.spawn_points = {'T': [], 'CT': []}  
+        self.patrol_points = []  
 
-        # Get spawn points from MapManager
-        self.spawn_points = self.map_manager.get_spawn_points()
-
-        # Load patrol points from YAML
-        self.patrol_points = self.generate_patrol_points()
+        self.load_game_config()
 
         # Add new publisher for bomb events
         self.bomb_event_pub = rospy.Publisher('/game/bomb_events', String, queue_size=1)
@@ -118,6 +113,34 @@ class CSRobotController:
             self.is_alive = msg.is_alive
             self.is_planting = msg.is_planting
             self.is_defusing = msg.is_defusing
+
+    def load_game_config(self):
+        """Load game information from YAML file"""
+        try:
+            game_config_path = os.path.join(os.path.dirname(__file__), '../config/map_config.yaml')
+            with open(game_config_path, 'r') as file:
+                game_config = yaml.safe_load(file)
+            
+            # Extract spawn points
+            self.spawn_points = {
+                team: [Point(x=p['x'], y=p['y'], z=p['z']) for p in points]
+                for team, points in game_config['spawn_points'].items()
+            }
+            
+            # Extract bomb site corners
+            self.bomb_sites = [
+                Point(**game_config['bomb_site']['corner1']),
+                Point(**game_config['bomb_site']['corner2'])
+            ]
+            
+            # Extract patrol points
+            self.patrol_points = random.shuffle([
+                Point(x=point['x'], y=point['y'], z=point['z'])
+                for point in game_config.get('patrol_points', [])
+            ])
+
+        except Exception as e:
+            rospy.logerr(f"Failed to load game config: {str(e)}")
 
     def process_image(self, image):
         """process image and detect enemy robots"""
@@ -182,33 +205,6 @@ class CSRobotController:
         self.bomb_being_planted = msg.bomb_planted
         self.game_phase = msg.game_phase
         self.bomb_location = msg.bomb_location
-        
-    def generate_patrol_points(self):
-        """Generate patrol points from map_config.yaml."""
-        patrol_points = []
-
-        # Determine the path to map_config.yaml
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        yaml_file_path = os.path.join(script_dir, '..', 'config', 'map_config.yaml')
-
-        try:
-            # Open and read the YAML file
-            with open(yaml_file_path, 'r') as file:
-                map_config = yaml.safe_load(file)
-                patrol_points_data = map_config.get('patrol_points', [])
-
-                for point_data in patrol_points_data:
-                    patrol_points.append(Point(
-                        x=point_data['x'],
-                        y=point_data['y'],
-                        z=point_data['z']
-                    ))
-        except Exception as e:
-            rospy.logerr(f"Error reading patrol points from {yaml_file_path}: {e}")
-
-        # Shuffle the patrol points for randomness
-        random.shuffle(patrol_points)
-        return patrol_points
 
     def get_next_patrol_point(self):
         """get next patrol point"""
@@ -253,32 +249,19 @@ class CSRobotController:
             return
 
         target = self.patrol_points[self.current_patrol_index]
-        
-        # Create and send move_base goal
-        goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = "map"
-        goal.target_pose.header.stamp = rospy.Time.now()
-        goal.target_pose.pose.position = target
-        goal.target_pose.pose.orientation.w = 1.0
+        self.move_to_position(target, True)
 
-        self.current_goal_active = True
-        self.move_base.send_goal(
-            goal,
-            done_cb=self.patrol_goal_done_callback
-        )
-
-    def stay_put(self):
+    def cancel_movement(self):
         """stay put"""
         self.move_base.cancel_goal()
 
-
     def patrol_goal_done_callback(self, status, result):
         """Callback for when a patrol point is reached"""
-        self.current_goal_active = False
         if not self.is_patrolling:
             return
             
         # Move to next patrol point
+        time.sleep(random.random() * 5)
         self.current_patrol_index = (self.current_patrol_index + 1) % len(self.patrol_points)
         self.send_next_patrol_point()
 
@@ -309,15 +292,13 @@ class CSRobotController:
                         self.bomb_event_pub.publish("DEFUSE_START")
             rate.sleep()
 
-    def map_callback(self, msg):
-        self.map_data = msg
 
-    def move_to_position(self, target):
+    def move_to_position(self, target, patrol_point=False):
         # Create move_base goal
         state = self.move_base.get_state()
-
         if state == GoalStatus.PENDING or state == GoalStatus.ACTIVE:
             return # only make new goals
+
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
         goal.target_pose.header.stamp = rospy.Time.now()
@@ -325,7 +306,10 @@ class CSRobotController:
         goal.target_pose.pose.orientation.w = 1.0
 
         # Send goal to move_base
-        self.move_base.send_goal(goal)
+        if patrol_point:
+            self.move_base.send_goal(goal, done_cb=self.patrol_goal_done_callback)
+        else:
+            self.move_base.send_goal(goal)
 
     def assign_spawn_point(self):
         """Assign a spawn point based on team and robot number"""
