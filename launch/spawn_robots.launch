@@ -1,53 +1,14 @@
 <launch>
-  <arg name="model" default="burger"/>
-  <!-- Spawn point arguments -->
-  <arg name="ct_spawn_1_x"/>
-  <arg name="ct_spawn_1_y"/>
-  <arg name="ct_spawn_2_x"/>
-  <arg name="ct_spawn_2_y"/>
-  <arg name="t_spawn_1_x"/>
-  <arg name="t_spawn_1_y"/>
-  <arg name="t_spawn_2_x"/>
-  <arg name="t_spawn_2_y"/>
+  <arg name="model"/>
+  <!-- Shared Description -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/shared/turtlebot3_$(arg model).urdf.xacro" />
 
-  <!-- Spawn CT robots -->
-  <include file="$(find cs_bot)/launch/spawn_robot.launch">
-    <arg name="model" value="$(arg model)"/>
-    <arg name="robot_name" value="robot1"/>
-    <arg name="init_pose_x" value="$(arg ct_spawn_1_x)"/>
-    <arg name="init_pose_y" value="$(arg ct_spawn_1_y)"/>
-    <arg name="init_pose_z" value="0.0"/>
-    <arg name="init_pose" value="-x $(arg ct_spawn_1_x) -y $(arg ct_spawn_1_y) -z 0 -Y 0"/>]
-  </include>
-
-  <include file="$(find cs_bot)/launch/spawn_robot.launch">
-    <arg name="model" value="$(arg model)"/>
-    <arg name="robot_name" value="robot2"/>
-    <arg name="init_pose_x" value="$(arg ct_spawn_2_x)"/>
-    <arg name="init_pose_y" value="$(arg ct_spawn_2_y)"/>
-    <arg name="init_pose_z" value="0.0"/>
-    <arg name="init_pose" value="-x $(arg ct_spawn_2_x) -y $(arg ct_spawn_2_y) -z 0 -Y 0"/>
-  </include>
-
-  <!-- Spawn T robots -->
-  <include file="$(find cs_bot)/launch/spawn_robot.launch">
-    <arg name="model" value="$(arg model)"/>
-    <arg name="robot_name" value="robot3"/>
-    <arg name="init_pose_x" value="$(arg t_spawn_1_x)"/>
-    <arg name="init_pose_y" value="$(arg t_spawn_1_y)"/>
-    <arg name="init_pose_z" value="0.0"/>
-    <arg name="init_pose" value="-x $(arg t_spawn_1_x) -y $(arg t_spawn_1_y) -z 0 -Y 0"/>
-  </include>
-
-  <include file="$(find cs_bot)/launch/spawn_robot.launch">
-    <arg name="model" value="$(arg model)"/>
-    <arg name="robot_name" value="robot4"/>
-    <arg name="init_pose_x" value="$(arg t_spawn_2_x)"/>
-    <arg name="init_pose_y" value="$(arg t_spawn_2_y)"/>
-    <arg name="init_pose_z" value="0.0"/>
-    <arg name="init_pose" value="-x $(arg t_spawn_2_x) -y $(arg t_spawn_2_y) -z 0 -Y 0"/>
-  </include>
-
+  <!-- Robot-specific descriptions -->
+  <param name="roba_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/roba/turtlebot3_$(arg model).urdf.xacro" />
+  <param name="robb_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/robb/turtlebot3_$(arg model).urdf.xacro" />
+  <param name="robc_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/robc/turtlebot3_$(arg model).urdf.xacro" />
+  <param name="rafael_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/rafael/turtlebot3_$(arg model).urdf.xacro" />
+  
   <!-- BEGIN roba-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
     <arg name="init_pose" value="-x -1.72 -y 1.63 -z 0 -Y 0" />
@@ -87,21 +48,20 @@
   <!--BEGIN run nodes-->
   <node name="run_game_manager" pkg="cs_bot" type="game_manager.py" respawn="false" output="screen"></node>
 
-  <node name="run_robot1" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
-    <param name="robot_name" type="string" value="robot1" />
-    <param name="team" type="string" value="CT" />
-  </node>
-  <node name="run_robot2" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
-    <param name="robot_name" type="string" value="robot2" />
-    <param name="team" type="string" value="CT" />
-  </node>
-  <node name="run_robot3" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
-    <param name="robot_name" type="string" value="robot3" />
+  <node name="run_roba" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+    <param name="robot_name" type="string" value="roba" />
     <param name="team" type="string" value="T" />
   </node>
-  <node name="run_robot4" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
-    <param name="robot_name" type="string" value="robot4" />
+  <node name="run_robb" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+    <param name="robot_name" type="string" value="robb" />
+    <param name="team" type="string" value="CT" />
+  </node>
+  <node name="run_robc" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+    <param name="robot_name" type="string" value="robc" />
     <param name="team" type="string" value="T" />
+  </node>
+  <node name="run_rafael" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+    <param name="robot_name" type="string" value="rafael" />
   </node>
 
   <node name="run_ui" pkg="cs_bot" type="ui.py" respawn="false" output="screen"></node>
