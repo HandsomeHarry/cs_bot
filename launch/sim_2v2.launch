@@ -4,6 +4,16 @@
     <arg name="map_file" default="$(find cs_bot)/maps/world3_map.yaml"/>
     <arg name="open_rviz" default="true"/>
 
+    <!-- Spawn point arguments -->
+    <arg name="ct_spawn_1_x" default="-1.72"/>
+    <arg name="ct_spawn_1_y" default="1.63"/>
+    <arg name="ct_spawn_2_x" default="-1.21"/>
+    <arg name="ct_spawn_2_y" default="1.66"/>
+    <arg name="t_spawn_1_x" default="0.0"/>
+    <arg name="t_spawn_1_y" default="-1.43"/>
+    <arg name="t_spawn_2_x" default="0.44"/>
+    <arg name="t_spawn_2_y" default="-1.43"/>
+
     <!-- Map Server -->
     <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
 
@@ -20,11 +30,19 @@
     <!-- Launch Robots -->
     <include file="$(find cs_bot)/launch/spawn_robots.launch">
         <arg name="model" value="$(arg model)"/>
+        <arg name="ct_spawn_1_x" value="$(arg ct_spawn_1_x)"/>
+        <arg name="ct_spawn_1_y" value="$(arg ct_spawn_1_y)"/>
+        <arg name="ct_spawn_2_x" value="$(arg ct_spawn_2_x)"/>
+        <arg name="ct_spawn_2_y" value="$(arg ct_spawn_2_y)"/>
+        <arg name="t_spawn_1_x" value="$(arg t_spawn_1_x)"/>
+        <arg name="t_spawn_1_y" value="$(arg t_spawn_1_y)"/>
+        <arg name="t_spawn_2_x" value="$(arg t_spawn_2_x)"/>
+        <arg name="t_spawn_2_y" value="$(arg t_spawn_2_y)"/>
     </include>
 
     <!-- rviz -->
     <group if="$(arg open_rviz)"> 
-    <node pkg="rviz" type="rviz" name="rviz" required="true"
-          args="-d $(find cs_bot)/rviz/sim_nav.rviz"/>
+        <node pkg="rviz" type="rviz" name="rviz" required="true"
+              args="-d $(find cs_bot)/rviz/sim_nav.rviz"/>
     </group>
 </launch>

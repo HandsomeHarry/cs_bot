@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # run the following commands in the terminal to start the map server and rviz
-#rosrun map_server map_server maps/world3_map.yaml
+#rosrun map_server map_server maps/world4.yaml
 #rosrun rviz rviz -d path/to/your_rviz_config.rviz
 #!/usr/bin/env python3
 
@@ -20,7 +20,7 @@ class PointRecorder:
         self.labels = [
             'T_spawn1', 'T_spawn2',           # Two T spawn points
             'CT_spawn1', 'CT_spawn2',         # Two CT spawn points
-            'site_corner1', 'site_corner2',   # Bomb site corners
+            'site1', 'site2',   # possible bomb locations
             'patrol_point1', 'patrol_point2', 'patrol_point3', 'patrol_point4'  # Patrol points
         ]
         self.current_label_index = 0
@@ -65,8 +65,8 @@ class PointRecorder:
                 ]
             },
             'bomb_site': {
-                'corner1': self.points['site_corner1'],
-                'corner2': self.points['site_corner2']
+                'site1': self.points['site1'],
+                'site2': self.points['site2']
             },
             'patrol_points': [
                 self.points['patrol_point1'],
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         cs_bot_path = rospack.get_path('cs_bot')
 
         # Launch map server
-        map_file_path = f"{cs_bot_path}/maps/world3_map.yaml"
+        map_file_path = f"{cs_bot_path}/maps/world4.yaml"
         map_server_cmd = ['rosrun', 'map_server', 'map_server', map_file_path]
         map_server_proc = subprocess.Popen(map_server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("map server launched")
