@@ -11,36 +11,36 @@
   
   <!-- BEGIN roba-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-    <arg name="init_pose" value="-x 1.63 -y -1.39 -z 0 -Y 0" />
-    <arg name="init_pose_x" value="1.63"/>
-    <arg name="init_pose_y" value="-1.39"/>
+    <arg name="init_pose" value="-x 1.59 -y -1.3 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="1.59"/>
+    <arg name="init_pose_y" value="-1.3"/>
     <arg name="robot_name"  value="roba" />
     <arg name="model" value="$(arg model)"/>
   </include>
 
   <!-- BEGIN robb-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-    <arg name="init_pose" value="-x -0.59 -y 1.55 -z 0 -Y 0" />
-    <arg name="init_pose_x" value="-0.59"/>
-    <arg name="init_pose_y" value="1.55"/>
+    <arg name="init_pose" value="-x -1.01 -y 0.87 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="-1.01"/>
+    <arg name="init_pose_y" value="0.87"/>
     <arg name="robot_name"  value="robb" />
     <arg name="model" value="$(arg model)"/>
   </include>
 
   <!-- BEGIN robc-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-    <arg name="init_pose" value="-x 1.06 -y -1.48 -z 0 -Y 0" />
-    <arg name="init_pose_x" value="1.06"/>
-    <arg name="init_pose_y" value="-1.48"/>
+    <arg name="init_pose" value="-x -0.09 -y -0.62 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="-0.09"/>
+    <arg name="init_pose_y" value="-0.62"/>
     <arg name="robot_name"  value="robc" />
     <arg name="model" value="$(arg model)"/>
   </include>
 
   <!-- BEGIN rafael-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-    <arg name="init_pose" value="-x 0.2 -y 1.4 -z 0 -Y 0" />
-    <arg name="init_pose_x" value="0.2"/>
-    <arg name="init_pose_y" value="1.4"/>
+    <arg name="init_pose" value="-x -1.81 -y 1.56 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="-1.81"/>
+    <arg name="init_pose_y" value="1.56"/>
     <arg name="robot_name"  value="rafael" />
     <arg name="model" value="$(arg model)"/>
   </include>

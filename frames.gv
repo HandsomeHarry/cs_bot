@@ -1,0 +1,38 @@
+digraph G {
+"rafael/base_footprint" -> "rafael/base_link"[label="Broadcaster: /rafael/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"rafael/odom" -> "rafael/base_footprint"[label="Broadcaster: /gazebo\nAverage rate: 30.356 Hz\nMost recent transform: 34.103 ( 0.014 sec old)\nBuffer length: 2.866 sec\n"];
+"rafael/base_link" -> "rafael/caster_back_link"[label="Broadcaster: /rafael/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"rafael/base_link" -> "rafael/imu_link"[label="Broadcaster: /rafael/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"rafael/base_link" -> "rafael/base_scan"[label="Broadcaster: /rafael/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"roba/odom" -> "roba/base_footprint"[label="Broadcaster: /gazebo\nAverage rate: 30.377 Hz\nMost recent transform: 34.092 ( 0.025 sec old)\nBuffer length: 2.864 sec\n"];
+"map" -> "roba/odom"[label="Broadcaster: /roba/amcl\nAverage rate: 5.357 Hz\nMost recent transform: 34.579 ( -0.462 sec old)\nBuffer length: 2.800 sec\n"];
+"roba/base_footprint" -> "roba/base_link"[label="Broadcaster: /roba/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"roba/base_link" -> "roba/caster_back_link"[label="Broadcaster: /roba/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"roba/base_link" -> "roba/imu_link"[label="Broadcaster: /roba/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"roba/base_link" -> "roba/base_scan"[label="Broadcaster: /roba/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"robb/base_footprint" -> "robb/base_link"[label="Broadcaster: /robb/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"robb/odom" -> "robb/base_footprint"[label="Broadcaster: /gazebo\nAverage rate: 30.345 Hz\nMost recent transform: 34.106 ( 0.011 sec old)\nBuffer length: 2.867 sec\n"];
+"robb/base_link" -> "robb/caster_back_link"[label="Broadcaster: /robb/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"robb/base_link" -> "robb/imu_link"[label="Broadcaster: /robb/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"robb/base_link" -> "robb/base_scan"[label="Broadcaster: /robb/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"map" -> "rafael/odom"[label="Broadcaster: /rafael/amcl\nAverage rate: 5.385 Hz\nMost recent transform: 34.430 ( -0.313 sec old)\nBuffer length: 2.600 sec\n"];
+"map" -> "robb/odom"[label="Broadcaster: /robb/amcl\nAverage rate: 5.385 Hz\nMost recent transform: 34.430 ( -0.313 sec old)\nBuffer length: 2.600 sec\n"];
+"robc/base_link" -> "robc/wheel_left_link"[label="Broadcaster: /robc/robot_state_publisher\nAverage rate: 30.356 Hz\nMost recent transform: 34.104 ( 0.013 sec old)\nBuffer length: 2.866 sec\n"];
+"robc/base_footprint" -> "robc/base_link"[label="Broadcaster: /robc/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"robc/base_link" -> "robc/wheel_right_link"[label="Broadcaster: /robc/robot_state_publisher\nAverage rate: 30.356 Hz\nMost recent transform: 34.104 ( 0.013 sec old)\nBuffer length: 2.866 sec\n"];
+"robc/odom" -> "robc/base_footprint"[label="Broadcaster: /gazebo\nAverage rate: 30.345 Hz\nMost recent transform: 34.110 ( 0.007 sec old)\nBuffer length: 2.867 sec\n"];
+"robc/base_link" -> "robc/caster_back_link"[label="Broadcaster: /robc/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"robc/base_link" -> "robc/imu_link"[label="Broadcaster: /robc/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"robc/base_link" -> "robc/base_scan"[label="Broadcaster: /robc/robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 34.117 sec old)\nBuffer length: 0.000 sec\n"];
+"robb/base_link" -> "robb/wheel_left_link"[label="Broadcaster: /robb/robot_state_publisher\nAverage rate: 30.335 Hz\nMost recent transform: 34.107 ( 0.010 sec old)\nBuffer length: 2.868 sec\n"];
+"robb/base_link" -> "robb/wheel_right_link"[label="Broadcaster: /robb/robot_state_publisher\nAverage rate: 30.335 Hz\nMost recent transform: 34.107 ( 0.010 sec old)\nBuffer length: 2.868 sec\n"];
+"map" -> "robc/odom"[label="Broadcaster: /robc/amcl\nAverage rate: 5.383 Hz\nMost recent transform: 34.449 ( -0.332 sec old)\nBuffer length: 2.601 sec\n"];
+"rafael/base_link" -> "rafael/wheel_left_link"[label="Broadcaster: /rafael/robot_state_publisher\nAverage rate: 30.345 Hz\nMost recent transform: 34.111 ( 0.006 sec old)\nBuffer length: 2.867 sec\n"];
+"rafael/base_link" -> "rafael/wheel_right_link"[label="Broadcaster: /rafael/robot_state_publisher\nAverage rate: 30.345 Hz\nMost recent transform: 34.111 ( 0.006 sec old)\nBuffer length: 2.867 sec\n"];
+"roba/base_link" -> "roba/wheel_left_link"[label="Broadcaster: /roba/robot_state_publisher\nAverage rate: 30.399 Hz\nMost recent transform: 34.092 ( 0.025 sec old)\nBuffer length: 2.829 sec\n"];
+"roba/base_link" -> "roba/wheel_right_link"[label="Broadcaster: /roba/robot_state_publisher\nAverage rate: 30.399 Hz\nMost recent transform: 34.092 ( 0.025 sec old)\nBuffer length: 2.829 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 34.117"[ shape=plaintext ] ;
+ }->"map";
+}
