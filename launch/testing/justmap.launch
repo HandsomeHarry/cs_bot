@@ -3,13 +3,9 @@
     <!-- Arguments -->
     <arg name="model" default="burger"/>
 
-    <!-- Map server -->
-    <arg name="map_file" default="$(find cs_bot)/maps/world4.yaml"/>
-    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
-
     <!-- Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_bot)/worlds/test2.world"/>
+        <arg name="world_name" value="$(find cs_bot)/worlds/world4.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
