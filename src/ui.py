@@ -98,7 +98,7 @@ class GameUI(QtWidgets.QWidget):
                 self.bomb_status.setText(f'Bomb: {bomb_status}')
                 
                 # Update score and round
-                self.round_number.setText(f'ROUND {self.current_game_state.ct_score+self.current_game_state.t_score+1}')
+                self.round_number.setText(f'ROUND {self.round_number}')
                 self.score_label.setText(f'CT {self.current_game_state.ct_score} : {self.current_game_state.t_score} T')
             
             # Update robot states
