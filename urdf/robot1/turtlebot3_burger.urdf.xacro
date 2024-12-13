@@ -19,7 +19,7 @@
       <geometry>
         <mesh filename="package://turtlebot3_description/meshes/bases/burger_base.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="light_black"/>
+      <material name="blue"/>
     </visual>
 
     <collision>
@@ -145,7 +145,7 @@
       <geometry>
         <mesh filename="package://turtlebot3_description/meshes/sensors/lds.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark"/>
+      <material name="blue"/>
     </visual>
 
     <collision>
@@ -238,6 +238,28 @@
         <distortionT2>0.0</distortionT2>
       </plugin>
     </sensor>
+  </gazebo>
+
+  <!-- Color configuration for Gazebo -->
+  <gazebo reference="base_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="wheel_left_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="wheel_right_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="caster_back_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <!-- Add Gazebo color for LiDAR -->
+  <gazebo reference="base_scan">
+    <material>Gazebo/Blue</material>
   </gazebo>
 
 </robot>

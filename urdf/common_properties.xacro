@@ -41,4 +41,21 @@
   <material name="white">
     <color rgba="1.0 1.0 1.0 1.0"/>
   </material>
+
+  <!-- Gazebo materials -->
+  <gazebo reference="base_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="wheel_left_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="wheel_right_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="caster_back_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
 </robot>
