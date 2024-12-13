@@ -89,9 +89,8 @@ class CSRobotController:
 
 
         # Add move_base client
-        self.move_base = actionlib.SimpleActionClient('/{}/move_base'.format(self.robot_name), MoveBaseAction)
-
-        self.move_base.wait_for_server()
+        self.move_base = actionlib.SimpleActionClient(f'/{self.robot_name}/move_base', MoveBaseAction)
+        # self.move_base.wait_for_server()
         # rospy.Timer(rospy.Duration(0.1), self.publish_state) # publish state 10/s
 
         # Add patrol state variables
@@ -149,12 +148,13 @@ class CSRobotController:
                 Point(**game_config['bomb_site']['site2'])
             ]
             
+            
             # Extract patrol points
-            self.patrol_points = random.shuffle([
+            self.patrol_points = [
                 Point(x=point['x'], y=point['y'], z=point['z'])
-                for point in game_config.get('patrol_points', [])
-            ])
-            rospy.loginfo(self.patrol_points)
+                for point in game_config["patrol_points"]
+            ]
+            random.shuffle(self.patrol_points)
 
         except Exception as e:
             rospy.logerr(f"Failed to load game config: {str(e)}")
@@ -172,7 +172,6 @@ class CSRobotController:
                     enemy_mask = self.get_color_mask(hsv, enemy_color)
                     moments = cv2.moments(enemy_mask)
                     if moments['m00'] > self.enemy_detection_threshold: # enemy spotted
-                        self.cancel_movement()
                         print("%s: enemy spotted - found %s" % (self.robot_name, enemy_color))
                         self.enemy_spotted = True
                         cx = int(moments['m10'] / moments['m00'])
@@ -180,7 +179,7 @@ class CSRobotController:
                         
                         center_x = frame.shape[1] // 2
                         offset = cx - center_x
-                        threshold = frame.shape[1] * 0.05  # 3% frame width
+                        threshold = frame.shape[1] * 0.03  # 3% frame width
                         
                         if abs(offset) > threshold:
                             self.twist.angular.z = -self.turn_speed * offset  # Negative for right, positive for left
@@ -264,6 +263,7 @@ class CSRobotController:
             msg.attacker_name = self.robot_name
             msg.target_name = enemy_robot
             msg.damage_dealt = damage_dealt
+            print('shot!')
             self.shoot_pub.publish(msg)
 
     def publish_state(self):
@@ -316,7 +316,6 @@ class CSRobotController:
         while not rospy.is_shutdown() and self.is_alive:
             self.publish_state()
             if self.game_phase == "PREP":
-                self.cancel_movement()
                 self.is_patrolling = False
                 if not self.is_at_spawn:
                     self.move_to_position(self.spawn_points[self.team])
@@ -352,9 +351,11 @@ class CSRobotController:
     def move_to_position(self, target, patrol_point=False):
         # Create move_base goal
         state = self.move_base.get_state()
-        if state == GoalStatus.PENDING or state == GoalStatus.ACTIVE or self.enemy_spotted:
+        if state == GoalStatus.PENDING or state == GoalStatus.ACTIVE:
+            rospy.loginfo("%s is ALREADY moving to :%s" % (self.robot_name, target))
             return # only make new goals
 
+        print("%s moving to :%s" % (self.robot_name, target))
 
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
