@@ -292,7 +292,6 @@ class CSRobotController:
                         self.bomb_event_pub.publish("DEFUSE_START")
             rate.sleep()
 
-
     def move_to_position(self, target, patrol_point=False):
         # Create move_base goal
         state = self.move_base.get_state()
