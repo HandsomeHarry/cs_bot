@@ -11,41 +11,41 @@
   
   <!-- BEGIN roba-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-    <arg name="init_pose" value="-x -1.72 -y 1.63 -z 0 -Y 0" />
-    <arg name="init_pose_x" value="-1.72"/>
-    <arg name="init_pose_y" value="1.63"/>
+    <arg name="init_pose" value="-x 0.0 -y -1.43 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="0.0"/>
+    <arg name="init_pose_y" value="-1.43"/>
     <arg name="robot_name"  value="roba" />
     <arg name="model" value="$(arg model)"/>
   </include>
 
   <!-- BEGIN robb-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-    <arg name="init_pose" value="-x 0 -y -1.43 -z 0 -Y 0" />
-    <arg name="init_pose_x" value="0"/>
-    <arg name="init_pose_y" value="-1.43"/>
+    <arg name="init_pose" value="-x -1.72 -y 1.63 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="-1.72"/>
+    <arg name="init_pose_y" value="1.63"/>
     <arg name="robot_name"  value="robb" />
     <arg name="model" value="$(arg model)"/>
   </include>
 
   <!-- BEGIN robc-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-    <arg name="init_pose" value="-x -1.35 -y 1.63 -z 0 -Y 0" />
-    <arg name="init_pose_x" value="-1.35"/>
-    <arg name="init_pose_y" value="1.63"/>
+    <arg name="init_pose" value="-x 0.44 -y -1.43 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="0.44"/>
+    <arg name="init_pose_y" value="-1.43"/>
     <arg name="robot_name"  value="robc" />
     <arg name="model" value="$(arg model)"/>
   </include>
 
   <!-- BEGIN rafael-->
   <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-    <arg name="init_pose" value="-x 0.35 -y -1.43 -z 0 -Y 0" />
-    <arg name="init_pose_x" value="0.35"/>
-    <arg name="init_pose_y" value="-1.43"/>
+    <arg name="init_pose" value="-x -1.21 -y 1.66 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="-1.21"/>
+    <arg name="init_pose_y" value="1.66"/>
     <arg name="robot_name"  value="rafael" />
     <arg name="model" value="$(arg model)"/>
   </include>
   
-  <!--BEGIN run nodes-->
+  <!-- run nodes-->
   <node name="run_game_manager" pkg="cs_bot" type="game_manager.py" respawn="false" output="screen"></node>
 
   <node name="run_roba" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
