@@ -133,16 +133,31 @@ class GameManager:
         self.bomb_time = 40
         self.bomb_planted = False
         self.bomb_location = Point()
+        self.dead_players = []
+        
+        self.reset_players()
+
+    def reset_players(self):
+        """Reset all players to their default state."""
+        for player in self.players:
+            player.health = 100
+            player.is_alive = True
+            player.is_planting = False
+            player.is_defusing = False
+
+        # Publish the updated state of all players
+        self.publish_game_state()
         
     def start_round(self):
         """start new round"""
         self.round_active = True
         self.reset_round()
         self.round_number += 1  # Increment round number
+        
 
         rospy.loginfo("starting round...")
 
-        rate_timer = rospy.Rate(1)  # 1 Hz for self.timer_callback
+        rate_timer = rospy.Rate(0.8)  # 1 Hz for self.timer_callback
         rate_publisher = rospy.Rate(10)  # 10 Hz for self.publish_game_state
 
         while self.round_active and not rospy.is_shutdown():

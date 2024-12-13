@@ -202,7 +202,25 @@ class CSRobotController:
         self.is_planting = True
 
     def stop_planting(self):
+        self.plant_bomb()
         self.is_planting = False
+        self.cancel_movement()
+        self.move_to_position(self.patrol_points[0])
+        self.is_patrolling = True
+
+    def plant_bomb(self):
+        """Notify game manager that bomb is planted"""
+        try:
+            # Publish bomb planted event
+            self.bomb_event_pub.publish("BOMB PLANTED")
+            
+            # Stop planting action
+            self.stop_planting()
+
+            rospy.loginfo(f"{self.robot_name} planted the bomb")
+            
+        except Exception as e:
+            rospy.logerr(f"Error planting bomb: {e}")
 
     def start_defusing(self):
         self.is_defusing = True
@@ -315,6 +333,10 @@ class CSRobotController:
                     self.start_patrol()
                 else: # T
                     self.move_to_position(random.choice(self.bomb_sites))
+                    if self.is_near_position(random.choice(self.bomb_sites), threshold=0.5):
+                        self.start_planting()
+                        # Notify game manager that planting has started
+                        self.bomb_event_pub.publish("PLANT_START")
                 
             elif self.game_phase == "BOMB_PLANTED":
                 if self.team == "CT":

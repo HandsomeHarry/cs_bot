@@ -1,30 +1,74 @@
 <launch>
     <!-- Arguments -->
     <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]" />
-    <arg name="map_file" default="$(find cs_bot)/maps/world4.yaml"/>
+    <arg name="map_file" default="$(find cs_bot)/maps/real.yaml"/>
     <arg name="open_rviz" default="true"/>
 
     <!-- Map Server -->
     <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
 
-    <!-- Gazebo -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find cs_bot)/worlds/world4.world"/>
-        <arg name="paused" value="false"/>
-        <arg name="use_sim_time" value="true"/>
-        <arg name="gui" value="true"/>
-        <arg name="headless" value="false"/>
-        <arg name="debug" value="false"/>
-    </include>  
+    <!-- Real robots - only include necessary nodes -->
+    <group ns="roba">
+        <!-- Robot State Publisher -->
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+            <param name="publish_frequency" type="double" value="50.0" />
+            <param name="tf_prefix" value="roba" />
+        </node>
 
-    <!-- Launch Robots -->
-    <include file="$(find cs_bot)/launch/spawn_robots.launch">
-        <arg name="model" value="$(arg model)"/>
-    </include>
+        <!-- AMCL -->
+        <node pkg="amcl" type="amcl" name="amcl">
+            <remap from="/roba/map" to="/map"/>
+            <param name="use_map_topic" value="true"/>
+            <param name="initial_pose_x" value="1.63"/>
+            <param name="initial_pose_y" value="-1.39"/>
+            <param name="initial_pose_a" value="0.0"/>
+            <param name="odom_frame_id" value="roba/odom"/>
+            <param name="base_frame_id" value="roba/base_footprint"/>
+            <param name="global_frame_id" value="map"/>
+        </node>
+
+        <!-- move_base -->
+        <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+            <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+            <rosparam file="$(find turtlebot3_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find turtlebot3_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find turtlebot3_navigation)/param/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find turtlebot3_navigation)/param/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(find turtlebot3_navigation)/param/move_base_params.yaml" command="load" />
+            <rosparam file="$(find turtlebot3_navigation)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />
+            
+            <param name="global_costmap/global_frame" value="map"/>
+            <param name="global_costmap/robot_base_frame" value="roba/base_footprint"/>
+            <param name="local_costmap/global_frame" value="roba/odom"/>
+            <param name="local_costmap/robot_base_frame" value="roba/base_footprint"/>
+            
+            <remap from="map" to="/map"/>
+        </node>
+    </group>
+
+    <group ns="rafael">
+        <!-- Robot State Publisher -->
+        <!-- Game Manager and Controllers -->
+        <node name="run_game_manager" pkg="cs_bot" type="game_manager.py" respawn="false" output="screen"/>
+
+        <!-- Robot controllers -->
+        <node name="run_roba" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+            <param name="robot_name" type="string" value="roba" />
+            <param name="team" type="string" value="CT" />
+        </node>
+
+        <node name="run_rafael" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" respawn="false" output="screen">
+            <param name="robot_name" type="string" value="rafael" />
+            <remap from="cmd_vel" to="/rafael/cmd_vel"/>
+        </node>
+    </group>
+
+    <!-- UI -->
+    <node name="run_ui" pkg="cs_bot" type="ui.py" respawn="false" output="screen"/>
 
     <!-- rviz -->
     <group if="$(arg open_rviz)"> 
-    <node pkg="rviz" type="rviz" name="rviz" required="true"
-          args="-d $(find cs_bot)/rviz/sim_nav.rviz"/>
+        <node pkg="rviz" type="rviz" name="rviz" required="true"
+              args="-d $(find cs_bot)/rviz/sim_nav.rviz"/>
     </group>
 </launch>
