@@ -191,6 +191,7 @@ class CSRobotController:
 
                         self.cmd_vel_pub.publish(self.twist)
                         cv2.imshow("Camera View", frame)
+                        cv2.resizeWindow("Camera View", 200, 150)         # Resize the window to 200x150 pixel
                         cv2.waitKey(1)
                         return
             self.enemy_spotted = False
@@ -199,9 +200,9 @@ class CSRobotController:
 
     def start_planting(self):
         self.is_planting = True
+        plant_bomb()
 
     def stop_planting(self):
-        self.plant_bomb()
         self.is_planting = False
         self.cancel_movement()
         self.move_to_position(self.patrol_points[0])
@@ -212,7 +213,7 @@ class CSRobotController:
         try:
             # Publish bomb planted event
             self.bomb_event_pub.publish("BOMB PLANTED")
-            
+            rospy.sleep(3)
             # Stop planting action
             self.stop_planting()
 
@@ -331,9 +332,11 @@ class CSRobotController:
                     self.is_patrolling = True
                     self.start_patrol()
                 else: # T
-                    self.move_to_position(random.choice(self.bomb_sites))
-                    if self.is_near_position(random.choice(self.bomb_sites), threshold=0.5):
+                    bomb_choice = random.choice(self.bomb_sites)
+                    self.move_to_position(bomb_choice)
+                    if self.is_near_position(bomb_choice, threshold=0.3):
                         self.start_planting()
+                        rospy.loginfo("planting!")
                         # Notify game manager that planting has started
                         self.bomb_event_pub.publish("PLANT_START")
                 
@@ -352,7 +355,7 @@ class CSRobotController:
         # Create move_base goal
         state = self.move_base.get_state()
         if state == GoalStatus.PENDING or state == GoalStatus.ACTIVE:
-            rospy.loginfo("%s is ALREADY moving to :%s" % (self.robot_name, target))
+            #rospy.loginfo("%s is ALREADY moving to :%s" % (self.robot_name, target))
             return # only make new goals
 
         print("%s moving to :%s" % (self.robot_name, target))

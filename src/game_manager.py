@@ -139,11 +139,11 @@ class GameManager:
 
     def reset_players(self):
         """Reset all players to their default state."""
-        for player in self.players:
-            player.health = 100
-            player.is_alive = True
-            player.is_planting = False
-            player.is_defusing = False
+        for robot_name, robot_state in self.robot_states.items():
+            robot_state.health = 100
+            robot_state.is_alive = True
+            robot_state.is_planting = False
+            robot_state.is_defusing = False
 
         # Publish the updated state of all players
         self.publish_game_state()
@@ -157,7 +157,7 @@ class GameManager:
 
         rospy.loginfo("starting round...")
 
-        rate_timer = rospy.Rate(0.8)  # 1 Hz for self.timer_callback
+        rate_timer = rospy.Rate(1.75)  # 1 Hz for self.timer_callback
         rate_publisher = rospy.Rate(10)  # 10 Hz for self.publish_game_state
 
         while self.round_active and not rospy.is_shutdown():
