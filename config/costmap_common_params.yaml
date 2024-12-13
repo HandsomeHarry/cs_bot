@@ -1,11 +1,11 @@
 # robot footprint
-footprint: [[-0.2, -0.15], [-0.2, 0.15], [0.2, 0.15], [0.2, -0.15]] #0.4m x 0.3m
+footprint: [[-0.2, -0.2], [-0.2, 0.2], [0.2, 0.2], [0.2, -0.2]] #0.4m x 0.3m
 footprint_padding: 0.01
 
 # sensor parameters
 obstacle_range: 2.5
 raytrace_range: 3.0
-transform_tolerance: 0.2
+transform_tolerance: 0.5
 
 # obstacle layer parameters
 obstacle_layer:
@@ -29,7 +29,7 @@ obstacle_layer:
 inflation_layer:
   enabled: true
   cost_scaling_factor: 5.0
-  inflation_radius: 0.7
+  inflation_radius: 0.55
 
 static_layer:
   enabled: true

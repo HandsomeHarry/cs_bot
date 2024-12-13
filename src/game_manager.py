@@ -19,6 +19,9 @@ class GameManager:
         self.dead_players = []
         self.robot_states = {}
         self.publishers = {}
+        self.t_win_count = 0
+        self.ct_win_count = 0
+        self.round_number = 1  # Add round number tracking
         
         # publisher
         self.game_state_pub = rospy.Publisher('/game/state', GameStateMsg, queue_size=1)
@@ -32,6 +35,9 @@ class GameManager:
         self.defusing_in_progress = False
         self.defuse_time = 5  # Time needed to defuse in seconds
         self.defuse_timer = 0
+        
+        # Add subscriber for game control
+        rospy.Subscriber('/game/control', String, self.handle_game_control)
 
     def robot_state_callback(self, msg):
         """manage robot state"""
@@ -89,6 +95,10 @@ class GameManager:
         msg.bomb_planted = self.bomb_planted
         msg.bomb_location = self.bomb_location
         msg.dead_players = self.dead_players
+        msg.bomb_time_remaining = self.bomb_time
+        msg.round_number = self.round_number
+        msg.ct_score = self.ct_win_count
+        msg.t_score = self.t_win_count
         self.game_state_pub.publish(msg)
         self.update_robot_states()
         
@@ -105,6 +115,13 @@ class GameManager:
         """end round"""
         self.round_active = False
         rospy.loginfo("%s win" % winner)
+        
+        if winner == "Terrorists":
+            self.t_win_count += 1
+        else:
+            self.ct_win_count += 1
+        
+        rospy.loginfo("T : CT\n%d : %d" % (self.t_win_count, self.ct_win_count))
         self.reset_round()
         
     def reset_round(self):
@@ -118,6 +135,7 @@ class GameManager:
         """start new round"""
         self.round_active = True
         self.reset_round()
+        self.round_number += 1  # Increment round number
         rospy.loginfo("round started")
 
     def handle_bomb_events(self, msg):
@@ -127,6 +145,13 @@ class GameManager:
             self.defuse_timer = self.defuse_time
         elif msg.data == "DEFUSE_INTERRUPT":
             self.defusing_in_progress = False
+
+    def handle_game_control(self, msg):
+        """Handle game control messages"""
+        if msg.data == "START_ROUND":
+            self.start_round()
+            self.round_active = True
+            rospy.loginfo("Round reset and started")
 
 if __name__ == '__main__':
     try:
