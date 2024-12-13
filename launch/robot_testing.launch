@@ -1,8 +1,4 @@
-<?xml version="1.0"?>
-<launch>
-    <!-- Load map configuration -->
-    <rosparam command="load" file="$(find cs_bot)/config/map_config.yaml" ns="map_config"/>
-
+<launch> 
     <!-- Define spawn position arguments -->
     <arg name="t_spawn_x" default="0.0"/>
     <arg name="t_spawn_y" default="-1.43"/>
@@ -12,6 +8,12 @@
     <arg name="ct_spawn_y" default="1.63"/>
     <arg name="ct_spawn_z" default="0.01"/>
 
+    <arg name="open_rviz" default="true"/>
+    <arg name="map_file" default="$(find cs_bot)/maps/world3_map.yaml"/>
+    <arg name="model" default="waffle_pi"/>
+
+    <node pkg="map_server" name="map_server" type="map_server" args="$(find cs_bot)/maps/world3_map.yaml"/>
+
     <!-- Start Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find cs_bot)/worlds/world3.world"/>
@@ -20,34 +22,47 @@
         <arg name="gui" value="true"/>
     </include>
 
-    <!-- T team robot -->
-    <group ns="robot2">
-        <!-- Load robot model -->
-        <param name="robot_description" 
-               command="$(find xacro)/xacro $(find cs_bot)/models/waffle_red.urdf.xacro robot_name:=robot2" />
-        <!-- Spawn Robot -->
-        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model t_robot1 
-                    -x $(arg t_spawn_x)
-                    -y $(arg t_spawn_y)
-                    -z $(arg t_spawn_z)
-                    -param robot_description"/>
-    </group>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_red.urdf.xacro"/>
+    <param name="robot1_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_blue.urdf.xacro" />
+    <param name="robot2_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_red.urdf.xacro" />
+    <param name="robot3_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_darkblue.urdf.xacro" />
+    <param name="robot4_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_darkred.urdf.xacro" />
+    
+    <!-- robot1 -->
+    <include file="$(find cs_bot)/launch/spawn_robot.launch" >
+        <arg name="init_pose" value="-x -1.72 -y 1.63 -z 0 -Y 0" />
+        <arg name="init_pose_x" value="0"/>
+        <arg name="init_pose_y" value="0"/>
+        <arg name="robot_name"  value="robot1" />
+        <arg name="model" value="$(arg model)"/>
+    </include>
 
-    <!-- CT team robot -->
-    <group ns="robot1">
-        <param name="robot_description" 
-               command="$(find xacro)/xacro $(find cs_bot)/models/waffle_blue.urdf.xacro robot_name:=robot1" />
-        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model robot1 
-                    -x $(arg ct_spawn_x)
-                    -y $(arg ct_spawn_y)
-                    -z $(arg ct_spawn_z)
-                    -param robot_description"/>
-    </group>
+    <!-- robot2 -->
+    <include file="$(find cs_bot)/launch/spawn_robot.launch" >
+        <arg name="init_pose" value="-x 0 -y -1.43 -z 0 -Y 0" />
+        <arg name="init_pose_x" value="0"/>
+        <arg name="init_pose_y" value="0"/>
+        <arg name="robot_name"  value="robot2" />
+        <arg name="model" value="$(arg model)"/>
+    </include>
 
-    <!-- Load the map -->
-    <node name="map_manager" pkg="cs_bot" type="map_manager.py" output="screen"/>
+    <!-- robot3 -->
+    <include file="$(find cs_bot)/launch/spawn_robot.launch" >
+        <arg name="init_pose" value="-x -1.35 -y 1.63 -z 0 -Y 0" />
+        <arg name="init_pose_x" value="0"/>
+        <arg name="init_pose_y" value="0"/>
+        <arg name="robot_name"  value="robot3" />
+        <arg name="model" value="$(arg model)"/>
+    </include>
+
+    <!-- robot4 -->
+    <include file="$(find cs_bot)/launch/spawn_robot.launch" >
+        <arg name="init_pose" value="-x 0.35 -y -1.43 -z 0 -Y 0" />
+        <arg name="init_pose_x" value="0"/>
+        <arg name="init_pose_y" value="0"/>
+        <arg name="robot_name"  value="robot4" />
+        <arg name="model" value="$(arg model)"/>
+    </include>
 
     <!-- rviz -->
     <group if="$(arg open_rviz)"> 
