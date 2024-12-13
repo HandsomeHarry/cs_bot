@@ -4,7 +4,6 @@ import rospy
 import sys
 import os
 from random import random
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from robot_controller import CSRobotController
 from transitions import Machine
 
@@ -138,7 +137,6 @@ class CTNormie(CSRobotController):
             except Exception as e:
                 rospy.logerr(f"Error in run loop: {e}")
                 self.reset()
-
             rate.sleep()
 
 if __name__ == '__main__':

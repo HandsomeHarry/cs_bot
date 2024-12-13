@@ -14,7 +14,7 @@ class GameManager:
         self.round_time = 90
         self.round_active = True
         self.bomb_planted = False
-        self.bomb_time = 40
+        self.bomb_time = 30
         self.bomb_location = Point()
         self.dead_players = []
         self.robot_states = {}
@@ -145,6 +145,8 @@ class GameManager:
             self.defuse_timer = self.defuse_time
         elif msg.data == "DEFUSE_INTERRUPT":
             self.defusing_in_progress = False
+        elif msg.data == "BOMB PLANTED":
+            self.bomb_being_planted = True
 
     def handle_game_control(self, msg):
         """Handle game control messages"""

@@ -92,9 +92,7 @@ class TNormie(CSRobotController):
                     self.enemy_detected()
 
             elif self.state == 'engaging_enemy':
-                if not self.enemy_spotted:
-                    self.enemy_lost()
-                else:
+                if self.enemy_spotted:
                     self.cancel_movement()
 
             elif self.state == 'planting_bomb':

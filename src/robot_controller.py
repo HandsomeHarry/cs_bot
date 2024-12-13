@@ -49,6 +49,7 @@ class CSRobotController:
         self.dead_players = []
         self.round_time_remaining = 90
         self.bomb_being_planted = False
+        self.bomb_location = None
 
         self.color_to_robot = { # hard coded in for sake of simplicity - can change
         'blue': 'robot1',
