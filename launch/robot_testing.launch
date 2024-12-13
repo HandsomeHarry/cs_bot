@@ -1,72 +1,30 @@
-<launch> 
-    <!-- Define spawn position arguments -->
-    <arg name="t_spawn_x" default="0.0"/>
-    <arg name="t_spawn_y" default="-1.43"/>
-    <arg name="t_spawn_z" default="0.01"/>
-    
-    <arg name="ct_spawn_x" default="-1.72"/>
-    <arg name="ct_spawn_y" default="1.63"/>
-    <arg name="ct_spawn_z" default="0.01"/>
-
-    <arg name="open_rviz" default="true"/>
+<launch>
+    <!-- Arguments -->
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]" />
     <arg name="map_file" default="$(find cs_bot)/maps/world3_map.yaml"/>
-    <arg name="model" default="waffle_pi"/>
+    <arg name="open_rviz" default="true"/>
 
-    <node pkg="map_server" name="map_server" type="map_server" args="$(find cs_bot)/maps/world3_map.yaml"/>
+    <!-- Map Server -->
+    <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
 
-    <!-- Start Gazebo -->
+    <!-- Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find cs_bot)/worlds/world3.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
-    </include>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>  
 
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_red.urdf.xacro"/>
-    <param name="robot1_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_blue.urdf.xacro" />
-    <param name="robot2_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_red.urdf.xacro" />
-    <param name="robot3_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_darkblue.urdf.xacro" />
-    <param name="robot4_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/models/waffle_darkred.urdf.xacro" />
-    
-    <!-- robot1 -->
-    <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-        <arg name="init_pose" value="-x -1.72 -y 1.63 -z 0 -Y 0" />
-        <arg name="init_pose_x" value="0"/>
-        <arg name="init_pose_y" value="0"/>
-        <arg name="robot_name"  value="robot1" />
-        <arg name="model" value="$(arg model)"/>
-    </include>
-
-    <!-- robot2 -->
-    <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-        <arg name="init_pose" value="-x 0 -y -1.43 -z 0 -Y 0" />
-        <arg name="init_pose_x" value="0"/>
-        <arg name="init_pose_y" value="0"/>
-        <arg name="robot_name"  value="robot2" />
-        <arg name="model" value="$(arg model)"/>
-    </include>
-
-    <!-- robot3 -->
-    <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-        <arg name="init_pose" value="-x -1.35 -y 1.63 -z 0 -Y 0" />
-        <arg name="init_pose_x" value="0"/>
-        <arg name="init_pose_y" value="0"/>
-        <arg name="robot_name"  value="robot3" />
-        <arg name="model" value="$(arg model)"/>
-    </include>
-
-    <!-- robot4 -->
-    <include file="$(find cs_bot)/launch/spawn_robot.launch" >
-        <arg name="init_pose" value="-x 0.35 -y -1.43 -z 0 -Y 0" />
-        <arg name="init_pose_x" value="0"/>
-        <arg name="init_pose_y" value="0"/>
-        <arg name="robot_name"  value="robot4" />
+    <!-- Launch Robots -->
+    <include file="$(find cs_bot)/launch/spawn_robots.launch">
         <arg name="model" value="$(arg model)"/>
     </include>
 
     <!-- rviz -->
     <group if="$(arg open_rviz)"> 
     <node pkg="rviz" type="rviz" name="rviz" required="true"
-          args="-d $(find cs_bot)/rviz/sim.rviz"/>
+          args="-d $(find cs_bot)/rviz/sim_nav.rviz"/>
     </group>
-</launch> 
+</launch>

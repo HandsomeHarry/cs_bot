@@ -1,9 +1,66 @@
 <?xml version="1.0" ?>
 <robot name="turtlebot3_burger" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:arg name="robot_name" default="robot"/>
-  
-  <!-- Include common properties -->
-  <xacro:include filename="$(find cs_bot)/urdf/common_properties.xacro"/>
+  <xacro:include filename="$(find robot_convoy)/urdf/common_properties.xacro"/>
+  <xacro:include filename="$(find robot_convoy)/urdf/roba/turtlebot3_burger.gazebo.xacro"/>
+
+  <!-- Camera Gazebo plugin configuration -->
+  <link name="camera_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.05"/> <!-- Camera size -->
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material>
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.05 0.05 0.05"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+    </inertial>
+  </link>
+
+  <!-- Attach Camera Link to Base Link -->
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/> <!-- Position the camera above base_link -->
+  </joint>
+
+  <!-- Add Gazebo Sensor Plugin -->
+  <gazebo reference="camera_link">
+    <sensor type="camera" name="camera_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.3962634</horizontal_fov> <!-- 80 degrees FOV -->
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <plugin name="gazebo_ros_camera" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>camera</cameraName>
+        <imageTopicName>/roba/camera/image_raw</imageTopicName>
+        <cameraInfoTopicName>/roba/camera/camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
 
   <link name="base_footprint"/>
 
@@ -19,7 +76,7 @@
       <geometry>
         <mesh filename="package://turtlebot3_description/meshes/bases/burger_base.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="blue"/>
+      <material name="light_black"/>
     </visual>
 
     <collision>
@@ -145,7 +202,7 @@
       <geometry>
         <mesh filename="package://turtlebot3_description/meshes/sensors/lds.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="blue"/>
+      <material name="dark"/>
     </visual>
 
     <collision>
@@ -163,103 +220,5 @@
                izz="0.001" />
     </inertial>
   </link>
-
-  <plugin name="gazebo_ros_laser" filename="libgazebo_ros_laser.so">
-    <topicName>$(arg robot_name)/scan</topicName>
-    <frameName>$(arg robot_name)/base_scan</frameName>
-  </plugin>
-
-  <!-- Camera Joint -->
-  <joint name="camera_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_link"/>
-    <origin xyz="0.015 0 0.15" rpy="0 0 0"/>
-  </joint>
-
-  <!-- Camera Link -->
-  <link name="camera_link">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.015 0.030 0.027"/>
-      </geometry>
-      <material name="red"/>
-    </visual>
-
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.015 0.030 0.027"/>
-      </geometry>
-    </collision>
-
-    <inertial>
-      <mass value="0.005"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-               iyy="0.001" iyz="0.0"
-               izz="0.001" />
-    </inertial>
-  </link>
-
-  <!-- Camera Gazebo Plugin Configuration -->
-  <gazebo reference="camera_link">
-    <sensor type="camera" name="camera">
-      <update_rate>30.0</update_rate>
-      <camera name="head">
-        <horizontal_fov>1.3962634</horizontal_fov>
-        <image>
-          <width>800</width>
-          <height>600</height>
-          <format>R8G8B8</format>
-        </image>
-        <clip>
-          <near>0.02</near>
-          <far>300</far>
-        </clip>
-        <noise>
-          <type>gaussian</type>
-          <mean>0.0</mean>
-          <stddev>0.007</stddev>
-        </noise>
-      </camera>
-      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>0.0</updateRate>
-        <cameraName>$(arg robot_name)/camera</cameraName>
-        <imageTopicName>image_raw</imageTopicName>
-        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>$(arg robot_name)/camera_link</frameName>
-        <hackBaseline>0.07</hackBaseline>
-        <distortionK1>0.0</distortionK1>
-        <distortionK2>0.0</distortionK2>
-        <distortionK3>0.0</distortionK3>
-        <distortionT1>0.0</distortionT1>
-        <distortionT2>0.0</distortionT2>
-      </plugin>
-    </sensor>
-  </gazebo>
-
-  <!-- Color configuration for Gazebo -->
-  <gazebo reference="base_link">
-    <material>Gazebo/Blue</material>
-  </gazebo>
-
-  <gazebo reference="wheel_left_link">
-    <material>Gazebo/Blue</material>
-  </gazebo>
-
-  <gazebo reference="wheel_right_link">
-    <material>Gazebo/Blue</material>
-  </gazebo>
-
-  <gazebo reference="caster_back_link">
-    <material>Gazebo/Blue</material>
-  </gazebo>
-
-  <!-- Add Gazebo color for LiDAR -->
-  <gazebo reference="base_scan">
-    <material>Gazebo/Blue</material>
-  </gazebo>
 
 </robot>

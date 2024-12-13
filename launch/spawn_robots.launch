@@ -1,0 +1,68 @@
+<launch>
+  <arg name="model"/>
+  <!-- Shared Description -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/shared/turtlebot3_$(arg model).urdf.xacro" />
+
+  <!-- Robot-specific descriptions -->
+  <param name="roba_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/roba/turtlebot3_$(arg model).urdf.xacro" />
+  <param name="robb_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/robb/turtlebot3_$(arg model).urdf.xacro" />
+  <param name="robc_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/robc/turtlebot3_$(arg model).urdf.xacro" />
+  <param name="rafael_description" command="$(find xacro)/xacro --inorder $(find cs_bot)/urdf/rafael/turtlebot3_$(arg model).urdf.xacro" />
+  
+  <!-- BEGIN roba-->
+  <include file="$(find cs_bot)/launch/spawn_robot.launch" >
+    <arg name="init_pose" value="-x -1.72 -y 1.63 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="-1.72"/>
+    <arg name="init_pose_y" value="1.63"/>
+    <arg name="robot_name"  value="roba" />
+    <arg name="model" value="$(arg model)"/>
+  </include>
+
+  <!-- BEGIN robb-->
+  <include file="$(find cs_bot)/launch/spawn_robot.launch" >
+    <arg name="init_pose" value="-x 0 -y -1.43 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="0"/>
+    <arg name="init_pose_y" value="-1.43"/>
+    <arg name="robot_name"  value="robb" />
+    <arg name="model" value="$(arg model)"/>
+  </include>
+
+  <!-- BEGIN robc-->
+  <include file="$(find cs_bot)/launch/spawn_robot.launch" >
+    <arg name="init_pose" value="-x -1.35 -y 1.63 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="-1.35"/>
+    <arg name="init_pose_y" value="1.63"/>
+    <arg name="robot_name"  value="robc" />
+    <arg name="model" value="$(arg model)"/>
+  </include>
+
+  <!-- BEGIN rafael-->
+  <include file="$(find cs_bot)/launch/spawn_robot.launch" >
+    <arg name="init_pose" value="-x 0.35 -y -1.43 -z 0 -Y 0" />
+    <arg name="init_pose_x" value="0.35"/>
+    <arg name="init_pose_y" value="-1.43"/>
+    <arg name="robot_name"  value="rafael" />
+    <arg name="model" value="$(arg model)"/>
+  </include>
+  
+  <!--BEGIN run nodes-->
+  <node name="run_game_manager" pkg="cs_bot" type="game_manager.py" respawn="false" output="screen"></node>
+
+  <node name="run_roba" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+    <param name="robot_name" type="string" value="roba" />
+    <param name="team" type="string" value="T" />
+  </node>
+  <node name="run_robb" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+    <param name="robot_name" type="string" value="robb" />
+    <param name="team" type="string" value="CT" />
+  </node>
+  <node name="run_robc" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+    <param name="robot_name" type="string" value="robc" />
+    <param name="team" type="string" value="T" />
+  </node>
+  <node name="run_rafael" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
+    <param name="robot_name" type="string" value="rafael" />
+  </node>
+
+  <node name="run_ui" pkg="cs_bot" type="ui.py" respawn="false" output="screen"></node>
+</launch>
