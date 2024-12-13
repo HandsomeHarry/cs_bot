@@ -36,7 +36,7 @@ class GameUI(QtWidgets.QWidget):
         # Score and round section
         score_group = QtWidgets.QGroupBox('Match Status')
         score_layout = QtWidgets.QVBoxLayout()
-        self.round_number = QtWidgets.QLabel('ROUND 1')
+        self.round_number = QtWidgets.QLabel(' ROUND 1')
         self.round_number.setAlignment(QtCore.Qt.AlignCenter)
         self.score_label = QtWidgets.QLabel('CT 0 : 0 T')
         self.score_label.setAlignment(QtCore.Qt.AlignCenter)

@@ -6,8 +6,8 @@
 # robot 3, 4: CT, Green, Blue
 
 import rospy
-from geometry_msgs.msg import Twist, Point, Pose
 from nav_msgs.msg import Odometry, OccupancyGrid
+from geometry_msgs.msg import Twist, Pose, Point
 from sensor_msgs.msg import LaserScan, Image
 from cs_bot.msg import GameStateMsg, RobotStateMsg, CombatEvent
 from cv_bridge import CvBridge
