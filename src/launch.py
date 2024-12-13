@@ -25,6 +25,8 @@ class LaunchHelper:
 
     def update_launch_file(self):
         """Update the launch file with spawn points from config"""
+    def update_launch_file(self):
+        """Update the launch file with spawn points from config"""
         config = self.load_map_config()
         
         # Read the launch file
@@ -62,4 +64,5 @@ class LaunchHelper:
 
 if __name__ == '__main__':
     launcher = LaunchHelper()
+    launcher.update_launch_file()
     launcher.update_launch_file()
