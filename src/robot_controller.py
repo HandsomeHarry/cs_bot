@@ -314,7 +314,7 @@ class CSRobotController:
                 else: # T
                     self.move_to_position(random.choice(self.bomb_sites))
                 
-            elif self.game_phano se == "BOMB_PLANTED":
+            elif self.game_phase == "BOMB_PLANTED":
                 if self.team == "CT":
                     self.is_patrolling = False
                     self.move_to_position(self.bomb_location)
