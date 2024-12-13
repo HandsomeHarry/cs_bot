@@ -39,7 +39,7 @@ class CTNormie(CSRobotController):
                 {'name': 'resetting', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'},
                 {'name': 'waiting', 'on_enter': 'on_state_enter', 'on_exit': 'on_state_exit'}
             ],
-            initial='patrolling'
+            initial='waiting'
         )
 
         self.machine.add_transition('enemy_spotted', ['patrolling', 'defending_site'], 'engaging', conditions=['is_enemy_visible'])

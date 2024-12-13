@@ -6,6 +6,7 @@ from python_qt_binding import QtCore, QtGui, QtWidgets
 from cs_bot.msg import GameStateMsg, RobotStateMsg
 from std_msgs.msg import String
 import sys
+import random
 
 class GameUI(QtWidgets.QWidget):
     def __init__(self):
@@ -122,7 +123,7 @@ class GameUI(QtWidgets.QWidget):
                 label = getattr(self, f'robot_label_{robot_name}')
                 team = state.team
                 health = getattr(state, 'health', 0)  # Default to 0 if not found
-                weapon = getattr(state, 'weapon_type', 'None')  # Default to None if not found
+                weapon = getattr(state, 'weapon_type', 'AK-47')
                 
                 # Color coding for health
                 health_color = "green" if health > 50 else "orange" if health > 25 else "red"
@@ -138,7 +139,7 @@ class GameUI(QtWidgets.QWidget):
                 status_str = f" ({', '.join(special_status)})" if special_status else ""
                 
                 # Debug print to see what fields are available
-                rospy.loginfo(f"Robot state fields: {dir(state)}")
+                # rospy.loginfo(f"Robot state fields: {dir(state)}")
                 
                 label.setText(
                     f'<div style="margin:5px; padding:5px; border:1px solid gray;">'
@@ -157,7 +158,7 @@ class GameUI(QtWidgets.QWidget):
         """Reset the round when button is clicked"""
         try:
             self.game_control_pub.publish("START_ROUND")
-            rospy.loginfo("Reset round command sent")
+            #rospy.loginfo("Reset round command sent")
         except Exception as e:
             rospy.logerr(f"Failed to send reset command: {str(e)}")
 

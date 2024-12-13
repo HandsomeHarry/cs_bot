@@ -29,10 +29,6 @@ import yaml
 
 class CSRobotController:
     def __init__(self):
-        # Initialize the ROS node only if it hasn't been initialized yet
-        if not rospy.core.is_initialized():
-            rospy.init_node('cs_robot_controller', anonymous=True)
-
         # robot state
         self.robot_name = rospy.get_param('~robot_name', 'robot1')
         self.health = 100
@@ -46,6 +42,7 @@ class CSRobotController:
         self.bridge = CvBridge()
         self.tf_listener = tf.TransformListener()
         self.turn_speed = 0.00075
+        self.is_at_spawn = True
 
         #game state stuff
         self.dead_players = []
@@ -73,7 +70,7 @@ class CSRobotController:
         else: # terrorist
             self.enemy_colors = ['blue','dark_blue']
 
-        self.enemy_detection_threshold = 1500  # amount of pixels needed to detect
+        self.enemy_detection_threshold = 2000  # amount of pixels needed to detect
 
         # tactical parameters
         self.target_position = None
@@ -81,20 +78,19 @@ class CSRobotController:
         self.state = "SEARCHING"  # SEARCHING, ENGAGING, AVOIDING
 
         # publishers
-        self.cmd_vel_pub = rospy.Publisher('/{}/cmd_vel'.format(self.robot_name), Twist, queue_size=1)
         self.state_pub = rospy.Publisher('/game/robot_states', RobotStateMsg, queue_size=1)
         self.shoot_pub = rospy.Publisher('/game/shoot', CombatEvent, queue_size=1)
+        self.cmd_vel_pub = rospy.Publisher('/{}/cmd_vel'.format(self.robot_name), Twist, queue_size=10)
 
         # subscribers
         rospy.Subscriber('/{}/camera/image_raw'.format(self.robot_name), Image, self.process_image)
         rospy.Subscriber('/{}/robot_state'.format(self.robot_name), RobotStateMsg, self.update_state) # robots own status
         rospy.Subscriber('/game/state', GameStateMsg, self.game_state_callback)
 
+
         # Add move_base client
         self.move_base = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-        self.move_base.wait_for_server()
-        rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
-
+        # self.move_base.wait_for_server()
         # rospy.Timer(rospy.Duration(0.1), self.publish_state) # publish state 10/s
 
         # Add patrol state variables
@@ -119,6 +115,12 @@ class CSRobotController:
         self.twist.angular.x = 0.0
         self.twist.angular.y = 0.0
         self.twist.angular.z = 0.0
+
+        rospy.loginfo("%s initialized as %s" % (self.robot_name, self.team))
+
+        print(self.patrol_points)
+        print(self.bomb_sites)
+        print(self.spawn_points)
 
     def update_state(self, msg):
         if self.robot_name == msg.robot_name:
@@ -151,6 +153,7 @@ class CSRobotController:
                 Point(x=point['x'], y=point['y'], z=point['z'])
                 for point in game_config.get('patrol_points', [])
             ])
+            rospy.loginfo(self.patrol_points)
 
         except Exception as e:
             rospy.logerr(f"Failed to load game config: {str(e)}")
@@ -168,13 +171,14 @@ class CSRobotController:
                     enemy_mask = self.get_color_mask(hsv, enemy_color)
                     moments = cv2.moments(enemy_mask)
                     if moments['m00'] > self.enemy_detection_threshold: # enemy spotted
+                        print("%s: enemy spotted - found %s" % (self.robot_name, enemy_color))
                         self.enemy_spotted = True
                         cx = int(moments['m10'] / moments['m00'])
                         cy = int(moments['m01'] / moments['m00'])
                         
                         center_x = frame.shape[1] // 2
                         offset = cx - center_x
-                        threshold = frame.shape[1] * 0.02  # 2% frame width
+                        threshold = frame.shape[1] * 0.03  # 3% frame width
                         
                         if abs(offset) > threshold:
                             self.twist.angular.z = -self.turn_speed * offset  # Negative for right, positive for left
@@ -183,6 +187,10 @@ class CSRobotController:
                             self.twist.angular.z = 0.0  # Stop turning
                             self.twist.linear.x = 0.0
                             self.shoot(enemy_robot)
+
+                        self.cmd_vel_pub.publish(self.twist)
+                        cv2.imshow("Camera View", frame)
+                        cv2.waitKey(1)
                         return
             self.enemy_spotted = False
         except Exception as e:
@@ -229,12 +237,14 @@ class CSRobotController:
 
     def shoot(self, enemy_robot):
         """shooting"""
-        damage_dealt = self.gun.shoot()
+        print('attempting to shoot!')
+        damage_dealt = self.weapon.shoot()
         if damage_dealt > 0:
             msg = CombatEvent()
             msg.attacker_name = self.robot_name
             msg.target_name = enemy_robot
             msg.damage_dealt = damage_dealt
+            print('shot!')
             self.shoot_pub.publish(msg)
 
     def publish_state(self):
@@ -244,7 +254,6 @@ class CSRobotController:
         msg.team = self.team
         msg.health = self.health
         msg.is_alive = self.is_alive
-        msg.weapon_type = self.weapon.name
         msg.is_planting = self.is_planting
         msg.is_defusing = self.is_defusing
         self.state_pub.publish(msg)
@@ -252,7 +261,7 @@ class CSRobotController:
     def start_patrol(self):
         """Initialize patrol sequence"""
         if not self.patrol_points:
-            rospy.logwarn(f"{self.robot_name}: No patrol points available")
+            #rospy.logwarn(f"{self.robot_name}: No patrol points available")
             return
             
         self.current_patrol_index = 0
@@ -269,6 +278,8 @@ class CSRobotController:
     def cancel_movement(self):
         """stay put"""
         self.move_base.cancel_goal()
+        if self.is_patrolling:
+            self.is_patrolling = False
 
     def patrol_goal_done_callback(self, status, result):
         """Callback for when a patrol point is reached"""
@@ -287,16 +298,23 @@ class CSRobotController:
             self.publish_state()
             if self.game_phase == "PREP":
                 self.is_patrolling = False
-                self.move_to_position(self.spawn_points[self.team])
+                if not self.is_at_spawn:
+                    self.move_to_position(self.spawn_points[self.team])
+                    for spawn_point in self.spawn_points[self.team]:
+                        if self.is_near_position(spawn_point, threshold=0.3):
+                            self.is_at_spawn = True
+                            self.cancel_movement()
+
                 
             elif self.game_phase == "ACTIVE":
-                if self.team == "CT" and not self.is_patrolling:
+                self.is_at_spawn = False
+                if self.team == "CT":
                     self.is_patrolling = True
                     self.start_patrol()
                 else: # T
-                    self.move_to_position(self.bomb_location)
+                    self.move_to_position(random.choice(self.bomb_sites))
                 
-            elif self.game_phase == "BOMB_PLANTED":
+            elif self.game_phano se == "BOMB_PLANTED":
                 if self.team == "CT":
                     self.is_patrolling = False
                     self.move_to_position(self.bomb_location)
@@ -311,7 +329,10 @@ class CSRobotController:
         # Create move_base goal
         state = self.move_base.get_state()
         if state == GoalStatus.PENDING or state == GoalStatus.ACTIVE:
+            rospy.loginfo("%s is ALREADY moving to :%s" % (self.robot_name, target))
             return # only make new goals
+
+        print("%s moving to :%s" % (self.robot_name, target))
 
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
@@ -334,6 +355,9 @@ class CSRobotController:
 
 if __name__ == '__main__':
     try:
+        rospy.init_node('robot_controller')
         controller = CSRobotController()
+        controller.run()
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass
