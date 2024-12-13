@@ -144,6 +144,8 @@ class CSRobotController:
 
     def process_image(self, image):
         """process image and detect enemy robots"""
+        if self.game_phase == "PREP" or not self.is_alive:
+            return
         try:
             frame = self.bridge.imgmsg_to_cv2(image, desired_encoding='bgr8')
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -309,14 +311,6 @@ class CSRobotController:
             self.move_base.send_goal(goal, done_cb=self.patrol_goal_done_callback)
         else:
             self.move_base.send_goal(goal)
-
-    def assign_spawn_point(self):
-        """Assign a spawn point based on team and robot number"""
-        robot_num = int(self.robot_name[-1]) - 1  # Extract number from robot name
-        team_spawns = self.spawn_points[self.team]
-        spawn_idx = robot_num % len(team_spawns)
-        return team_spawns[spawn_idx]
-
 
     def is_near_position(self, target_pos, threshold=0.5):
         """Check if robot is near the bomb"""
