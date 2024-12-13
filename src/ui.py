@@ -22,7 +22,12 @@ class GameUI(QtWidgets.QWidget):
         
         # Subscribe to game state and robot states
         rospy.Subscriber('/game/state', GameStateMsg, self.update_game_state)
-        rospy.Subscriber('/game/robot_states', RobotStateMsg, self.robot_state_callback)
+        
+        # Subscribe to individual robot states
+        rospy.Subscriber('/roba/robot_state', RobotStateMsg, self.robot_state_callback)
+        rospy.Subscriber('/robb/robot_state', RobotStateMsg, self.robot_state_callback)
+        rospy.Subscriber('/robc/robot_state', RobotStateMsg, self.robot_state_callback)
+        rospy.Subscriber('/rafael/robot_state', RobotStateMsg, self.robot_state_callback)
         
         # Timer for UI updates
         self.timer = QtCore.QTimer()
@@ -30,7 +35,7 @@ class GameUI(QtWidgets.QWidget):
         self.timer.start(100)  # Update every 100ms
 
     def initUI(self):
-        self.setWindowTitle('CS Bot Game Status')
+        self.setWindowTitle('CS Bot Control panel')
         layout = QtWidgets.QVBoxLayout()
         
         # Score and round section
@@ -116,24 +121,31 @@ class GameUI(QtWidgets.QWidget):
                 # Update label
                 label = getattr(self, f'robot_label_{robot_name}')
                 team = state.team
-                health_color = "green" if state.health > 50 else "orange" if state.health > 25 else "red"
-                alive_status = "ALIVE" if state.is_alive else "DEAD"
+                health = getattr(state, 'health', 0)  # Default to 0 if not found
+                weapon = getattr(state, 'weapon_type', 'None')  # Default to None if not found
+                
+                # Color coding for health
+                health_color = "green" if health > 50 else "orange" if health > 25 else "red"
+                alive_status = "ALIVE" if getattr(state, 'is_alive', False) else "DEAD"
                 time_diff = (current_time - last_update).to_sec()
                 
                 # Special states
                 special_status = []
-                if state.is_planting:
+                if getattr(state, 'is_planting', False):
                     special_status.append("PLANTING")
-                if state.is_defusing:
+                if getattr(state, 'is_defusing', False):
                     special_status.append("DEFUSING")
                 status_str = f" ({', '.join(special_status)})" if special_status else ""
+                
+                # Debug print to see what fields are available
+                rospy.loginfo(f"Robot state fields: {dir(state)}")
                 
                 label.setText(
                     f'<div style="margin:5px; padding:5px; border:1px solid gray;">'
                     f'<b>{robot_name}</b> ({team})<br>'
-                    f'Health: <span style="color:{health_color}">{state.health}</span><br>'
+                    f'Health: <span style="color:{health_color}">{health}</span><br>'
                     f'Status: {alive_status}{status_str}<br>'
-                    f'Weapon: {state.weapon_type}<br>'
+                    f'Weapon: {weapon}<br>'
                     f'<span style="color:gray; font-size:smaller">Updated: {time_diff:.1f}s ago</span>'
                     f'</div>'
                 )

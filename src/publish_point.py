@@ -2,7 +2,7 @@
 
 # run the following commands in the terminal to start the map server and rviz
 #rosrun map_server map_server maps/world4.yaml
-#rosrun rviz rviz -d path/to/your_rviz_config.rviz
+#rosrun rviz rviz -d rviz_config.rviz
 #!/usr/bin/env python3
 
 import rospy

@@ -52,8 +52,8 @@ class MapManager:
             
             # Extract bomb site corners
             self.bomb_sites = [
-                Point(**game_config['bomb_site']['corner1']),
-                Point(**game_config['bomb_site']['corner2'])
+                Point(**game_config['bomb_site']['site1']),
+                Point(**game_config['bomb_site']['site2'])
             ]
             
             # Extract patrol points

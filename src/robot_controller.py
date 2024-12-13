@@ -29,6 +29,15 @@ import yaml
 
 class CSRobotController:
     def __init__(self):
+        # Initialize twist message first, before any callbacks might occur
+        self.twist = Twist()
+        self.twist.linear.x = 0.0
+        self.twist.linear.y = 0.0
+        self.twist.linear.z = 0.0
+        self.twist.angular.x = 0.0
+        self.twist.angular.y = 0.0
+        self.twist.angular.z = 0.0
+
         # Initialize the ROS node only if it hasn't been initialized yet
         if not rospy.core.is_initialized():
             rospy.init_node('cs_robot_controller', anonymous=True)
@@ -131,10 +140,10 @@ class CSRobotController:
                 for team, points in game_config['spawn_points'].items()
             }
             
-            # Extract bomb site corners
+            # Extract bomb site loccations
             self.bomb_sites = [
-                Point(**game_config['bomb_site']['corner1']),
-                Point(**game_config['bomb_site']['corner2'])
+                Point(**game_config['bomb_site']['site1']),
+                Point(**game_config['bomb_site']['site2'])
             ]
             
             # Extract patrol points

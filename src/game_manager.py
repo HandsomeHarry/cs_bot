@@ -12,7 +12,7 @@ class GameManager:
         
         # game state
         self.round_time = 90
-        self.round_active = True
+        self.round_active = False
         self.bomb_planted = False
         self.bomb_time = 30
         self.bomb_location = Point()
@@ -21,7 +21,7 @@ class GameManager:
         self.publishers = {}
         self.t_win_count = 0
         self.ct_win_count = 0
-        self.round_number = 1  # Add round number tracking
+        self.round_number = 0  # Add round number tracking
         
         # publisher
         self.game_state_pub = rospy.Publisher('/game/state', GameStateMsg, queue_size=1)
