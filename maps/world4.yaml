@@ -1,4 +1,4 @@
-image: /my_ros_data/catkin_ws/src/cosi119_src/cs_bot/maps/world4.pgm
+image: world4.pgm
 resolution: 0.050000
 origin: [-10.000000, -10.000000, 0.000000]
 negate: 0

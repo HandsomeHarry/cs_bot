@@ -6,8 +6,8 @@
   <gazebo reference="base_link">
     <visual>
       <material>
-        <ambient>0.55 0 0 1</ambient>   <!-- Dark red with full opacity -->
-        <diffuse>0.55 0 0 1</diffuse>   <!-- Dark red with full opacity -->
+        <ambient>0 0 0.5 1</ambient>   <!-- Dark red with full opacity -->
+        <diffuse>0 0 0.5 1</diffuse>   <!-- Dark red with full opacity -->
       </material>
     </visual>
   </gazebo>
@@ -56,10 +56,10 @@
     <plugin name="turtlebot3_burger_controller" filename="libgazebo_ros_diff_drive.so">
       <commandTopic>cmd_vel</commandTopic>
       <odometryTopic>odom</odometryTopic>
-      <odometryFrame>robc/odom</odometryFrame>
+      <odometryFrame>rafael/odom</odometryFrame>
       <odometrySource>world</odometrySource>
       <publishOdomTF>true</publishOdomTF>
-      <robotBaseFrame>robc/base_footprint</robotBaseFrame>
+      <robotBaseFrame>rafael/base_footprint</robotBaseFrame>
       <publishWheelTF>false</publishWheelTF>
       <publishTf>true</publishTf>
       <publishWheelJointState>true</publishWheelJointState>
@@ -131,8 +131,8 @@
         </noise>
       </ray>
       <plugin name="gazebo_ros_lds_lfcd_controller" filename="libgazebo_ros_laser.so">
-        <topicName>/robc/scan</topicName>
-        <frameName>robc/base_scan</frameName>
+        <topicName>/rafael/scan</topicName>
+        <frameName>rafael/base_scan</frameName>
       </plugin>
     </sensor>
   </gazebo>

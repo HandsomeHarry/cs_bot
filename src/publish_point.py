@@ -118,6 +118,8 @@ if __name__ == '__main__':
         print("Shutting down...")
     finally:
         # Terminate subprocesses
+        print("Shutting down in 3 secs...")
+        rospy.sleep(3)
         if 'map_server_proc' in locals():
             os.kill(map_server_proc.pid, signal.SIGINT)
         if 'rviz_proc' in locals():

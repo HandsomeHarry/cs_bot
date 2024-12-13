@@ -22,8 +22,10 @@ import os
 import time
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from actionlib_msgs.msg import GoalStatus
+from std_msgs.msg import String
 from gun import Gun
 from map_manager import MapManager
+import yaml
 
 class CSRobotController:
     def __init__(self):
@@ -50,12 +52,13 @@ class CSRobotController:
         self.round_time_remaining = 90
         self.bomb_being_planted = False
         self.bomb_location = None
+        self.game_phase = "PREP"
 
         self.color_to_robot = { # hard coded in for sake of simplicity - can change
-        'blue': 'robot1',
-        'red': 'robot2',
-        'dark_blue': 'robot3',
-        'dark_red': 'robot4'
+        'blue': 'roba',
+        'red': 'robb',
+        'dark_blue': 'robc',
+        'dark_red': 'rafael'
         }
 
         self.color_ranges = {
@@ -323,6 +326,5 @@ class CSRobotController:
 if __name__ == '__main__':
     try:
         controller = CSRobotController()
-        controller.run()
     except rospy.ROSInterruptException:
         pass

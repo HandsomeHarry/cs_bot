@@ -45,7 +45,7 @@
     <arg name="model" value="$(arg model)"/>
   </include>
   
-  <!--BEGIN run nodes-->
+  <!-- run nodes-->
   <node name="run_game_manager" pkg="cs_bot" type="game_manager.py" respawn="false" output="screen"></node>
 
   <node name="run_roba" pkg="cs_bot" type="robot_controller.py" respawn="false" output="screen">
