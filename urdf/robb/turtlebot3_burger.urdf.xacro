@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="turtlebot3_burger" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find robot_convoy)/urdf/common_properties.xacro"/>
-  <xacro:include filename="$(find robot_convoy)/urdf/robb/turtlebot3_burger.gazebo.xacro"/>
+  <xacro:include filename="$(find cs_bot)/urdf/common_properties.xacro"/>
+  <xacro:include filename="$(find cs_bot)/urdf/robb/turtlebot3_burger.gazebo.xacro"/>
 
   <!-- Camera Gazebo plugin configuration -->
   <link name="camera_link">
