@@ -55,7 +55,7 @@ class GameUI(QtWidgets.QWidget):
         game_layout.addWidget(self.reset_button)
         
         # Existing game state widgets
-        self.round_timer = QtWidgets.QLabel('Round Timer: 90s')
+        self.round_timer = QtWidgets.QLabel('Round Timer: Not started')
         self.game_phase = QtWidgets.QLabel('Phase: PREP')
         self.bomb_status = QtWidgets.QLabel('Bomb: Not Planted')
         game_layout.addWidget(self.round_timer)
@@ -98,7 +98,7 @@ class GameUI(QtWidgets.QWidget):
                 self.bomb_status.setText(f'Bomb: {bomb_status}')
                 
                 # Update score and round
-                self.round_number.setText(f'ROUND {self.round_number}')
+                self.round_number.setText(f' ROUND {self.current_game_state.round_number}')
                 self.score_label.setText(f'CT {self.current_game_state.ct_score} : {self.current_game_state.t_score} T')
             
             # Update robot states
