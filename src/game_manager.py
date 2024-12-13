@@ -157,7 +157,7 @@ class GameManager:
 
         rospy.loginfo("starting round...")
 
-        rate_timer = rospy.Rate(1.75)  # 1 Hz for self.timer_callback
+        rate_timer = rospy.Rate(1.85)  # 1 Hz for self.timer_callback
         rate_publisher = rospy.Rate(10)  # 10 Hz for self.publish_game_state
 
         while self.round_active and not rospy.is_shutdown():

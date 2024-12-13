@@ -52,25 +52,19 @@ class CSRobotController:
         self.game_phase = "PREP"
 
         self.color_to_robot = { # hard coded in for sake of simplicity - can change
-        'blue': 'roba',
-        'red': 'robb',
-        'dark_blue': 'robc',
-        'dark_red': 'rafael'
+        'purple': 'rafael',
         }
 
         self.color_ranges = {
-            'blue': ((115, 225, 225), (125, 255, 255)),    
-            'dark_blue': ((115, 225, 35), (125, 255, 55)),  
-            'red': ((0, 225, 235), (5, 255, 255)),    
-            'dark_red': ((0, 225, 35), (5, 255, 55))       
+            'purple': ((130, 50, 150),(160, 255, 255)),    
         }
 
         if self.team == 'CT':
-            self.enemy_colors = ['red','dark_red']
+            self.enemy_colors = ['purple']
         else: # terrorist
             self.enemy_colors = ['blue','dark_blue']
 
-        self.enemy_detection_threshold = 2000  # amount of pixels needed to detect
+        self.enemy_detection_threshold = 1000  # amount of pixels needed to detect
 
         # tactical parameters
         self.target_position = None
