@@ -58,7 +58,7 @@ class CTNormie(CSRobotController):
         rospy.loginfo(f"Exiting state: {self.state}")
 
     def is_enemy_visible(self):
-        return random() > 0.5  # Placeholder for real detection
+        return self.enemy_spotted
 
     def publish_state(self):
         rospy.loginfo(f"Current state: {self.state}")
