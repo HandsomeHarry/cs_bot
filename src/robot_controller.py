@@ -29,15 +29,6 @@ import yaml
 
 class CSRobotController:
     def __init__(self):
-        # Initialize twist message first, before any callbacks might occur
-        self.twist = Twist()
-        self.twist.linear.x = 0.0
-        self.twist.linear.y = 0.0
-        self.twist.linear.z = 0.0
-        self.twist.angular.x = 0.0
-        self.twist.angular.y = 0.0
-        self.twist.angular.z = 0.0
-
         # Initialize the ROS node only if it hasn't been initialized yet
         if not rospy.core.is_initialized():
             rospy.init_node('cs_robot_controller', anonymous=True)
@@ -119,6 +110,15 @@ class CSRobotController:
 
         # Add new publisher for bomb events
         self.bomb_event_pub = rospy.Publisher('/game/bomb_events', String, queue_size=1)
+
+        # Initialize twist message
+        self.twist = Twist()
+        self.twist.linear.x = 0.0
+        self.twist.linear.y = 0.0
+        self.twist.linear.z = 0.0
+        self.twist.angular.x = 0.0
+        self.twist.angular.y = 0.0
+        self.twist.angular.z = 0.0
 
     def update_state(self, msg):
         if self.robot_name == msg.robot_name:
